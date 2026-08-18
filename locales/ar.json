@@ -16,5 +16,8 @@
     "product": {
       "add_to_cart": "اضف الي السلة"
     }
+  },
+  "breadcrumbs": {
+    "home": "الرئيسية"
   }
 }
