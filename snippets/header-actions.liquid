@@ -63,6 +63,38 @@
   {% endif %}
   {{- block.shopify_attributes -}}
 >
+  {%- if localization.available_languages.size > 1 -%}
+    <div class="header-actions__lang-wrapper">
+      <localization-form-component>
+        {%- form 'localization', id: 'HeaderMobileLanguageForm', class: 'header-actions__lang-form' -%}
+          <div class="header-actions__lang-select-container">
+            <select
+              name="locale_code"
+              class="header-actions__lang-select"
+              onchange="this.form.submit()"
+              aria-label="{{ 'accessibility.localization_region_and_language' | t }}"
+            >
+              {%- for language in localization.available_languages -%}
+                <option
+                  value="{{ language.iso_code }}"
+                  {% if language.iso_code == localization.language.iso_code %}selected{% endif %}
+                >
+                  {{ language.endonym_name | default: language.name | capitalize }}
+                </option>
+              {%- endfor -%}
+            </select>
+            <span class="header-actions__lang-badge">
+              {% if localization.language.iso_code contains 'ar' %}AR{% else %}EN{% endif %}
+            </span>
+            <span class="svg-wrapper header-actions__lang-caret" aria-hidden="true">
+              {{- 'icon-caret.svg' | inline_asset_content -}}
+            </span>
+          </div>
+        {%- endform -%}
+      </localization-form-component>
+    </div>
+  {%- endif -%}
+
   {% if shop.customer_accounts_enabled %}
     {% liquid
       assign account_actions_style = ''
@@ -376,6 +408,68 @@
     cart-icon.header-actions__cart-icon--text:has(.cart-bubble__text-count:empty) {
       --cart-bubble-right: 2.5px;
     }
+  }
+
+  .header-actions__lang-wrapper {
+    display: flex;
+    align-items: center;
+    margin-inline-end: var(--gap-xs);
+  }
+
+  .header-actions__lang-select-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--color-background);
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
+    border-radius: var(--style-border-radius-buttons-primary, 20px);
+    padding: 4px 22px 4px 10px;
+    cursor: pointer;
+    transition: border-color var(--animation-speed) var(--animation-easing);
+  }
+
+  .header-actions__lang-select-container:hover {
+    border-color: rgb(var(--color-foreground-rgb) / 0.4);
+  }
+
+  .header-actions__lang-select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .header-actions__lang-badge {
+    font-size: var(--font-size--xs, 0.75rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-foreground);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .header-actions__lang-caret {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    height: 10px;
+    color: var(--color-foreground);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-actions__lang-caret svg {
+    width: 10px;
+    height: 10px;
   }
 
   .header-actions__text {
