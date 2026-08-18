@@ -389,7 +389,12 @@
                 {{ routine_product.title }}
               </a>
               <div class="routine-card__price">
-                {{ routine_product.price | money }}
+                {% if routine_product.compare_at_price > routine_product.price %}
+                  <s class="routine-card__compare-price">{{ routine_product.compare_at_price | money }}</s>
+                  <span class="routine-card__sale-price">{{ routine_product.price | money }}</span>
+                {% else %}
+                  {{ routine_product.price | money }}
+                {% endif %}
               </div>
             </div>
             <button
@@ -647,27 +652,42 @@
   }
 
   .routine-card__price {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333333;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .routine-card__compare-price {
+    color: #999999;
     font-size: 0.8rem;
-    font-weight: 500;
-    color: #666666;
+    text-decoration: line-through;
+  }
+
+  .routine-card__sale-price {
+    color: #800020;
+    font-weight: 700;
   }
 
   .routine-card__btn {
     flex-shrink: 0;
-    padding: 8px 16px;
-    font-size: 0.8rem;
+    min-width: 80px;
+    padding: 10px 20px;
+    font-size: 0.85rem;
     font-weight: 700;
     color: #ffffff;
     background: #800020;
     border: none;
-    border-radius: 20px;
+    border-radius: 24px;
     text-decoration: none;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    box-shadow: 0 2px 6px rgba(128, 0, 32, 0.2);
+    box-shadow: 0 3px 8px rgba(128, 0, 32, 0.25);
     transition: all 0.2s ease;
   }
 
@@ -732,6 +752,20 @@
       });
       if (sectionIds.length) formData.append('sections', sectionIds.join(','));
 
+      var deferredPromise = null;
+      var createPromiseFn = window.ShopifyEvents?.CartLinesUpdateEvent?.createPromise || window.CartLinesUpdateEvent?.createPromise;
+      var EventClass = window.ShopifyEvents?.CartLinesUpdateEvent || window.CartLinesUpdateEvent;
+
+      if (createPromiseFn && EventClass) {
+        deferredPromise = createPromiseFn();
+        document.dispatchEvent(new EventClass({
+          action: 'add',
+          context: 'cart',
+          lines: [{ merchandiseId: variantId, quantity: 1 }],
+          promise: deferredPromise.promise
+        }));
+      }
+
       fetch('/cart/add.js', {
         method: 'POST',
         body: formData,
@@ -739,29 +773,44 @@
       })
       .then(function(res) { return res.json(); })
       .then(function(data) {
-        btn.classList.remove('is-loading');
-        btn.classList.add('is-added');
-        var label = btn.querySelector('[data-text-label]');
-        var origLabel = label ? label.textContent : '';
-        if (label && btn.dataset.addedText) label.textContent = btn.dataset.addedText;
+        var cartUrl = window.Theme?.routes?.cart_url || '/cart';
+        return fetch(cartUrl + '.json', { headers: { Accept: 'application/json' } })
+          .then(function(res) { return res.json(); })
+          .then(function(cartData) {
+            if (deferredPromise && EventClass && typeof EventClass.createCartFromAjaxResponse === 'function') {
+              deferredPromise.resolve({
+                cart: EventClass.createCartFromAjaxResponse(cartData),
+                detail: {
+                  sections: data.sections || {},
+                  items: cartData.items || [],
+                  itemCount: cartData.item_count || 0,
+                  source: 'routine-add',
+                  didError: false
+                }
+              });
+            }
 
-        setTimeout(function() {
-          btn.classList.remove('is-added');
-          if (label && origLabel) label.textContent = origLabel;
-          btn.disabled = false;
-        }, 1800);
+            btn.classList.remove('is-loading');
+            btn.classList.add('is-added');
+            var label = btn.querySelector('[data-text-label]');
+            var origLabel = label ? label.textContent : '';
+            if (label && btn.dataset.addedText) label.textContent = btn.dataset.addedText;
 
-        // Dispatch cart event or open drawer
-        if (window.CartLinesUpdateEvent) {
-          document.dispatchEvent(new CustomEvent('cart:updated', { detail: data }));
-        }
-        var drawer = document.querySelector('theme-drawer#cart-drawer');
-        if (drawer && typeof drawer.open === 'function') {
-          drawer.open();
-        }
+            setTimeout(function() {
+              btn.classList.remove('is-added');
+              if (label && origLabel) label.textContent = origLabel;
+              btn.disabled = false;
+            }, 1800);
+
+            var drawer = document.querySelector('theme-drawer#cart-drawer');
+            if (drawer && typeof drawer.open === 'function') {
+              drawer.open();
+            }
+          });
       })
       .catch(function(err) {
         console.error('Error adding routine product to cart:', err);
+        if (deferredPromise) deferredPromise.reject(err);
         btn.classList.remove('is-loading');
         btn.disabled = false;
       });

@@ -163,7 +163,12 @@
                                   {{ routine_prod.title }}
                                 </a>
                                 <div class="routine-card__price">
-                                  {{ routine_prod.price | money }}
+                                  {% if routine_prod.compare_at_price > routine_prod.price %}
+                                    <s class="routine-card__compare-price">{{ routine_prod.compare_at_price | money }}</s>
+                                    <span class="routine-card__sale-price">{{ routine_prod.price | money }}</span>
+                                  {% else %}
+                                    {{ routine_prod.price | money }}
+                                  {% endif %}
                                 </div>
                               </div>
                               <button
