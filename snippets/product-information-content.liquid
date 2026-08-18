@@ -88,6 +88,7 @@
 <div
   class="product-information section section--{{ content_width }} spacing-style{% if settings.background_color != blank %} color-custom-{{ section_id }}{% endif %} relative"
   style="{% render 'spacing-style', settings: settings %} --gap: {{ settings.gap }}px;"
+  {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}
   data-testid="product-information"
 >
   {% if settings.desktop_media_position == 'left' and product_has_media and request.page_type == 'product' %}
