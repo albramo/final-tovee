@@ -126,7 +126,6 @@
                         class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset"
                       >
                     <span class="menu-drawer__menu-item-inner">
-                      {%- render 'menu-link-icon', link_title: link.title -%}
                       <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: link.title %}</span>
                     </span>
                         <span class="svg-wrapper icon-plus">
@@ -170,7 +169,6 @@
                                 %}
                               {% endif %}
                               <span class="menu-drawer__menu-item-inner">
-                                {%- render 'menu-link-icon', link_title: childlink.title -%}
                                 <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: childlink.title %}</span>
                               </span>
                             </a>
@@ -196,7 +194,6 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
-                      {%- render 'menu-link-icon', link_title: link.title -%}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
@@ -236,7 +233,6 @@
                             %}
                           {% endif %}
                           <span class="menu-drawer__menu-item-inner">
-                            {%- render 'menu-link-icon', link_title: childlink.title -%}
                             <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: childlink.title %}</span>
                           </span>
                         </a>
@@ -256,7 +252,6 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
-                      {%- render 'menu-link-icon', link_title: link.title -%}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
@@ -288,7 +283,6 @@
                       on:click="header-drawer/open/submenu"
                     >
                       <span class="menu-drawer__menu-item-inner">
-                        {%- render 'menu-link-icon', link_title: link.title -%}
                       <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: link.title %}</span>
                       </span>
                       <span class="svg-wrapper icon-caret icon-caret--forward">
@@ -312,7 +306,6 @@
                               {{- 'icon-caret.svg' | inline_asset_content -}}
                             </span>
                             <span class="menu-drawer__menu-item-inner">
-                              {%- render 'menu-link-icon', link_title: link.title -%}
                           <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: link.title %}</span>
                             </span>
                           </button>
@@ -375,7 +368,6 @@
                                     %}
                                   {% endif %}
                                   <span class="menu-drawer__menu-item-inner">
-                                    {%- render 'menu-link-icon', link_title: childlink.title -%}
                                     <span class="menu-drawer__menu-item-text wrap-text">
                                       {{- childlink.title | escape -}}
                                     </span>
@@ -402,7 +394,6 @@
                                         class="menu-drawer__menu-item menu-drawer__menu-item--parent focus-inset"
                                       >
                                         <span class="menu-drawer__menu-item-inner">
-                                          {%- render 'menu-link-icon', link_title: childlink.title -%}
                                           <span class="menu-drawer__menu-item-text wrap-text">
                                             {{- childlink.title | escape -}}
                                           </span>
@@ -448,7 +439,6 @@
                                                 %}
                                               {% endif %}
                                               <span class="menu-drawer__menu-item-inner">
-                                                {%- render 'menu-link-icon', link_title: grandchildlink.title -%}
                                                 <span class="menu-drawer__menu-item-text wrap-text">
                                                   {{- grandchildlink.title | escape -}}
                                                 </span>
@@ -476,7 +466,6 @@
                                     {% endif %}
                                   >
                                     <span class="menu-drawer__menu-item-inner">
-                                      {%- render 'menu-link-icon', link_title: childlink.title -%}
                                       <span class="menu-drawer__menu-item-text wrap-text">
                                         {{- childlink.title | escape -}}
                                       </span>
@@ -519,7 +508,6 @@
                                             %}
                                           {% endif %}
                                           <span class="menu-drawer__menu-item-inner">
-                                            {%- render 'menu-link-icon', link_title: grandchildlink.title -%}
                                             <span class="menu-drawer__menu-item-text wrap-text">
                                               {{- grandchildlink.title | escape -}}
                                             </span>
@@ -601,7 +589,6 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
-                      {%- render 'menu-link-icon', link_title: link.title -%}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
