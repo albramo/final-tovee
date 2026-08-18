@@ -169,10 +169,14 @@
                               <button
                                 type="button"
                                 class="routine-card__btn"
-                                data-routine-add
+                                data-add
                                 data-variant-id="{{ variant_id }}"
+                                data-quantity="1"
+                                data-add-text="{% if request.locale.iso_code contains 'ar' %}إضافة{% else %}Add{% endif %}"
+                                data-added-text="{% if request.locale.iso_code contains 'ar' %}تمت الإضافة{% else %}Added{% endif %}"
                               >
-                                {% if request.locale.iso_code contains 'ar' %}إضافة{% else %}Add{% endif %}
+                                <span class="routine-card__spinner" aria-hidden="true"></span>
+                                <span data-text-label>{% if request.locale.iso_code contains 'ar' %}إضافة{% else %}Add{% endif %}</span>
                               </button>
                             </div>
                           {% endunless %}

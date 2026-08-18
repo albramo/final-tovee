@@ -395,10 +395,14 @@
             <button
               type="button"
               class="routine-card__btn"
-              data-routine-add
+              data-add
               data-variant-id="{{ variant_id }}"
+              data-quantity="1"
+              data-add-text="{% if request.locale.iso_code contains 'ar' %}إضافة{% else %}Add{% endif %}"
+              data-added-text="{% if request.locale.iso_code contains 'ar' %}تمت الإضافة{% else %}Added{% endif %}"
             >
-              {% if request.locale.iso_code contains 'ar' %}إضافة{% else %}Add{% endif %}
+              <span class="routine-card__spinner" aria-hidden="true"></span>
+              <span data-text-label>{% if request.locale.iso_code contains 'ar' %}إضافة{% else %}Add{% endif %}</span>
             </button>
           </div>
         {% endif %}
@@ -650,70 +654,115 @@
 
   .routine-card__btn {
     flex-shrink: 0;
-    padding: 6px 12px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #800020;
-    background: #fdf2f4;
-    border: 1px solid #f8d7da;
-    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    background: #800020;
+    border: none;
+    border-radius: 20px;
     text-decoration: none;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(128, 0, 32, 0.2);
     transition: all 0.2s ease;
   }
 
-  .routine-card__btn:hover {
-    background: #800020;
-    color: #ffffff;
-    border-color: #800020;
+  .routine-card__btn:hover:not(:disabled) {
+    background: #600018;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(128, 0, 32, 0.3);
+  }
+
+  .routine-card__btn:disabled {
+    opacity: 0.6;
+    cursor: default;
   }
 
   .routine-card__btn.is-added {
-    background: #22c55e;
-    color: #ffffff;
-    border-color: #22c55e;
+    background: #22c55e !important;
+    color: #ffffff !important;
+  }
+
+  .routine-card__spinner {
+    display: none;
+    width: 12px;
+    height: 12px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: routine-spin 0.7s linear infinite;
+  }
+
+  .routine-card__btn.is-loading .routine-card__spinner {
+    display: inline-block;
+  }
+
+  .routine-card__btn.is-loading [data-text-label] {
+    display: none;
+  }
+
+  @keyframes routine-spin {
+    to { transform: rotate(360deg); }
   }
 </style>
 
 <script>
   (function() {
     document.addEventListener('click', function(e) {
-      var btn = e.target.closest('[data-routine-add]');
-      if (!btn) return;
+      var btn = e.target.closest('.routine-card__btn[data-add]');
+      if (!btn || btn.disabled) return;
       e.preventDefault();
       var variantId = btn.dataset.variantId;
       if (!variantId) return;
 
       btn.disabled = true;
-      var origText = btn.textContent;
-      btn.textContent = '...';
+      btn.classList.add('is-loading');
+
+      var formData = new FormData();
+      formData.set('id', variantId);
+      formData.set('quantity', '1');
+
+      var sectionIds = [];
+      document.querySelectorAll('cart-items-component').forEach(function(el) {
+        if (el.dataset.sectionId) sectionIds.push(el.dataset.sectionId);
+      });
+      if (sectionIds.length) formData.append('sections', sectionIds.join(','));
 
       fetch('/cart/add.js', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: variantId, quantity: 1 })
+        body: formData,
+        headers: { Accept: 'application/json' }
       })
       .then(function(res) { return res.json(); })
       .then(function(data) {
+        btn.classList.remove('is-loading');
         btn.classList.add('is-added');
-        btn.textContent = '✓';
+        var label = btn.querySelector('[data-text-label]');
+        var origLabel = label ? label.textContent : '';
+        if (label && btn.dataset.addedText) label.textContent = btn.dataset.addedText;
+
         setTimeout(function() {
           btn.classList.remove('is-added');
-          btn.textContent = origText;
+          if (label && origLabel) label.textContent = origLabel;
           btn.disabled = false;
-        }, 2000);
+        }, 1800);
 
-        // Open cart drawer if available
+        // Dispatch cart event or open drawer
+        if (window.CartLinesUpdateEvent) {
+          document.dispatchEvent(new CustomEvent('cart:updated', { detail: data }));
+        }
         var drawer = document.querySelector('theme-drawer#cart-drawer');
         if (drawer && typeof drawer.open === 'function') {
           drawer.open();
-        } else {
-          document.dispatchEvent(new CustomEvent('cart:updated'));
         }
       })
       .catch(function(err) {
-        console.error('Error adding to cart:', err);
-        btn.textContent = origText;
+        console.error('Error adding routine product to cart:', err);
+        btn.classList.remove('is-loading');
         btn.disabled = false;
       });
     });
