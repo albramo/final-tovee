@@ -1,0 +1,130 @@
+{%- doc -%}
+  Shared quantity selector styles used by product forms, cart, quick order list,
+  and quick-add-capable product surfaces.
+
+  @example
+  {% render 'quantity-selector-styles' %}
+{%- enddoc -%}
+
+{% stylesheet %}
+  /* Quantity selector */
+  .quantity-selector {
+    --quantity-selector-width: 130px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--color-input-text);
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-radius: 25px;
+    flex: 1 1 auto;
+    align-self: stretch;
+    overflow: hidden;
+    height: 45px;
+  }
+
+  .product-form-buttons:has(.add-to-cart-button.button-secondary) .quantity-selector {
+    border-radius: 25px;
+  }
+
+  .quantity-selector :is(.quantity-minus, .quantity-plus) {
+    /* Unset button styles */
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    width: var(--minimum-touch-target);
+    height: var(--minimum-touch-target);
+    flex-shrink: 0;
+    color: var(--color-input-text);
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    font-size: inherit !important;
+    line-height: 1 !important;
+  }
+
+  .quantity-selector .quantity-minus {
+    border-radius: 25px 0 0 25px;
+    border: none;
+    border-right: 1px solid #cccccc;
+  }
+
+  .quantity-selector .quantity-plus {
+    border-radius: 0 25px 25px 0;
+    border: none;
+    border-left: 1px solid #cccccc;
+  }
+
+  .product-details .quantity-selector,
+  .quick-add-modal .quantity-selector {
+    border-radius: 25px;
+  }
+
+  .product-details .quantity-selector .quantity-minus,
+  .quick-add-modal .quantity-selector .quantity-minus {
+    border-radius: 25px 0 0 25px;
+  }
+
+  .product-details .quantity-selector .quantity-plus,
+  .quick-add-modal .quantity-selector .quantity-plus {
+    border-radius: 0 25px 25px 0;
+  }
+
+  .quantity-selector .svg-wrapper {
+    transition: transform var(--animation-speed) var(--animation-easing);
+  }
+
+  .quantity-selector svg {
+    width: var(--icon-size-xs);
+    height: var(--icon-size-xs);
+  }
+
+  :is(.quantity-minus, .quantity-plus):active .svg-wrapper {
+    transform: scale(0.9);
+  }
+
+  .quantity-selector input[type='number'] {
+    margin: 0;
+    text-align: center;
+    border: none;
+    appearance: none;
+    max-width: calc(var(--quantity-selector-width) - var(--minimum-touch-target) * 2);
+    border-radius: 0;
+    color: var(--color-input-text);
+    background-color: transparent;
+    border-left: 1px solid #cccccc;
+    border-right: 1px solid #cccccc;
+    height: 100%;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  /* Chrome, Safari, Edge, Opera */
+  .quantity-selector input[type='number']::-webkit-inner-spin-button,
+  .quantity-selector input[type='number']::-webkit-outer-spin-button {
+    appearance: none;
+  }
+
+  /* Firefox */
+  .quantity-selector input[type='number'] {
+    appearance: textfield;
+  }
+
+  /* Hover gray background on any quantity selector part */
+  .quantity-selector .quantity-minus:hover,
+  .quantity-selector .quantity-plus:hover,
+  .quantity-selector input[type='number']:hover {
+    background-color: #e8e8e8 !important;
+  }
+
+  .quantity-selector .quantity-minus:hover,
+  .quantity-selector .quantity-plus:hover {
+    color: var(--color-input-text);
+  }
+{% endstylesheet %}

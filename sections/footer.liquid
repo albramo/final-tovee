@@ -1,0 +1,580 @@
+
+
+{% liquid
+  if section.settings.background_color != blank
+    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id
+  endif
+%}
+
+<div
+  class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+></div>
+<div
+  class="section section--{{ section.settings.section_width }}{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
+>
+  {% liquid
+    assign total_blocks = section.blocks.size
+
+    # Grid layout calculations
+    assign grid_columns = total_blocks | at_most: 4
+
+    # Calculate last row counts using modulo arithmetic
+    # last_row_count = (total_blocks - 1) % N + 1
+    assign last_row_count = total_blocks | minus: 1 | modulo: 4 | plus: 1
+    assign tablet_last_row_count = total_blocks | minus: 1 | modulo: 2 | plus: 1
+
+    # Check if there are orphaned elements (single item in last row)
+    assign has_isolated_grid_item_desktop = false
+    assign has_isolated_grid_item_tablet = false
+
+    if total_blocks > 4 and last_row_count == 1
+      assign has_isolated_grid_item_desktop = true
+    endif
+
+    if total_blocks == 5
+      assign has_isolated_grid_item_tablet = true
+    endif
+  %}
+  <div
+    class="
+      footer-content
+      spacing-style
+      {% if has_isolated_grid_item_desktop %}footer-content--isolated-grid-item-desktop{% endif %}
+      {% if has_isolated_grid_item_tablet %}footer-content--isolated-grid-item-tablet{% endif %}
+    "
+    style="
+      {%  render 'spacing-style', settings: section.settings %}
+      --footer-gap: {{ section.settings.gap }}px;
+      --grid-columns: {{ grid_columns }};
+      --last-row-count: {{ last_row_count }};
+      --tablet-last-row-count: {{ tablet_last_row_count }};
+    "
+  >
+    {% content_for 'blocks' %}
+  </div>
+</div>
+
+<script>
+  (function() {
+    var PLUS_ICON_SVG =
+      '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<path class="vertical" d="M2.75 7H11.25" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linecap="round"/>' +
+      '<path class="horizontal" d="M7 2.75L7 11.25" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linecap="round"/>' +
+      '</svg>';
+
+    function getColumnHeading(el) {
+      var heading = el.querySelector('.footer-policy-column__heading, h1, h2, h3, h4, h5, h6, .menu__heading__default, .email-signup__heading');
+      if (heading && heading.textContent.trim()) {
+        return heading.textContent.trim();
+      }
+      return null;
+    }
+
+    function hideOriginalHeading(el) {
+      var heading = el.querySelector('.footer-policy-column__heading, h1, h2, h3, h4, h5, h6, .menu__heading__default, .email-signup__heading');
+      if (heading) {
+        heading.style.display = 'none';
+      }
+    }
+
+    function showOriginalHeading(el) {
+      var heading = el.querySelector('.footer-policy-column__heading, h1, h2, h3, h4, h5, h6, .menu__heading__default, .email-signup__heading');
+      if (heading) {
+        heading.style.display = '';
+      }
+    }
+
+    function isMobile() {
+      return window.matchMedia('(max-width: 749px)').matches;
+    }
+
+    function makeCollapsible(col) {
+      if (col.dataset.footerCollapsible) return;
+
+      var title = getColumnHeading(col);
+      if (!title) return;
+
+      hideOriginalHeading(col);
+
+      var details = document.createElement('details');
+      details.className = 'details product-tabs__mobile-details';
+      details.dataset.testid = 'footer-collapsible-details';
+
+      var summary = document.createElement('summary');
+      summary.className = 'details__header';
+
+      var heading = document.createElement('span');
+      heading.className = 'details__heading';
+      heading.textContent = title;
+
+      var iconWrapper = document.createElement('span');
+      iconWrapper.className = 'svg-wrapper icon-plus';
+      iconWrapper.setAttribute('aria-hidden', 'true');
+      iconWrapper.innerHTML = PLUS_ICON_SVG;
+
+      summary.appendChild(heading);
+      summary.appendChild(iconWrapper);
+
+      var content = document.createElement('div');
+      content.className = 'details-content';
+
+      while (col.firstChild) {
+        content.appendChild(col.firstChild);
+      }
+
+      details.appendChild(summary);
+      details.appendChild(content);
+
+      col.appendChild(details);
+      col.classList.add('footer-column--collapsible');
+      col.dataset.footerCollapsible = 'true';
+    }
+
+    function undoCollapsible(col) {
+      var details = col.querySelector(':scope > .details.product-tabs__mobile-details');
+      if (!details) return;
+
+      var content = details.querySelector(':scope > .details-content');
+      while (content && content.firstChild) {
+        col.appendChild(content.firstChild);
+      }
+
+      details.remove();
+      col.classList.remove('footer-column--collapsible');
+      delete col.dataset.footerCollapsible;
+      showOriginalHeading(col);
+    }
+
+    function buildToggles() {
+      var columns = document.querySelectorAll('.footer-content > *');
+      columns.forEach(function(col, index) {
+        if (index === 0) return;
+
+        if (isMobile()) {
+          makeCollapsible(col);
+        } else {
+          undoCollapsible(col);
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', buildToggles);
+    } else {
+      buildToggles();
+    }
+
+    window.addEventListener('resize', buildToggles);
+  })();
+</script>
+
+{% stylesheet %}
+  .footer-content {
+    contain: content;
+    content-visibility: auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--footer-gap);
+    align-items: start;
+  }
+
+  .footer-content .menu__heading__default {
+    font-weight: var(--font-heading--weight);
+  }
+
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    .footer-content {
+      grid-template-columns: repeat(min(var(--grid-columns), 3), 1fr);
+      grid-auto-flow: row;
+    }
+
+    .footer-content[style*='--grid-columns: 4'] {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .footer-content--isolated-grid-item-tablet > :last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
+    .footer-content {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: var(--footer-gap);
+    }
+
+    /* Brand bar (logo + social) pinned to top-left */
+    .footer-content > :first-child {
+      position: absolute;
+      top: 0;
+      inset-inline-start: 0;
+      flex: none;
+      width: auto;
+      max-width: 320px;
+    }
+
+    /* Newsletter section spans full width below the columns */
+    .footer-content > :last-child:not(:first-child) {
+      flex: 1 0 100%;
+      max-width: 100%;
+      margin-block-start: var(--footer-gap);
+    }
+
+    /* Middle columns centered on the same row as the logo */
+    .footer-content > :not(:first-child):not(:last-child) {
+      flex: 0 1 auto;
+      width: auto;
+      min-width: 0;
+      max-width: 100%;
+    }
+  }
+
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    .footer-content > :last-child:not(:first-child) {
+      grid-column: 1 / -1;
+      margin-block-start: var(--footer-gap);
+    }
+  }
+
+  /* Footer Global Brand Style */
+  footer,
+  footer .section-background,
+  footer .color-custom-footer-main,
+  footer .color-custom-footer-main .text-block {
+    background-color: #000 !important;
+    color: #ffffff !important;
+  }
+
+  footer,
+  footer .section {
+    --color-background: #000000 !important;
+    --color-background-rgb: 0, 0, 0 !important;
+    --color: #ffffff !important;
+    --color-rgb: 255, 255, 255 !important;
+    --color-foreground: #ffffff !important;
+    --color-foreground-rgb: 255, 255, 255 !important;
+    --color-foreground-muted: rgba(255, 255, 255, 0.7) !important;
+    --color-foreground-subdued: rgba(255, 255, 255, 0.5) !important;
+    --color-border: rgba(255, 255, 255, 0.15) !important;
+    --color-border-rgb: 255, 255, 255, 0.15 !important;
+  }
+
+  footer a,
+  footer p,
+  footer span,
+  footer li,
+  footer h1,
+  footer h2,
+  footer h3,
+  footer h4,
+  footer h5,
+  footer h6,
+  footer .menu__heading__default {
+    color: #ffffff !important;
+  }
+
+  footer a:hover {
+    color: #d4a853 !important;
+  }
+
+  footer .footer-content {
+    border-top: none;
+  }
+
+  footer .email-signup__input-group--integrated {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  footer .email-signup__input {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+  }
+
+  footer .email-signup__input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  footer .email-signup__button svg {
+    stroke: #ffffff !important;
+  }
+
+  /* Brand bar: logo + social links pinned top-left */
+  footer .footer-content > :first-child {
+    align-self: flex-start;
+  }
+
+  /* Newsletter section below columns */
+  footer .footer-content > :last-child:not(:first-child) {
+    padding-block-start: 28px;
+    margin-block-start: 28px;
+    border-block-start: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  footer .footer-content > :first-child .social-icons__icon,
+  footer .footer-content > :first-child .social-icons__icon svg {
+    color: #ffffff !important;
+    fill: #ffffff !important;
+    stroke: #ffffff !important;
+  }
+
+  footer .footer-content > :first-child .social-icons__icon:hover {
+    color: #d4a853 !important;
+  }
+
+  footer .footer-content > :first-child .social-icons__wrapper {
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  /* Policy column heading matches brand style */
+  footer .footer-policy-column__heading {
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.02em;
+  }
+
+  footer .footer-policy-column__link {
+    color: rgba(255, 255, 255, 0.65) !important;
+  }
+
+  footer .footer-policy-column__link:hover {
+    color: #ffffff !important;
+  }
+
+  /* Mobile accordion columns - matches product page collapsible rows */
+  @media screen and (max-width: 749px) {
+    footer .footer-content > .footer-column--collapsible {
+      border-block-start: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
+    }
+
+    footer .footer-content > .footer-column--collapsible .details__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--gap-sm);
+      padding-block: var(--padding-md);
+      cursor: pointer;
+      min-height: var(--minimum-touch-target);
+      list-style: none;
+    }
+
+    footer .footer-content > .footer-column--collapsible .details__header::-webkit-details-marker {
+      display: none;
+    }
+
+    footer .footer-content > .footer-column--collapsible .details__heading {
+      font-weight: var(--font-weight-semibold);
+      color: #ffffff !important;
+    }
+
+    footer .footer-content > .footer-column--collapsible .icon-plus {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      color: #ffffff !important;
+    }
+
+    footer .footer-content > .footer-column--collapsible .icon-plus svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    footer .footer-content > .footer-column--collapsible .icon-plus .horizontal {
+      transform-origin: center;
+      transition: transform 0.3s var(--animation-easing);
+    }
+
+    footer .footer-content > .footer-column--collapsible details[open] .icon-plus .horizontal {
+      transform: rotate(90deg);
+    }
+
+    footer .footer-content > .footer-column--collapsible .details-content {
+      padding-block-end: var(--padding-lg);
+    }
+
+    footer .footer-content > .footer-column--collapsible .details-content img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Brand bar stays visible, no collapse */
+    .footer-content > :first-child .footer-mobile-toggle {
+      display: none;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "t:names.footer",
+  "class": "section-wrapper",
+  "blocks": [
+    {
+      "type": "_divider"
+    },
+    {
+      "type": "@app"
+    },
+    {
+      "type": "button"
+    },
+    {
+      "type": "follow-on-shop"
+    },
+    {
+      "type": "group"
+    },
+    {
+      "type": "icon"
+    },
+    {
+      "type": "image"
+    },
+    {
+      "type": "menu"
+    },
+    {
+      "type": "payment-icons"
+    },
+    {
+      "type": "text"
+    },
+    {
+      "type": "logo"
+    },
+    {
+      "type": "jumbo-text"
+    },
+    {
+      "type": "social-links"
+    },
+    {
+      "type": "email-signup"
+    },
+    {
+      "type": "footer-policy-list"
+    }
+  ],
+  "enabled_on": {
+    "groups": ["footer"]
+  },
+  "settings": [
+    {
+      "type": "select",
+      "id": "section_width",
+      "label": "t:settings.width",
+      "options": [
+        {
+          "value": "page-width",
+          "label": "t:options.page"
+        },
+        {
+          "value": "full-width",
+          "label": "t:options.full"
+        }
+      ],
+      "default": "page-width"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "t:settings.gap",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:settings.background_color",
+      "default": "{{ settings.color_palette.foreground }}"
+    },
+    {
+      "type": "header",
+      "content": "t:content.padding"
+    },
+    {
+      "type": "range",
+      "id": "padding-block-start",
+      "label": "t:settings.top",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "range",
+      "id": "padding-block-end",
+      "label": "t:settings.bottom",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 20
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:names.footer",
+      "category": "t:categories.footer",
+      "settings": {
+        "gap": 20,
+        "padding-block-start": 36,
+        "padding-block-end": 36
+      },
+      "blocks": {
+        "newsletter-group": {
+          "type": "group",
+          "settings": {
+            "content_direction": "column",
+            "vertical_on_mobile": true,
+            "horizontal_alignment": "flex-start",
+            "vertical_alignment": "center",
+            "gap": 6,
+            "width": "fill"
+          },
+          "blocks": {
+            "newsletter-heading": {
+              "type": "text",
+              "settings": {
+                "text": "t:html_defaults.join_our_email_list",
+                "width": "100%",
+                "alignment": "left",
+                "type_preset": "h3"
+              }
+            },
+            "newsletter-text": {
+              "type": "text",
+              "settings": {
+                "text": "t:html_defaults.get_exclusive_deals_and_early_access_to_new_products",
+                "width": "100%",
+                "alignment": "left",
+                "type_preset": "rte"
+              }
+            }
+          },
+          "block_order": ["newsletter-heading", "newsletter-text"]
+        },
+        "newsletter-form": {
+          "type": "email-signup",
+          "settings": {
+            "width": "fill"
+          }
+        }
+      },
+      "block_order": ["newsletter-group", "newsletter-form"]
+    }
+  ]
+}
+{% endschema %}

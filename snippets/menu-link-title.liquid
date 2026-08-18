@@ -1,0 +1,17 @@
+{%- doc -%}
+  Renders the clean menu link title, stripping any bracket icon tags like [fire]
+  no matter where they appear in the title.
+  @param {string} link_title - The title of the menu link
+{%- enddoc -%}
+{%- liquid
+  assign title = link_title | default: ''
+  if title contains '[' and title contains ']'
+    assign title_parts = title | split: '['
+    assign title = ''
+    for part in title_parts
+      assign title = title | append: (part | split: ']' | last)
+    endfor
+    assign title = title | strip | replace: '  ', ' '
+  endif
+-%}
+{{- title -}}

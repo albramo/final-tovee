@@ -1,0 +1,135 @@
+{%- doc -%}
+  Renders the icon assigned to a menu link.
+
+  Priority:
+  1. A menu-icon block added in the theme editor whose link_title matches.
+  2. A bracket icon tag in the title itself, e.g. "[home] الرئيسية".
+  3. Automatic keyword matching on the title (Arabic + English).
+
+  @param {string} link_title - The exact title of the menu link
+  @param {string} [class] - Extra classes for the svg element
+{%- enddoc -%}
+
+{% liquid
+  assign icon_name = ''
+
+  # 1. Menu-icon blocks configured in the theme editor (header section or menu block)
+  for icon_block in section.blocks
+    if icon_block.type == 'menu-icon' and icon_block.settings.link_title == link_title and icon_block.settings.icon != 'none' and icon_name == ''
+      assign icon_name = icon_block.settings.icon
+    endif
+  endfor
+  if icon_name == '' and block != blank
+    for icon_block in block.blocks
+      if icon_block.type == 'menu-icon' and icon_block.settings.link_title == link_title and icon_block.settings.icon != 'none' and icon_name == ''
+        assign icon_name = icon_block.settings.icon
+      endif
+    endfor
+  endif
+
+  # 2. Bracket icon tag in the title, e.g. "[home] الرئيسية" or "الرئيسية [home]"
+  if icon_name == '' and link_title contains '[' and link_title contains ']'
+    assign bracket_part = link_title | split: '[' | last | split: ']' | first | strip
+    assign known_icons = 'home,fire,box,truck,return,chat_bubble,heart,lightning_bolt,perfume,bottle,lipstick,pants,shirt,shoe,serving_dish,carrot,dairy,leather,snowflake,map_pin,lock,plane,recycle,stopwatch,question_mark,silhouette,clipboard,ruler,washing,iron,dryer,paw_print,pepper,price_tag,star,eye,leaf,plant' | split: ','
+    if known_icons contains bracket_part
+      assign icon_name = bracket_part
+    endif
+  endif
+
+  # 3. Automatic keyword matching
+  if icon_name == ''
+    assign title_lower = link_title | downcase
+    if title_lower contains 'رئيسية' or title_lower contains 'الرئيسية' or title_lower contains 'home' or title_lower contains 'start'
+      assign icon_name = 'home'
+    elsif title_lower contains 'عروض' or title_lower contains 'تخفيض' or title_lower contains 'خصم' or title_lower contains 'أوفير' or title_lower contains 'sale' or title_lower contains 'offer' or title_lower contains 'deals' or title_lower contains 'discount'
+      assign icon_name = 'fire'
+    elsif title_lower contains 'منتج' or title_lower contains 'متجر' or title_lower contains 'مجموع' or title_lower contains 'أقسام' or title_lower contains 'تصنيف' or title_lower contains 'تسوق' or title_lower contains 'اشتري' or title_lower contains 'shop' or title_lower contains 'store' or title_lower contains 'catalog' or title_lower contains 'products' or title_lower contains 'collections' or title_lower contains 'categories'
+      assign icon_name = 'box'
+    elsif title_lower contains 'شحن' or title_lower contains 'توصيل' or title_lower contains 'تتبع' or title_lower contains 'ship' or title_lower contains 'delivery' or title_lower contains 'track'
+      assign icon_name = 'truck'
+    elsif title_lower contains 'إرجاع' or title_lower contains 'استبدال' or title_lower contains 'استرجاع' or title_lower contains 'return' or title_lower contains 'refund' or title_lower contains 'exchange'
+      assign icon_name = 'return'
+    elsif title_lower contains 'تواصل' or title_lower contains 'اتصل' or title_lower contains 'دعم' or title_lower contains 'contact' or title_lower contains 'support' or title_lower contains 'help'
+      assign icon_name = 'chat_bubble'
+    elsif title_lower contains 'قصتنا' or title_lower contains 'من نحن' or title_lower contains 'عنا' or title_lower contains 'عن المتجر' or title_lower contains 'about' or title_lower contains 'our story'
+      assign icon_name = 'heart'
+    elsif title_lower contains 'أكثر مبيع' or title_lower contains 'الأكثر مبيعاً' or title_lower contains 'مبيع' or title_lower contains 'bestseller' or title_lower contains 'trending' or title_lower contains 'popular'
+      assign icon_name = 'lightning_bolt'
+    elsif title_lower contains 'جديد' or title_lower contains 'وصل حديثاً' or title_lower contains 'new' or title_lower contains 'arrivals' or title_lower contains 'latest'
+      assign icon_name = 'star'
+    elsif title_lower contains 'عطر' or title_lower contains 'عطور' or title_lower contains 'perfume' or title_lower contains 'fragrance'
+      assign icon_name = 'perfume'
+    elsif title_lower contains 'بشرة' or title_lower contains 'عناية' or title_lower contains 'سكين' or title_lower contains 'skincare' or title_lower contains 'care'
+      assign icon_name = 'bottle'
+    elsif title_lower contains 'مكياج' or title_lower contains 'makeup' or title_lower contains 'cosmetic'
+      assign icon_name = 'lipstick'
+    elsif title_lower contains 'حساب' or title_lower contains 'تسجيل' or title_lower contains 'دخول' or title_lower contains 'account' or title_lower contains 'login' or title_lower contains 'sign'
+      assign icon_name = 'silhouette'
+    elsif title_lower contains 'أسئلة' or title_lower contains 'استفسار' or title_lower contains 'faq' or title_lower contains 'questions'
+      assign icon_name = 'question_mark'
+    elsif title_lower contains 'سياسة' or title_lower contains 'شروط' or title_lower contains 'خصوصية' or title_lower contains 'policy' or title_lower contains 'terms' or title_lower contains 'privacy'
+      assign icon_name = 'clipboard'
+    elsif title_lower contains 'مقاس' or title_lower contains 'قياس' or title_lower contains 'size' or title_lower contains 'sizing' or title_lower contains 'measure'
+      assign icon_name = 'ruler'
+    elsif title_lower contains 'مفضلة' or title_lower contains 'أمنيات' or title_lower contains 'wishlist' or title_lower contains 'favorite' or title_lower contains 'favourites'
+      assign icon_name = 'heart'
+    elsif title_lower contains 'تقييم' or title_lower contains 'مراجعة' or title_lower contains 'review' or title_lower contains 'rating'
+      assign icon_name = 'star'
+    elsif title_lower contains 'هدية' or title_lower contains 'كارت' or title_lower contains 'gift' or title_lower contains 'card'
+      assign icon_name = 'price_tag'
+    elsif title_lower contains 'تخفيض' or title_lower contains 'خصم' or title_lower contains 'كوبون' or title_lower contains 'coupon' or title_lower contains 'promo'
+      assign icon_name = 'price_tag'
+    elsif title_lower contains 'توصيل سريع' or title_lower contains 'express' or title_lower contains 'سريع'
+      assign icon_name = 'stopwatch'
+    elsif title_lower contains 'غسيل' or title_lower contains 'washing' or title_lower contains 'laundry'
+      assign icon_name = 'washing'
+    elsif title_lower contains 'مكواة' or title_lower contains 'iron'
+      assign icon_name = 'iron'
+    elsif title_lower contains 'مجفف' or title_lower contains 'dryer'
+      assign icon_name = 'dryer'
+    elsif title_lower contains 'حيوان' or title_lower contains 'قطط' or title_lower contains 'كلاب' or title_lower contains 'pet' or title_lower contains 'paw'
+      assign icon_name = 'paw_print'
+    elsif title_lower contains 'ملابس' or title_lower contains 'تيشيرت' or title_lower contains 'بلوزة' or title_lower contains 'shirt' or title_lower contains 'tops' or title_lower contains 't-shirt'
+      assign icon_name = 'shirt'
+    elsif title_lower contains 'بنطلون' or title_lower contains 'جينز' or title_lower contains 'pants' or title_lower contains 'jeans' or title_lower contains 'trousers' or title_lower contains 'bottoms'
+      assign icon_name = 'pants'
+    elsif title_lower contains 'حذاء' or title_lower contains 'أحذية' or title_lower contains 'shoe' or title_lower contains 'shoes' or title_lower contains 'footwear' or title_lower contains 'sneaker'
+      assign icon_name = 'shoe'
+    elsif title_lower contains 'أطباق' or title_lower contains 'مطبخ' or title_lower contains 'serve' or title_lower contains 'dish' or title_lower contains 'kitchen'
+      assign icon_name = 'serving_dish'
+    elsif title_lower contains 'خضار' or title_lower contains 'فواكه' or title_lower contains 'طازج' or title_lower contains 'vegetable' or title_lower contains 'fruit' or title_lower contains 'fresh'
+      assign icon_name = 'carrot'
+    elsif title_lower contains 'ألبان' or title_lower contains 'حليب' or title_lower contains 'جبن' or title_lower contains 'dairy' or title_lower contains 'milk' or title_lower contains 'cheese'
+      assign icon_name = 'dairy'
+    elsif title_lower contains 'جلد' or title_lower contains 'شنط' or title_lower contains 'leather' or title_lower contains 'bags'
+      assign icon_name = 'leather'
+    elsif title_lower contains 'شتاء' or title_lower contains 'ثلج' or title_lower contains 'winter' or title_lower contains 'snow' or title_lower contains 'cold'
+      assign icon_name = 'snowflake'
+    elsif title_lower contains 'موقع' or title_lower contains 'فروع' or title_lower contains 'عنوان' or title_lower contains 'location' or title_lower contains 'address' or title_lower contains 'store locator'
+      assign icon_name = 'map_pin'
+    elsif title_lower contains 'قفل' or title_lower contains 'أمان' or title_lower contains 'دفع آمن' or title_lower contains 'secure' or title_lower contains 'safety' or title_lower contains 'protection'
+      assign icon_name = 'lock'
+    elsif title_lower contains 'طيران' or title_lower contains 'سفر' or title_lower contains 'توصيل دولي' or title_lower contains 'flight' or title_lower contains 'travel' or title_lower contains 'international'
+      assign icon_name = 'plane'
+    elsif title_lower contains 'تدوير' or title_lower contains 'بيئة' or title_lower contains 'استدامة' or title_lower contains 'recycle' or title_lower contains 'eco' or title_lower contains 'sustain' or title_lower contains 'environment'
+      assign icon_name = 'recycle'
+    elsif title_lower contains 'طبيعي' or title_lower contains 'عضوي' or title_lower contains 'نباتي' or title_lower contains 'natural' or title_lower contains 'organic' or title_lower contains 'vegan' or title_lower contains 'plant'
+      assign icon_name = 'plant'
+    elsif title_lower contains 'مستند' or title_lower contains 'ملفات' or title_lower contains 'document' or title_lower contains 'file' or title_lower contains 'paper'
+      assign icon_name = 'clipboard'
+    endif
+  endif
+%}
+{%- if icon_name != '' -%}
+  <svg
+    class="menu-link-icon {{ class }}"
+    aria-hidden="true"
+    focusable="false"
+    xmlns="http://www.w3.org/2000/svg"
+    width="18"
+    height="18"
+    viewBox="0 0 20 20"
+  >
+    {%- render 'icon', icon: icon_name -%}
+  </svg>
+{%- endif -%}
