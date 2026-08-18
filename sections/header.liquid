@@ -228,7 +228,7 @@
     assign form_style = localization_font | append: localization_font_size | append: color_shadow
   %}
   {% if show_language and show_country == false %}
-    <div class="dropdown-localization mobile:hidden">
+    <div class="dropdown-localization">
       {% render 'localization-form',
         show_country: show_country,
         show_language: show_language,
@@ -239,7 +239,7 @@
     </div>
   {% elsif show_country %}
     <dropdown-localization-component
-      class="dropdown-localization mobile:hidden"
+      class="dropdown-localization"
     >
       <button
         type="button"
@@ -500,12 +500,16 @@
     }
   }
 
-  #header-component :is(.header-menu, .dropdown-localization) {
+  #header-component :is(.header-menu) {
     display: none;
   }
 
+  #header-component .dropdown-localization {
+    display: flex;
+  }
+
   @media screen and (min-width: 750px) {
-    #header-component[data-menu-style='menu'] :is(.header-menu, .dropdown-localization) {
+    #header-component[data-menu-style='menu'] :is(.header-menu) {
       display: flex;
     }
   }
