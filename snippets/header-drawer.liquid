@@ -49,6 +49,7 @@
 
 <header-drawer
   class="header-drawer {{ class }}"
+  {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}
   style="--menu-image-border-radius: {{ image_border_radius }}px; --resource-card-corner-radius: {{ image_border_radius }}px;"
 >
   <details

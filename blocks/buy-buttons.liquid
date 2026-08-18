@@ -306,20 +306,22 @@
 </span>
 
 {% comment %} Delivery & Return + Ask a Question {% endcomment %}
-<div class="delivery-return-text-wrapper">
+<div class="delivery-return-text-wrapper" {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}>
   <button type="button" class="delivery-return-text" data-delivery-modal-trigger>
-    Delivery & Return
+    {% if request.locale.iso_code contains 'ar' %}التوصيل والإرجاع{% else %}Delivery & Return{% endif %}
   </button>
   <span class="delivery-return-divider">|</span>
   <button type="button" class="delivery-return-text" data-contact-modal-trigger>
-    Ask a Question
+    {% if request.locale.iso_code contains 'ar' %}طرح سؤال{% else %}Ask a Question{% endif %}
   </button>
 </div>
 
-<dialog class="delivery-return-modal" data-delivery-modal>
+<dialog class="delivery-return-modal" data-delivery-modal {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}>
   <div class="delivery-return-modal__dialog">
     <div class="delivery-return-modal__header">
-      <div class="delivery-return-modal__title">Delivery & Return Policy</div>
+      <div class="delivery-return-modal__title">
+        {% if request.locale.iso_code contains 'ar' %}سياسة التوصيل والإرجاع{% else %}Delivery & Return Policy{% endif %}
+      </div>
       <button type="button" class="delivery-return-modal__close" data-delivery-modal-close aria-label="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -421,10 +423,12 @@
   </div>
 {% endif %}
 
-<dialog class="delivery-return-modal" data-contact-modal>
+<dialog class="delivery-return-modal" data-contact-modal {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}>
   <div class="delivery-return-modal__dialog">
     <div class="delivery-return-modal__header">
-      <div class="delivery-return-modal__title">Ask a Question</div>
+      <div class="delivery-return-modal__title">
+        {% if request.locale.iso_code contains 'ar' %}طرح سؤال{% else %}Ask a Question{% endif %}
+      </div>
       <button type="button" class="delivery-return-modal__close" data-contact-modal-close aria-label="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>

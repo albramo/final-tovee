@@ -330,6 +330,7 @@
 <header-component
   id="header-component"
   class="{{ class }}"
+  {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}
   data-theme-color="rgb({{ section.settings.background_color_top.rgb | default: settings.page_background_color.rgb }})"
   data-bubble-style="{{ section.settings.bubble_style }}"
   {% if transparent %}
