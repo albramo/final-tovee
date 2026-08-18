@@ -673,21 +673,21 @@
 
   .routine-card__btn {
     flex-shrink: 0;
-    min-width: 80px;
-    padding: 10px 20px;
-    font-size: 0.85rem;
+    min-width: 95px;
+    padding: 12px 22px;
+    font-size: 0.95rem;
     font-weight: 700;
     color: #ffffff;
     background: #800020;
     border: none;
-    border-radius: 24px;
+    border-radius: 26px;
     text-decoration: none;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    box-shadow: 0 3px 8px rgba(128, 0, 32, 0.25);
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(128, 0, 32, 0.3);
     transition: all 0.2s ease;
   }
 
@@ -801,6 +801,16 @@
               if (label && origLabel) label.textContent = origLabel;
               btn.disabled = false;
             }, 1800);
+
+            // Re-render cart-drawer-section if returned sections exist
+            if (data.sections && data.sections['cart-drawer-section']) {
+              var drawerSection = document.getElementById('shopify-section-cart-drawer-section');
+              if (drawerSection) {
+                var newDoc = new DOMParser().parseFromString(data.sections['cart-drawer-section'], 'text/html');
+                var newContent = newDoc.getElementById('shopify-section-cart-drawer-section');
+                if (newContent) drawerSection.innerHTML = newContent.innerHTML;
+              }
+            }
 
             var drawer = document.querySelector('theme-drawer#cart-drawer');
             if (drawer && typeof drawer.open === 'function') {
