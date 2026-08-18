@@ -11,5 +11,10 @@
   "actions": {
     "add": "اضف",
     "add_to_cart": "اضف الي السلة"
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "اضف الي السلة"
+    }
   }
 }
