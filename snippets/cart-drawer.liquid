@@ -142,12 +142,14 @@
                         {% if routine_prod.available and routine_count < 3 %}
                           {% unless cart_product_ids contains routine_prod.id %}
                             {% assign routine_count = routine_count | plus: 1 %}
-                            {% assign variant_id = routine_prod.selected_or_first_available_variant.id %}
+                            {% assign routine_variant = routine_prod.selected_or_first_available_variant %}
+                            {% assign variant_id = routine_variant.id %}
+                            {% assign routine_img = routine_prod.featured_media.preview_image | default: routine_prod.featured_image %}
                             <div class="routine-card">
                               <a href="{{ routine_prod.url }}" class="routine-card__image-link">
-                                {% if routine_prod.featured_image %}
+                                {% if routine_img %}
                                   <img
-                                    src="{{ routine_prod.featured_image | image_url: width: 140 }}"
+                                    src="{{ routine_img | image_url: width: 140 }}"
                                     alt="{{ routine_prod.title | escape }}"
                                     loading="lazy"
                                     width="70"
@@ -163,11 +165,14 @@
                                   {{ routine_prod.title }}
                                 </a>
                                 <div class="routine-card__price">
-                                  {% if routine_prod.compare_at_price > routine_prod.price %}
+                                  {% if routine_variant.compare_at_price > routine_variant.price %}
+                                    <s class="routine-card__compare-price">{{ routine_variant.compare_at_price | money }}</s>
+                                    <span class="routine-card__sale-price">{{ routine_variant.price | money }}</span>
+                                  {% elsif routine_prod.compare_at_price > routine_prod.price %}
                                     <s class="routine-card__compare-price">{{ routine_prod.compare_at_price | money }}</s>
                                     <span class="routine-card__sale-price">{{ routine_prod.price | money }}</span>
                                   {% else %}
-                                    {{ routine_prod.price | money }}
+                                    {{ routine_variant.price | default: routine_prod.price | money }}
                                   {% endif %}
                                 </div>
                               </div>
