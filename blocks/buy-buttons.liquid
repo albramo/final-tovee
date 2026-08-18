@@ -344,13 +344,19 @@
 
 {% comment %} Complete Your Routine / أكمل روتينك {% endcomment %}
 {% liquid
+  assign show_routine = block_settings.show_routine
+  if show_routine == null
+    assign show_routine = true
+  endif
   assign routine_collection = product.collections.first | default: collections.all
 %}
-{% if routine_collection != blank and routine_collection.products_count > 1 %}
+{% if show_routine and routine_collection != blank and routine_collection.products_count > 1 %}
   <div class="routine-section">
     <div class="routine-section__header">
       <h3 class="routine-section__title">
-        {% if request.locale.iso_code contains 'ar' %}
+        {% if block_settings.routine_title != blank %}
+          {{ block_settings.routine_title }}
+        {% elsif request.locale.iso_code contains 'ar' %}
           أكمل روتينك
         {% else %}
           Complete Your Routine
@@ -362,6 +368,7 @@
       {% for routine_product in routine_collection.products %}
         {% if routine_product.id != product.id and count < 3 %}
           {% assign count = count | plus: 1 %}
+          {% assign variant_id = routine_product.selected_or_first_available_variant.id %}
           <div class="routine-card">
             <a href="{{ routine_product.url }}" class="routine-card__image-link">
               {% if routine_product.featured_image %}
@@ -385,9 +392,14 @@
                 {{ routine_product.price | money }}
               </div>
             </div>
-            <a href="{{ routine_product.url }}" class="routine-card__btn">
-              {% if request.locale.iso_code contains 'ar' %}عرض{% else %}View{% endif %}
-            </a>
+            <button
+              type="button"
+              class="routine-card__btn"
+              data-routine-add
+              data-variant-id="{{ variant_id }}"
+            >
+              {% if request.locale.iso_code contains 'ar' %}إضافة{% else %}Add{% endif %}
+            </button>
           </div>
         {% endif %}
       {% endfor %}
@@ -646,6 +658,7 @@
     border: 1px solid #f8d7da;
     border-radius: 6px;
     text-decoration: none;
+    cursor: pointer;
     transition: all 0.2s ease;
   }
 
@@ -654,10 +667,56 @@
     color: #ffffff;
     border-color: #800020;
   }
+
+  .routine-card__btn.is-added {
+    background: #22c55e;
+    color: #ffffff;
+    border-color: #22c55e;
+  }
 </style>
 
 <script>
   (function() {
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-routine-add]');
+      if (!btn) return;
+      e.preventDefault();
+      var variantId = btn.dataset.variantId;
+      if (!variantId) return;
+
+      btn.disabled = true;
+      var origText = btn.textContent;
+      btn.textContent = '...';
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: variantId, quantity: 1 })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        btn.classList.add('is-added');
+        btn.textContent = '✓';
+        setTimeout(function() {
+          btn.classList.remove('is-added');
+          btn.textContent = origText;
+          btn.disabled = false;
+        }, 2000);
+
+        // Open cart drawer if available
+        var drawer = document.querySelector('theme-drawer#cart-drawer');
+        if (drawer && typeof drawer.open === 'function') {
+          drawer.open();
+        } else {
+          document.dispatchEvent(new CustomEvent('cart:updated'));
+        }
+      })
+      .catch(function(err) {
+        console.error('Error adding to cart:', err);
+        btn.textContent = origText;
+        btn.disabled = false;
+      });
+    });
     function openModal(trigger, modal, bodyEl, fetchUrl) {
       if (typeof modal.showModal === 'function') {
         modal.showModal();
@@ -874,6 +933,18 @@
   "name": "t:names.product_buy_buttons",
   "tag": null,
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_routine",
+      "label": "Show Complete Your Routine / عرض أكمل روتينك",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "routine_title",
+      "label": "Routine Section Heading / عنوان قسم روتينك",
+      "default": "Complete Your Routine"
+    },
     {
       "type": "checkbox",
       "id": "stacking",
