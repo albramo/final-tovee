@@ -9,6 +9,7 @@
   <div
     class="collapsible-rows section section--{{ section.settings.section_width }}"
     data-testid="collapsible-rows-section"
+    {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}
     style="padding-block-start: {{ section.settings.padding-block-start }}px; padding-block-end: {{ section.settings.padding-block-end }}px;"
   >
     <product-tabs class="product-tabs">

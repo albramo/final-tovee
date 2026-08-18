@@ -63,6 +63,30 @@
   {% endif %}
   {{- block.shopify_attributes -}}
 >
+  {%- if localization.available_languages.size > 1 -%}
+    <div class="header-actions__lang-wrapper">
+      <localization-form-component>
+        {%- form 'localization', id: 'HeaderMobileLanguageForm', class: 'header-actions__lang-form' -%}
+          <select
+            name="locale_code"
+            class="header-actions__lang-select"
+            onchange="this.form.submit()"
+            aria-label="{{ 'accessibility.localization_region_and_language' | t }}"
+          >
+            {%- for language in localization.available_languages -%}
+              <option
+                value="{{ language.iso_code }}"
+                {% if language.iso_code == localization.language.iso_code %}selected{% endif %}
+              >
+                {% if language.iso_code contains 'ar' %}AR{% else %}EN{% endif %}
+              </option>
+            {%- endfor -%}
+          </select>
+        {%- endform -%}
+      </localization-form-component>
+    </div>
+  {%- endif -%}
+
   {% if shop.customer_accounts_enabled %}
     {% liquid
       assign account_actions_style = ''
@@ -376,6 +400,27 @@
     cart-icon.header-actions__cart-icon--text:has(.cart-bubble__text-count:empty) {
       --cart-bubble-right: 2.5px;
     }
+  }
+
+  .header-actions__lang-wrapper {
+    display: flex;
+    align-items: center;
+    margin-inline-end: 6px;
+  }
+
+  .header-actions__lang-select {
+    background: transparent;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.2);
+    border-radius: 14px;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-foreground);
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    text-transform: uppercase;
   }
 
   .header-actions__text {
