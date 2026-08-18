@@ -115,6 +115,8 @@
       assign icon_name = 'recycle'
     elsif title_lower contains 'طبيعي' or title_lower contains 'عضوي' or title_lower contains 'نباتي' or title_lower contains 'natural' or title_lower contains 'organic' or title_lower contains 'vegan' or title_lower contains 'plant'
       assign icon_name = 'plant'
+    elsif title_lower contains 'مدون' or title_lower contains 'blog' or title_lower contains 'أخبار' or title_lower contains 'news' or title_lower contains 'مقال' or title_lower contains 'article'
+      assign icon_name = 'clipboard'
     elsif title_lower contains 'مستند' or title_lower contains 'ملفات' or title_lower contains 'document' or title_lower contains 'file' or title_lower contains 'paper'
       assign icon_name = 'clipboard'
     endif

@@ -9,7 +9,8 @@
     assign title_parts = title | split: '['
     assign title = ''
     for part in title_parts
-      assign title = title | append: (part | split: ']' | last)
+      assign clean_part = part | split: ']' | last
+      assign title = title | append: clean_part
     endfor
     assign title = title | strip | replace: '  ', ' '
   endif
