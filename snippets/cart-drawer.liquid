@@ -127,14 +127,10 @@
                     assign all_products = collections.all.products
                     assign routine_count = 0
                   -%}
-                  <div class="routine-section routine-section--cart">
+                  <div class="routine-section routine-section--cart" {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}>
                     <div class="routine-section__header">
                       <h3 class="routine-section__title">
-                        {% if request.locale.iso_code contains 'ar' %}
-                          أكمل روتينك
-                        {% else %}
-                          Complete Your Routine
-                        {% endif %}
+                        {{ 'content.complete_your_routine' | t: default: 'Complete Your Routine' }}
                       </h3>
                     </div>
                     <div class="routine-section__products">

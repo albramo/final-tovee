@@ -308,11 +308,11 @@
 {% comment %} Delivery & Return + Ask a Question {% endcomment %}
 <div class="delivery-return-text-wrapper" {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}>
   <button type="button" class="delivery-return-text" data-delivery-modal-trigger>
-    {% if request.locale.iso_code contains 'ar' %}التوصيل والإرجاع{% else %}Delivery & Return{% endif %}
+    {{ 'content.delivery_and_return' | t: default: 'Delivery & Return' }}
   </button>
   <span class="delivery-return-divider">|</span>
   <button type="button" class="delivery-return-text" data-contact-modal-trigger>
-    {% if request.locale.iso_code contains 'ar' %}طرح سؤال{% else %}Ask a Question{% endif %}
+    {{ 'content.ask_a_question' | t: default: 'Ask a Question' }}
   </button>
 </div>
 
@@ -320,7 +320,7 @@
   <div class="delivery-return-modal__dialog">
     <div class="delivery-return-modal__header">
       <div class="delivery-return-modal__title">
-        {% if request.locale.iso_code contains 'ar' %}سياسة التوصيل والإرجاع{% else %}Delivery & Return Policy{% endif %}
+        {{ 'content.delivery_and_return_policy' | t: default: 'Delivery & Return Policy' }}
       </div>
       <button type="button" class="delivery-return-modal__close" data-delivery-modal-close aria-label="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -356,12 +356,10 @@
   <div class="routine-section">
     <div class="routine-section__header">
       <h3 class="routine-section__title">
-        {% if block_settings.routine_title != blank %}
+        {% if block_settings.routine_title != blank and block_settings.routine_title != 'Complete Your Routine' %}
           {{ block_settings.routine_title }}
-        {% elsif request.locale.iso_code contains 'ar' %}
-          أكمل روتينك
         {% else %}
-          Complete Your Routine
+          {{ 'content.complete_your_routine' | t: default: 'Complete Your Routine' }}
         {% endif %}
       </h3>
     </div>
@@ -427,7 +425,7 @@
   <div class="delivery-return-modal__dialog">
     <div class="delivery-return-modal__header">
       <div class="delivery-return-modal__title">
-        {% if request.locale.iso_code contains 'ar' %}طرح سؤال{% else %}Ask a Question{% endif %}
+        {{ 'content.ask_a_question' | t: default: 'Ask a Question' }}
       </div>
       <button type="button" class="delivery-return-modal__close" data-contact-modal-close aria-label="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
