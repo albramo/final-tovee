@@ -306,20 +306,22 @@
 </span>
 
 {% comment %} Delivery & Return + Ask a Question {% endcomment %}
-<div class="delivery-return-text-wrapper">
+<div class="delivery-return-text-wrapper" {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}>
   <button type="button" class="delivery-return-text" data-delivery-modal-trigger>
-    Delivery & Return
+    {{ 'products.product.delivery_return' | t }}
   </button>
   <span class="delivery-return-divider">|</span>
   <button type="button" class="delivery-return-text" data-contact-modal-trigger>
-    Ask a Question
+    {{ 'products.product.ask_a_question' | t }}
   </button>
 </div>
 
-<dialog class="delivery-return-modal" data-delivery-modal>
+<dialog class="delivery-return-modal" data-delivery-modal {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}>
   <div class="delivery-return-modal__dialog">
     <div class="delivery-return-modal__header">
-      <div class="delivery-return-modal__title">Delivery & Return Policy</div>
+      <div class="delivery-return-modal__title">
+        {{ 'products.product.delivery_return_policy' | t }}
+      </div>
       <button type="button" class="delivery-return-modal__close" data-delivery-modal-close aria-label="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -335,17 +337,98 @@
       {% else %}
         <div class="delivery-return-modal__loading">
           <div class="delivery-return-spinner"></div>
-          <span>Loading policy...</span>
+          <span>{{ 'products.product.loading_policy' | t }}</span>
         </div>
       {% endif %}
     </div>
   </div>
 </dialog>
 
-<dialog class="delivery-return-modal" data-contact-modal>
+{% comment %} Complete Your Routine / أكمل روتينك {% endcomment %}
+{% liquid
+  assign show_routine = block_settings.show_routine
+  if show_routine == null
+    assign show_routine = true
+  endif
+  assign routine_collection = product.collections.first | default: collections.all
+%}
+{% if show_routine and routine_collection != blank and routine_collection.products_count > 1 %}
+  <div class="routine-section">
+    <div class="routine-section__header">
+      <h3 class="routine-section__title">
+        {% if request.locale.iso_code contains 'ar' %}
+          {{ 'products.product.complete_your_routine' | t }}
+        {% elsif block_settings.routine_title != blank %}
+          {{ block_settings.routine_title }}
+        {% else %}
+          {{ 'products.product.complete_your_routine' | t }}
+        {% endif %}
+      </h3>
+    </div>
+    <div class="routine-section__products">
+      {% assign count = 0 %}
+      {% for routine_product in routine_collection.products %}
+        {% if routine_product.id != product.id and count < 3 %}
+          {% assign count = count | plus: 1 %}
+          {% assign routine_variant = routine_product.selected_or_first_available_variant %}
+          {% assign variant_id = routine_variant.id %}
+          {% assign routine_img = routine_product.featured_media.preview_image | default: routine_product.featured_image %}
+          <div class="routine-card">
+            <a href="{{ routine_product.url }}" class="routine-card__image-link">
+              {% if routine_img %}
+                <img
+                  src="{{ routine_img | image_url: width: 140 }}"
+                  alt="{{ routine_product.title | escape }}"
+                  loading="lazy"
+                  width="70"
+                  height="70"
+                  class="routine-card__image"
+                >
+              {% else %}
+                <div class="routine-card__image-placeholder"></div>
+              {% endif %}
+            </a>
+            <div class="routine-card__info">
+              <a href="{{ routine_product.url }}" class="routine-card__title">
+                {{ routine_product.title }}
+              </a>
+              <div class="routine-card__price">
+                {% if routine_variant.compare_at_price > routine_variant.price %}
+                  <s class="routine-card__compare-price">{{ routine_variant.compare_at_price | money }}</s>
+                  <span class="routine-card__sale-price">{{ routine_variant.price | money }}</span>
+                {% elsif routine_product.compare_at_price > routine_product.price %}
+                  <s class="routine-card__compare-price">{{ routine_product.compare_at_price | money }}</s>
+                  <span class="routine-card__sale-price">{{ routine_product.price | money }}</span>
+                {% else %}
+                  {{ routine_variant.price | default: routine_product.price | money }}
+                {% endif %}
+              </div>
+            </div>
+            <button
+              type="button"
+              class="routine-card__btn"
+              data-add
+              data-variant-id="{{ variant_id }}"
+              data-quantity="1"
+              data-add-text="{{ 'products.product.add_btn' | t }}"
+              data-added-text="{{ 'products.product.added_btn' | t }}"
+            >
+              <span class="routine-card__spinner" aria-hidden="true"></span>
+              <span data-text-label>{{ 'products.product.add_btn' | t }}</span>
+            </button>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+{% endif %}
+
+<dialog class="delivery-return-modal" data-contact-modal {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}>
   <div class="delivery-return-modal__dialog">
     <div class="delivery-return-modal__header">
-      <div class="delivery-return-modal__title">Ask a Question</div>
+      <div class="delivery-return-modal__title">
+        {{ 'products.product.ask_a_question' | t }}
+      </div>
       <button type="button" class="delivery-return-modal__close" data-contact-modal-close aria-label="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -356,7 +439,7 @@
     <div class="delivery-return-modal__body" data-contact-modal-body>
       <div class="delivery-return-modal__loading">
         <div class="delivery-return-spinner"></div>
-        <span>Loading...</span>
+        <span>{{ 'products.product.loading' | t }}</span>
       </div>
     </div>
   </div>
@@ -487,10 +570,273 @@
   @keyframes delivery-spin {
     to { transform: rotate(360deg); }
   }
+
+  /* Routine Section Styles */
+  .routine-section {
+    margin-top: 20px;
+    padding: 16px;
+    background: #fafafa;
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+  }
+
+  .routine-section__header {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eeeeee;
+  }
+
+  .routine-section__title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111111;
+    margin: 0;
+  }
+
+  .routine-section__products {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .routine-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .routine-card:hover {
+    border-color: #dddddd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  .routine-card__image-link {
+    flex-shrink: 0;
+    display: block;
+    width: 54px;
+    height: 54px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .routine-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .routine-card__image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #e0e0e0;
+  }
+
+  .routine-card__info {
+    flex-grow: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .routine-card__title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #222222;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+  }
+
+  .routine-card__title:hover {
+    color: #800020;
+  }
+
+  .routine-card__price {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #333333;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .routine-card__compare-price {
+    color: #999999;
+    font-size: 0.75rem;
+    text-decoration: line-through;
+  }
+
+  .routine-card__sale-price {
+    color: #800020;
+    font-weight: 700;
+  }
+
+  .routine-card__btn {
+    flex-shrink: 0;
+    min-width: 75px;
+    padding: 7px 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    background: #800020;
+    border: none;
+    border-radius: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 2px 6px rgba(128, 0, 32, 0.25);
+    transition: all 0.2s ease;
+  }
+
+  .routine-card__btn:hover:not(:disabled) {
+    background: #600018;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(128, 0, 32, 0.3);
+  }
+
+  .routine-card__btn:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  .routine-card__btn.is-added {
+    background: #22c55e !important;
+    color: #ffffff !important;
+  }
+
+  .routine-card__spinner {
+    display: none;
+    width: 12px;
+    height: 12px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: routine-spin 0.7s linear infinite;
+  }
+
+  .routine-card__btn.is-loading .routine-card__spinner {
+    display: inline-block;
+  }
+
+  .routine-card__btn.is-loading [data-text-label] {
+    display: none;
+  }
+
+  @keyframes routine-spin {
+    to { transform: rotate(360deg); }
+  }
 </style>
 
 <script>
   (function() {
+    document.addEventListener('click', function(e) {
+      var btn = e.target.closest('.routine-card__btn[data-add]');
+      if (!btn || btn.disabled) return;
+      e.preventDefault();
+      var variantId = btn.dataset.variantId;
+      if (!variantId) return;
+
+      btn.disabled = true;
+      btn.classList.add('is-loading');
+
+      var formData = new FormData();
+      formData.set('id', variantId);
+      formData.set('quantity', '1');
+
+      var sectionIds = ['cart-drawer-section'];
+      document.querySelectorAll('cart-items-component').forEach(function(el) {
+        if (el.dataset.sectionId && sectionIds.indexOf(el.dataset.sectionId) === -1) {
+          sectionIds.push(el.dataset.sectionId);
+        }
+      });
+      formData.append('sections', sectionIds.join(','));
+
+      var deferredPromise = null;
+      var createPromiseFn = window.ShopifyEvents?.CartLinesUpdateEvent?.createPromise || window.CartLinesUpdateEvent?.createPromise;
+      var EventClass = window.ShopifyEvents?.CartLinesUpdateEvent || window.CartLinesUpdateEvent;
+
+      if (createPromiseFn && EventClass) {
+        deferredPromise = createPromiseFn();
+        document.dispatchEvent(new EventClass({
+          action: 'add',
+          context: 'cart',
+          lines: [{ merchandiseId: variantId, quantity: 1 }],
+          promise: deferredPromise.promise
+        }));
+      }
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        body: formData,
+        headers: { Accept: 'application/json' }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        var cartUrl = window.Theme?.routes?.cart_url || '/cart';
+        return fetch(cartUrl + '.json', { headers: { Accept: 'application/json' } })
+          .then(function(res) { return res.json(); })
+          .then(function(cartData) {
+            if (deferredPromise && EventClass && typeof EventClass.createCartFromAjaxResponse === 'function') {
+              deferredPromise.resolve({
+                cart: EventClass.createCartFromAjaxResponse(cartData),
+                detail: {
+                  sections: data.sections || {},
+                  items: cartData.items || [],
+                  itemCount: cartData.item_count || 0,
+                  source: 'routine-add',
+                  didError: false
+                }
+              });
+            }
+
+            btn.classList.remove('is-loading');
+            btn.classList.add('is-added');
+            var label = btn.querySelector('[data-text-label]');
+            var origLabel = label ? label.textContent : '';
+            if (label && btn.dataset.addedText) label.textContent = btn.dataset.addedText;
+
+            setTimeout(function() {
+              btn.classList.remove('is-added');
+              if (label && origLabel) label.textContent = origLabel;
+              btn.disabled = false;
+            }, 1800);
+
+            // Re-render cart-drawer-section if returned sections exist
+            if (data.sections && data.sections['cart-drawer-section']) {
+              var drawerSection = document.getElementById('shopify-section-cart-drawer-section');
+              if (drawerSection) {
+                var newDoc = new DOMParser().parseFromString(data.sections['cart-drawer-section'], 'text/html');
+                var newContent = newDoc.getElementById('shopify-section-cart-drawer-section');
+                if (newContent) drawerSection.innerHTML = newContent.innerHTML;
+              }
+            }
+
+            var drawer = document.querySelector('theme-drawer#cart-drawer');
+            if (drawer && typeof drawer.open === 'function') {
+              drawer.open();
+            }
+          });
+      })
+      .catch(function(err) {
+        console.error('Error adding routine product to cart:', err);
+        if (deferredPromise) deferredPromise.reject(err);
+        btn.classList.remove('is-loading');
+        btn.disabled = false;
+      });
+    });
     function openModal(trigger, modal, bodyEl, fetchUrl) {
       if (typeof modal.showModal === 'function') {
         modal.showModal();
@@ -707,6 +1053,18 @@
   "name": "t:names.product_buy_buttons",
   "tag": null,
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_routine",
+      "label": "Show Complete Your Routine / عرض أكمل روتينك",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "routine_title",
+      "label": "Routine Section Heading / عنوان قسم روتينك",
+      "default": "Complete Your Routine"
+    },
     {
       "type": "checkbox",
       "id": "stacking",

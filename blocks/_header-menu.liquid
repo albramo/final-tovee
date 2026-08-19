@@ -54,7 +54,6 @@
                     aria-current="page"
                   {% endif %}
                 >
-                  {%- render 'menu-link-icon', link_title: link.title, class: 'menu-list__icon' -%}
                   {% render 'menu-link-title', link_title: link.title %}
                 </a>
               </li>
@@ -117,7 +116,6 @@
             ref="menuitem"
           >
             <span class="menu-list__link-inner">
-              {%- render 'menu-link-icon', link_title: link.title, class: 'menu-list__icon' -%}
               <span class="menu-list__link-title">{% render 'menu-link-title', link_title: link.title %}</span>
             </span>
           </a>
@@ -361,23 +359,6 @@
     min-width: 0;
   }
 
-  .menu-list__icon,
-  .menu-link-icon {
-    flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: currentColor;
-    pointer-events: none;
-  }
-
-  .menu-link-icon svg {
-    width: 18px;
-    height: 18px;
-    display: block;
-  }
 
   .menu-list__list-item:not([slot='overflow']) {
     flex-direction: column;

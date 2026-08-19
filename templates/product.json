@@ -466,10 +466,10 @@
           "type": "text",
           "name": "t:names.header",
           "settings": {
-            "text": "<h3>You may also like </h3>",
-            "width": "fit-content",
+            "text": "<h3>You may also like</h3>",
+            "width": "100%",
             "max_width": "normal",
-            "alignment": "left",
+            "alignment": "center",
             "type_preset": "h4",
             "font": "var(--font-body--family)",
             "font_size": "1rem",

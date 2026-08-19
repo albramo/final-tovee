@@ -50,6 +50,7 @@
     id="cart-drawer"
     data-skip-node-update
     data-overlay
+    {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}
   >
     <dialog
       ref="panel"
@@ -121,117 +122,75 @@
                 <scroll-hint class="cart-drawer__items">
                   {% render 'cart-products', context: 'drawer' %}
 
+                  {% comment %} Complete Your Routine in Cart Drawer {% endcomment %}
                   {%- liquid
                     assign cart_product_ids = cart.items | map: 'product_id'
                     assign all_products = collections.all.products
-                    assign added_count = 0
-                    for product in all_products limit: 40
-                      if added_count >= 4
-                        break
-                      endif
-                      if product.available
-                        unless cart_product_ids contains product.id
-                          assign added_count = added_count | plus: 1
-                        endunless
-                      endif
-                    endfor
+                    assign routine_count = 0
                   -%}
-                  {%- if added_count > 0 -%}
-                    <cart-complete-cart class="cart-complete-cart">
-                      <div class="cart-complete-cart__header">
-                        <h3 class="cart-complete-cart__title">
-                          {{- 'content.complete_your_cart' | t -}}
-                        </h3>
-                        <div class="cart-complete-cart__nav">
-                          <button
-                            type="button"
-                            class="cart-complete-cart__arrow"
-                            data-prev
-                            aria-label="{{ 'content.pagination.previous' | t }}"
-                          >
-                            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                              <path
-                                stroke="currentColor"
-                                stroke-width="var(--icon-stroke-width)"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M12.5 5 7.5 10l5 5"
-                              ></path>
-                            </svg>
-                          </button>
-                          <button
-                            type="button"
-                            class="cart-complete-cart__arrow"
-                            data-next
-                            aria-label="{{ 'content.pagination.next' | t }}"
-                          >
-                            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                              <path
-                                stroke="currentColor"
-                                stroke-width="var(--icon-stroke-width)"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M7.5 5l5 5-5 5"
-                              ></path>
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-
-                      <div class="cart-complete-cart__track" data-track>
-                        {%- assign shown_count = 0 -%}
-                        {%- for product in all_products limit: 40 -%}
-                          {%- if shown_count >= 4 -%}
-                            {%- break -%}
-                          {%- endif -%}
-                          {%- if product.available -%}
-                            {%- unless cart_product_ids contains product.id -%}
-                              {%- assign shown_count = shown_count | plus: 1 -%}
-                              <div class="cart-complete-cart__slide">
-                                <a
-                                  href="{{ product.url }}"
-                                  class="cart-complete-cart__media"
-                                  tabindex="-1"
-                                  aria-hidden="true"
-                                >
-                                  {%- if product.featured_media -%}
-                                    {{- product.featured_media.preview_image | image_url: width: 300 | image_tag:
-                                      loading: 'lazy',
-                                      class: 'cart-complete-cart__image',
-                                      widths: '150, 300'
-                                    -}}
-                                  {%- endif -%}
+                  <div class="routine-section routine-section--cart">
+                    <div class="routine-section__header">
+                      <h3 class="routine-section__title">
+                        {{ 'products.product.complete_your_routine' | t }}
+                      </h3>
+                    </div>
+                    <div class="routine-section__products">
+                      {% for routine_prod in all_products %}
+                        {% if routine_prod.available and routine_count < 3 %}
+                          {% unless cart_product_ids contains routine_prod.id %}
+                            {% assign routine_count = routine_count | plus: 1 %}
+                            {% assign routine_variant = routine_prod.selected_or_first_available_variant %}
+                            {% assign variant_id = routine_variant.id %}
+                            {% assign routine_img = routine_prod.featured_media.preview_image | default: routine_prod.featured_image %}
+                            <div class="routine-card">
+                              <a href="{{ routine_prod.url }}" class="routine-card__image-link">
+                                {% if routine_img %}
+                                  <img
+                                    src="{{ routine_img | image_url: width: 140 }}"
+                                    alt="{{ routine_prod.title | escape }}"
+                                    loading="lazy"
+                                    width="70"
+                                    height="70"
+                                    class="routine-card__image"
+                                  >
+                                {% else %}
+                                  <div class="routine-card__image-placeholder"></div>
+                                {% endif %}
+                              </a>
+                              <div class="routine-card__info">
+                                <a href="{{ routine_prod.url }}" class="routine-card__title">
+                                  {{ routine_prod.title }}
                                 </a>
-
-                                <a
-                                  href="{{ product.url }}"
-                                  class="cart-complete-cart__product-title"
-                                >
-                                  {{- product.title | escape -}}
-                                </a>
-
-                                <button
-                                  type="button"
-                                  class="cart-complete-cart__add-button"
-                                  data-add
-                                  data-variant-id="{{ product.selected_or_first_available_variant.id }}"
-                                  data-quantity="1"
-                                  data-add-text="{{ 'actions.add' | t }}"
-                                  data-added-text="{{ 'actions.added' | t }}"
-                                >
-                                  <span
-                                    class="cart-complete-cart__spinner"
-                                    aria-hidden="true"
-                                  ></span>
-                                  <span data-text-label>{{ 'actions.add' | t }}</span>
-                                </button>
+                                <div class="routine-card__price">
+                                  {% if routine_variant.compare_at_price > routine_variant.price %}
+                                    <s class="routine-card__compare-price">{{ routine_variant.compare_at_price | money }}</s>
+                                    <span class="routine-card__sale-price">{{ routine_variant.price | money }}</span>
+                                  {% elsif routine_prod.compare_at_price > routine_prod.price %}
+                                    <s class="routine-card__compare-price">{{ routine_prod.compare_at_price | money }}</s>
+                                    <span class="routine-card__sale-price">{{ routine_prod.price | money }}</span>
+                                  {% else %}
+                                    {{ routine_variant.price | default: routine_prod.price | money }}
+                                  {% endif %}
+                                </div>
                               </div>
-                            {%- endunless -%}
-                          {%- endif -%}
-                        {%- endfor -%}
-                      </div>
-                    </cart-complete-cart>
-                  {%- endif -%}
+                              <button
+                                type="button"
+                                class="routine-card__btn"
+                                data-add
+                                data-variant-id="{{ variant_id }}"
+                                data-quantity="1"
+                data-add-text="{{ 'products.product.add_btn' | t }}"
+                data-added-text="{{ 'products.product.added_btn' | t }}"
+                              >
+                                <span class="routine-card__spinner" aria-hidden="true"></span>
+                                <span data-text-label>{{ 'products.product.add_btn' | t }}</span>
+                              </button>
+                            </div>
+                          {% endunless %}
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  </div>
                 </scroll-hint>
 
                 <div class="cart-drawer__summary">
@@ -329,6 +288,17 @@
   theme-drawer#cart-drawer .theme-drawer__dialog[open] {
     border-start-start-radius: var(--style-border-radius-lg);
     border-end-start-radius: var(--style-border-radius-lg);
+  }
+
+  theme-drawer#cart-drawer .theme-drawer__dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  [dir="rtl"] theme-drawer#cart-drawer .theme-drawer__dialog[open] {
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+    border-start-end-radius: var(--style-border-radius-lg);
+    border-end-end-radius: var(--style-border-radius-lg);
   }
 
   theme-drawer#cart-drawer .theme-drawer__header {

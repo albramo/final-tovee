@@ -65,7 +65,8 @@
     "view_pricing_info": "View pricing information",
     "price_filter_low": "Low price",
     "price_filter_high": "High price",
-    "breadcrumb": "Breadcrumb"
+    "breadcrumb": "Breadcrumb",
+    "wishlist": "Wishlist"
   },
   "breadcrumbs": {
     "home": "Home"
@@ -74,6 +75,7 @@
     // Quick add button on product cards, shortened version of add to cart
     "add": "Add",
     "add_to_cart": "Add to cart",
+    "home": "Home",
     // Success message shown after adding item to cart
     "added": "Added",
     // Button to apply discount code to cart
@@ -326,7 +328,8 @@
     "recipient_form_fields_visible": "Recipient form fields are now visible",
     "recipient_form_fields_hidden": "Recipient form fields are now hidden",
     "recipient_form_error": "There was an error with the form submission",
-    "product_custom_property_character_count": "{{ used_chars }}/{{ max_chars }} characters used"
+    "product_custom_property_character_count": "{{ used_chars }}/{{ max_chars }} characters used",
+    "wishlist_empty": "Your wishlist is empty"
   },
   "fields": {
     // Separates min and max values in price range filter
@@ -357,6 +360,10 @@
     "blog_post_date": "Date",
     "blog_post_description": "An excerpt of your blog post's content"
   },
+  "html_defaults": {
+    "may_also_like": "<h2>You may also like</h2>",
+    "related_product": "<h2>Related products</h2>"
+  },
   "products": {
     "product": {
       "add_to_cart": "Add to cart",
@@ -372,7 +379,15 @@
       "quantity_maximum": "Maximum of {{ maximum }}",
       "in_cart": "in cart",
       "default_title": "Default Title",
-      "sticky_add_to_cart": "Quick add to cart bar"
+      "sticky_add_to_cart": "Quick add to cart bar",
+      "delivery_return": "Delivery & Return",
+      "ask_a_question": "Ask a Question",
+      "delivery_return_policy": "Delivery & Return Policy",
+      "loading_policy": "Loading policy...",
+      "complete_your_routine": "Complete Your Routine",
+      "add_btn": "Add",
+      "added_btn": "Added",
+      "loading": "Loading..."
     }
   }
 }

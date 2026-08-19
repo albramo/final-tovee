@@ -15,14 +15,14 @@
         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="var(--icon-stroke-width)" d="M2.8 9.6 10 3.6l7.2 6M4.4 8.2v8h11.2v-8"/>
       </svg>
     </span>
-    <span class="mobile-bottom-nav__label">Home</span>
+    <span class="mobile-bottom-nav__label">{{ 'actions.home' | t }}</span>
   </a>
 
   {%- comment -%} — Wishlist — {%- endcomment -%}
   <button
     class="mobile-bottom-nav__action button-unstyled"
     onclick="window.wishlistDrawer && window.wishlistDrawer.open()"
-    aria-label="Wishlist"
+    aria-label="{{ 'accessibility.wishlist' | t }}"
   >
     <span class="svg-wrapper" aria-hidden="true">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linecap="round" stroke-linejoin="round">
@@ -30,7 +30,7 @@
       </svg>
     </span>
     <span class="wishlist-count-badge mobile-bottom-nav__wishlist-count" data-wishlist-count hidden></span>
-    <span class="mobile-bottom-nav__label">Wishlist</span>
+    <span class="mobile-bottom-nav__label">{{ 'accessibility.wishlist' | t }}</span>
   </button>
 
   {%- comment -%} — Cart (center) — {%- endcomment -%}

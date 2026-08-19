@@ -63,6 +63,38 @@
   {% endif %}
   {{- block.shopify_attributes -}}
 >
+  {%- if localization.available_languages.size > 1 -%}
+    <div class="header-actions__lang-wrapper">
+      <localization-form-component>
+        {%- form 'localization', id: 'HeaderMobileLanguageForm', class: 'header-actions__lang-form' -%}
+          <div class="header-actions__lang-select-container">
+            <select
+              name="locale_code"
+              class="header-actions__lang-select"
+              onchange="this.form.submit()"
+              aria-label="{{ 'accessibility.localization_region_and_language' | t }}"
+            >
+              {%- for language in localization.available_languages -%}
+                <option
+                  value="{{ language.iso_code }}"
+                  {% if language.iso_code == localization.language.iso_code %}selected{% endif %}
+                >
+                  {{ language.endonym_name | default: language.name | capitalize }}
+                </option>
+              {%- endfor -%}
+            </select>
+            <span class="header-actions__lang-badge">
+              {% if localization.language.iso_code contains 'ar' %}AR{% else %}EN{% endif %}
+            </span>
+            <span class="svg-wrapper header-actions__lang-caret" aria-hidden="true">
+              {{- 'icon-caret.svg' | inline_asset_content -}}
+            </span>
+          </div>
+        {%- endform -%}
+      </localization-form-component>
+    </div>
+  {%- endif -%}
+
   {% if shop.customer_accounts_enabled %}
     {% liquid
       assign account_actions_style = ''
@@ -247,6 +279,7 @@
 
     @media screen and (max-width: 749px) {
       justify-self: flex-end;
+      gap: var(--gap-xs);
     }
   }
 
@@ -376,6 +409,75 @@
     cart-icon.header-actions__cart-icon--text:has(.cart-bubble__text-count:empty) {
       --cart-bubble-right: 2.5px;
     }
+  }
+
+  .header-actions__lang-wrapper {
+    display: flex;
+    align-items: center;
+    margin-inline-end: 6px;
+    margin-inline-start: 2px;
+
+    @media screen and (min-width: 750px) {
+      display: none !important;
+    }
+  }
+
+  .header-actions__lang-select-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    background-color: rgb(var(--color-foreground-rgb) / 0.06);
+    border: none;
+    border-radius: 6px;
+    padding: 5px 20px 5px 8px;
+    cursor: pointer;
+    transition: background-color var(--animation-speed) var(--animation-easing);
+  }
+
+  .header-actions__lang-select-container:hover {
+    background-color: rgb(var(--color-foreground-rgb) / 0.1);
+  }
+
+  .header-actions__lang-select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  .header-actions__lang-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--color-foreground);
+    line-height: 1;
+    pointer-events: none;
+    letter-spacing: 0.03em;
+  }
+
+  .header-actions__lang-caret {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 8px;
+    color: var(--color-foreground);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+  }
+
+  .header-actions__lang-caret svg {
+    width: 8px;
+    height: 8px;
   }
 
   .header-actions__text {
