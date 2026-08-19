@@ -127,10 +127,10 @@
                     assign all_products = collections.all.products
                     assign routine_count = 0
                   -%}
-                  <div class="routine-section routine-section--cart" {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}>
+                  <div class="routine-section routine-section--cart">
                     <div class="routine-section__header">
                       <h3 class="routine-section__title">
-                        {{ 'content.complete_your_routine' | t: default: 'Complete Your Routine' }}
+                        {{ 'products.product.complete_your_routine' | t }}
                       </h3>
                     </div>
                     <div class="routine-section__products">
@@ -178,11 +178,11 @@
                                 data-add
                                 data-variant-id="{{ variant_id }}"
                                 data-quantity="1"
-                                data-add-text="{% if request.locale.iso_code contains 'ar' %}إضافة{% else %}Add{% endif %}"
-                                data-added-text="{% if request.locale.iso_code contains 'ar' %}تمت الإضافة{% else %}Added{% endif %}"
+                data-add-text="{{ 'products.product.add_btn' | t }}"
+                data-added-text="{{ 'products.product.added_btn' | t }}"
                               >
                                 <span class="routine-card__spinner" aria-hidden="true"></span>
-                                <span data-text-label>{% if request.locale.iso_code contains 'ar' %}إضافة{% else %}Add{% endif %}</span>
+                                <span data-text-label>{{ 'products.product.add_btn' | t }}</span>
                               </button>
                             </div>
                           {% endunless %}

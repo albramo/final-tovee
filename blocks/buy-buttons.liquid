@@ -308,11 +308,11 @@
 {% comment %} Delivery & Return + Ask a Question {% endcomment %}
 <div class="delivery-return-text-wrapper" {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}>
   <button type="button" class="delivery-return-text" data-delivery-modal-trigger>
-    {{ 'content.delivery_and_return' | t: default: 'Delivery & Return' }}
+    {{ 'products.product.delivery_return' | t }}
   </button>
   <span class="delivery-return-divider">|</span>
   <button type="button" class="delivery-return-text" data-contact-modal-trigger>
-    {{ 'content.ask_a_question' | t: default: 'Ask a Question' }}
+    {{ 'products.product.ask_a_question' | t }}
   </button>
 </div>
 
@@ -320,7 +320,7 @@
   <div class="delivery-return-modal__dialog">
     <div class="delivery-return-modal__header">
       <div class="delivery-return-modal__title">
-        {{ 'content.delivery_and_return_policy' | t: default: 'Delivery & Return Policy' }}
+        {{ 'products.product.delivery_return_policy' | t }}
       </div>
       <button type="button" class="delivery-return-modal__close" data-delivery-modal-close aria-label="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -337,7 +337,7 @@
       {% else %}
         <div class="delivery-return-modal__loading">
           <div class="delivery-return-spinner"></div>
-          <span>Loading policy...</span>
+          <span>{{ 'products.product.loading_policy' | t }}</span>
         </div>
       {% endif %}
     </div>
@@ -356,10 +356,10 @@
   <div class="routine-section">
     <div class="routine-section__header">
       <h3 class="routine-section__title">
-        {% if block_settings.routine_title != blank and block_settings.routine_title != 'Complete Your Routine' %}
+        {% if block_settings.routine_title != blank %}
           {{ block_settings.routine_title }}
         {% else %}
-          {{ 'content.complete_your_routine' | t: default: 'Complete Your Routine' }}
+          {{ 'products.product.complete_your_routine' | t }}
         {% endif %}
       </h3>
     </div>
@@ -408,11 +408,11 @@
               data-add
               data-variant-id="{{ variant_id }}"
               data-quantity="1"
-              data-add-text="{% if request.locale.iso_code contains 'ar' %}إضافة{% else %}Add{% endif %}"
-              data-added-text="{% if request.locale.iso_code contains 'ar' %}تمت الإضافة{% else %}Added{% endif %}"
+              data-add-text="{{ 'products.product.add_btn' | t }}"
+              data-added-text="{{ 'products.product.added_btn' | t }}"
             >
               <span class="routine-card__spinner" aria-hidden="true"></span>
-              <span data-text-label>{% if request.locale.iso_code contains 'ar' %}إضافة{% else %}Add{% endif %}</span>
+              <span data-text-label>{{ 'products.product.add_btn' | t }}</span>
             </button>
           </div>
         {% endif %}
@@ -425,7 +425,7 @@
   <div class="delivery-return-modal__dialog">
     <div class="delivery-return-modal__header">
       <div class="delivery-return-modal__title">
-        {{ 'content.ask_a_question' | t: default: 'Ask a Question' }}
+        {{ 'products.product.ask_a_question' | t }}
       </div>
       <button type="button" class="delivery-return-modal__close" data-contact-modal-close aria-label="Close">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -437,7 +437,7 @@
     <div class="delivery-return-modal__body" data-contact-modal-body>
       <div class="delivery-return-modal__loading">
         <div class="delivery-return-spinner"></div>
-        <span>Loading...</span>
+        <span>{{ 'products.product.loading' | t }}</span>
       </div>
     </div>
   </div>
