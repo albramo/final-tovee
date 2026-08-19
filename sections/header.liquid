@@ -228,15 +228,40 @@
     assign form_style = localization_font | append: localization_font_size | append: color_shadow
   %}
   {% if show_language and show_country == false %}
-    <div class="dropdown-localization mobile:hidden">
-      {% render 'localization-form',
-        show_country: show_country,
-        show_language: show_language,
-        localization_style: 'dropdown',
-        form_style: form_style,
-        form_id: section.id
-      %}
-    </div>
+    <dropdown-localization-component
+      class="dropdown-localization mobile:hidden"
+    >
+      <button
+        type="button"
+        class="button dropdown-localization__button localization-selector header-actions__action"
+        aria-expanded="false"
+        aria-controls="dropdown-localization-results"
+        ref="button"
+        on:click="/toggleSelector"
+        style="{{ localization_font }} {{ localization_font_size }}"
+      >
+        <span>
+          {{ localization.language.iso_code | upcase }}
+        </span>
+        <span class="svg-wrapper icon-caret">
+          {{- 'icon-caret.svg' | inline_asset_content -}}
+        </span>
+      </button>
+
+      <div
+        class="localization-wrapper {{ section.settings.localization_position }}-bound color-custom-popover"
+        hidden
+        ref="panel"
+      >
+        {% render 'localization-form',
+          show_country: false,
+          show_language: show_language,
+          localization_style: 'dropdown',
+          form_style: form_style,
+          form_id: section.id
+        %}
+      </div>
+    </dropdown-localization-component>
   {% elsif show_country %}
     <dropdown-localization-component
       class="dropdown-localization mobile:hidden"
@@ -861,10 +886,9 @@
     }
 
     @media screen and (max-width: 749px) {
-      --header-template-columns: var(--header-mobile-bookend) var(--header-mobile-bookend) 1fr
-        auto auto;
+      --header-template-columns: var(--header-mobile-bookend) 1fr auto;
 
-      grid-template-areas: 'leftA leftB center rightA rightB';
+      grid-template-areas: 'leftA center rightB';
       grid-column: span 3;
       column-gap: 0;
       align-items: center;
@@ -875,20 +899,16 @@
         grid-area: center;
       }
 
-      &:not(:has(header-actions)) .search-action {
-        grid-area: leftB;
-      }
-
-      &:not(:has(shopify-account)) .search-action {
-        grid-area: rightA;
-      }
-
-      .search-action {
-        grid-area: leftB;
+      .header__column > search-button:not(.header-actions__mobile-search),
+      .header__columns > search-button:not(.header-actions__mobile-search) {
+        display: none !important;
       }
 
       header-actions {
         grid-area: rightB;
+        display: flex;
+        align-items: center;
+        gap: var(--gap-md);
       }
     }
   }

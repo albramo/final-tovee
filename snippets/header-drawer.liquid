@@ -1458,9 +1458,21 @@
 
   .menu-drawer .drawer-localization-row__content .language-selector {
     width: 100%;
-    padding-inline: var(--drawer-padding);
+    padding-inline: 0;
     font-family: var(--menu-localization-font);
     font-size: var(--menu-localization-font-size);
+  }
+
+  .menu-drawer .drawer-localization-row__content .localization-form__list--language {
+    padding: 0;
+    gap: 0;
+  }
+
+  .menu-drawer .drawer-localization-row__content .language-option-item {
+    min-height: 48px;
+    padding: 12px var(--drawer-padding);
+    border-radius: 0;
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
   }
 
   /* Modern menu item display */
