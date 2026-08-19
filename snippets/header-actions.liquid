@@ -298,50 +298,59 @@
     }
   }
 
+  /* PC (Desktop) Flex Orders: Language (1, near logo) -> Search (2) -> Wishlist (3) -> Cart (4, far outer edge) */
   @media screen and (min-width: 750px) {
     header-actions {
       align-items: center;
       gap: var(--gap-xl, 20px);
     }
 
-    .header-actions__cart-btn,
-    .action__cart {
+    .header-actions__lang-wrapper {
       order: 1;
-    }
-
-    .header-actions__wishlist-btn {
-      order: 2;
       display: flex !important;
     }
 
     .header-actions__search-btn {
+      order: 2;
+      display: flex !important;
+    }
+
+    .header-actions__wishlist-btn {
       order: 3;
       display: flex !important;
     }
 
-    .header-actions__lang-wrapper {
+    .header-actions__cart-btn,
+    .action__cart {
       order: 4;
     }
   }
 
+  /* Mobile Flex Orders: Language (1, near logo) -> Search (2) -> Cart (4, far outer edge) [No Wishlist] */
   @media screen and (max-width: 749px) {
-    .header-actions__cart-btn,
-    .action__cart {
+    header-actions {
+      justify-self: flex-end;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-actions__lang-wrapper {
       order: 1;
+      display: flex !important;
+    }
+
+    .header-actions__search-btn {
+      order: 2;
+      display: flex !important;
     }
 
     .header-actions__wishlist-btn {
       display: none !important;
     }
 
-    .header-actions__search-btn {
-      order: 2;
-      display: flex !important;
-    }
-
-    .header-actions__lang-wrapper {
-      order: 3;
-      display: flex !important;
+    .header-actions__cart-btn,
+    .action__cart {
+      order: 4;
     }
   }
 
