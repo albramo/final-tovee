@@ -133,7 +133,7 @@
     endif
   endif
   capture search
-    render 'search', style: search_style, class: search_class, display_style: section.settings.actions_display_style
+    {% comment %} Search is rendered strictly once inside header-actions {% endcomment %}
   endcapture
 
   # Skip drawer search under specific conditions:
@@ -1152,12 +1152,16 @@
   }
 
   dropdown-localization-component .localization-wrapper {
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
-    border: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
     background-color: var(--color-background);
-    max-height: 27.5rem;
+    max-height: 20rem;
+    min-width: 130px;
+    width: max-content;
+    padding: 4px;
+    border-radius: 8px;
     position: absolute;
-    top: calc(100% + 6px);
+    top: calc(100% + 4px);
     z-index: calc(var(--layer-header-menu) + 1);
     overflow: hidden;
   }
