@@ -50,6 +50,7 @@
     id="cart-drawer"
     data-skip-node-update
     data-overlay
+    {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}
   >
     <dialog
       ref="panel"
@@ -287,6 +288,17 @@
   theme-drawer#cart-drawer .theme-drawer__dialog[open] {
     border-start-start-radius: var(--style-border-radius-lg);
     border-end-start-radius: var(--style-border-radius-lg);
+  }
+
+  theme-drawer#cart-drawer .theme-drawer__dialog::backdrop {
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  [dir="rtl"] theme-drawer#cart-drawer .theme-drawer__dialog[open] {
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+    border-start-end-radius: var(--style-border-radius-lg);
+    border-end-end-radius: var(--style-border-radius-lg);
   }
 
   theme-drawer#cart-drawer .theme-drawer__header {
