@@ -63,7 +63,11 @@
   {% endif %}
   {{- block.shopify_attributes -}}
 >
-  {% comment %} Mobile Order: 1. Cart  2. Search  3. Language {% endcomment %}
+  {% comment %}
+    Action Order:
+    PC:     1. Cart  2. Wishlist (Heart)  3. Search  4. Language
+    Mobile: 1. Cart  2. Search  3. Language (No Wishlist)
+  {% endcomment %}
 
   {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
     <button
@@ -89,15 +93,28 @@
     </a>
   {% endif %}
 
-  {% assign show_mobile_search = section.settings.show_search %}
-  {% if show_mobile_search == nil %}
-    {% assign show_mobile_search = true %}
+  <button
+    class="header-actions__action button-unstyled header-actions__wishlist-btn"
+    onclick="window.wishlistDrawer && window.wishlistDrawer.open()"
+    aria-label="Wishlist"
+  >
+    <span class="svg-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+    </span>
+    <span class="wishlist-count-badge header-actions__wishlist-count" data-wishlist-count hidden></span>
+  </button>
+
+  {% assign show_header_search = section.settings.show_search %}
+  {% if show_header_search == nil %}
+    {% assign show_header_search = true %}
   {% endif %}
-  {% if show_mobile_search %}
-    <search-button class="header-actions__mobile-search search-action desktop:hidden">
+  {% if show_header_search %}
+    <search-button class="header-actions__search-btn search-action">
       <button
         on:click="#search-modal/showDialog"
-        class="button-unstyled header-actions__action"
+        class="button-unstyled header-actions__action{% if display_style == 'text' %} header-actions__text-style{% endif %}"
         aria-label="{{ 'content.search_input_label' | t }}"
         aria-haspopup="dialog"
       >
@@ -190,19 +207,6 @@
     </div>
   {% endif %}
 
-  <button
-    class="header-actions__action button-unstyled header-actions__wishlist-btn"
-    onclick="window.wishlistDrawer && window.wishlistDrawer.open()"
-    aria-label="Wishlist"
-  >
-    <span class="svg-wrapper">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-      </svg>
-    </span>
-    <span class="wishlist-count-badge header-actions__wishlist-count" data-wishlist-count hidden></span>
-  </button>
-
   <span
     ref="liveRegion"
     class="visually-hidden"
@@ -294,18 +298,50 @@
     }
   }
 
+  @media screen and (min-width: 750px) {
+    header-actions {
+      align-items: center;
+      gap: var(--gap-xl, 20px);
+    }
+
+    .header-actions__cart-btn,
+    .action__cart {
+      order: 1;
+    }
+
+    .header-actions__wishlist-btn {
+      order: 2;
+      display: flex !important;
+    }
+
+    .header-actions__search-btn {
+      order: 3;
+      display: flex !important;
+    }
+
+    .header-actions__lang-wrapper {
+      order: 4;
+    }
+  }
+
   @media screen and (max-width: 749px) {
     .header-actions__cart-btn,
     .action__cart {
       order: 1;
     }
 
-    .header-actions__mobile-search {
+    .header-actions__wishlist-btn {
+      display: none !important;
+    }
+
+    .header-actions__search-btn {
       order: 2;
+      display: flex !important;
     }
 
     .header-actions__lang-wrapper {
       order: 3;
+      display: flex !important;
     }
   }
 
