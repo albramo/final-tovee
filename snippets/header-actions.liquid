@@ -63,6 +63,51 @@
   {% endif %}
   {{- block.shopify_attributes -}}
 >
+  {% comment %} Mobile Order: 1. Cart  2. Search  3. Language {% endcomment %}
+
+  {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
+    <button
+      class="header-actions__action button-unstyled{% if display_style == 'text' %} header-actions__text-style{% endif %}"
+      on:click="#cart-drawer/toggle"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+      aria-controls="cart-drawer"
+      aria-label="{{ 'accessibility.cart' | t }}"
+      aria-describedby="cart-bubble-text"
+      data-testid="cart-drawer-trigger"
+    >
+      {{ cart_icon }}
+    </button>
+  {% else %}
+    <a
+      href="{{ routes.cart_url }}"
+      class="header-actions__action action__cart{% if display_style == 'text' %} header-actions__text-style{% endif %}"
+      aria-label="{{ 'accessibility.cart' | t }}"
+      aria-describedby="cart-bubble-text"
+    >
+      {{ cart_icon }}
+    </a>
+  {% endif %}
+
+  {% assign show_mobile_search = section.settings.show_search %}
+  {% if show_mobile_search == nil %}
+    {% assign show_mobile_search = true %}
+  {% endif %}
+  {% if show_mobile_search %}
+    <search-button class="header-actions__mobile-search search-action desktop:hidden">
+      <button
+        on:click="#search-modal/showDialog"
+        class="button-unstyled header-actions__action"
+        aria-label="{{ 'content.search_input_label' | t }}"
+        aria-haspopup="dialog"
+      >
+        <span class="svg-wrapper">
+          {{ 'icon-search.svg' | inline_asset_content }}
+        </span>
+      </button>
+    </search-button>
+  {% endif %}
+
   {%- if localization.available_languages.size > 1 -%}
     <div class="header-actions__lang-wrapper">
       <localization-form-component>
@@ -115,7 +160,7 @@
       endif
     %}
     <div
-      class="account-button header-actions__action{% if display_style == 'text' %} account-button--text{% endif %} color-custom-popover"
+      class="account-button header-actions__action{% if display_style == 'text' %} account-button--text{% endif %} color-custom-popover mobile:hidden"
     >
       <shopify-account
         menu="{{ customer_account_menu }}"
@@ -145,53 +190,18 @@
     </div>
   {% endif %}
 
-  {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
-    <button
-      class="header-actions__action button-unstyled header-actions__wishlist-btn"
-      onclick="window.wishlistDrawer && window.wishlistDrawer.open()"
-      aria-label="Wishlist"
-    >
-      <span class="svg-wrapper">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-        </svg>
-      </span>
-      <span class="wishlist-count-badge header-actions__wishlist-count" data-wishlist-count hidden></span>
-    </button>
-    <button
-      class="header-actions__action button-unstyled{% if display_style == 'text' %} header-actions__text-style{% endif %}"
-      on:click="#cart-drawer/toggle"
-      aria-haspopup="dialog"
-      aria-expanded="false"
-      aria-controls="cart-drawer"
-      aria-label="{{ 'accessibility.cart' | t }}"
-      aria-describedby="cart-bubble-text"
-      data-testid="cart-drawer-trigger"
-    >
-      {{ cart_icon }}
-    </button>
-  {% else %}
-    <button
-      class="header-actions__action button-unstyled header-actions__wishlist-btn"
-      onclick="window.wishlistDrawer && window.wishlistDrawer.open()"
-      aria-label="Wishlist"
-    >
-      <span class="svg-wrapper">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-        </svg>
-      </span>
-      <span class="wishlist-count-badge header-actions__wishlist-count" data-wishlist-count hidden></span>
-    </button>
-    <a
-      href="{{ routes.cart_url }}"
-      class="header-actions__action action__cart{% if display_style == 'text' %} header-actions__text-style{% endif %}"
-      aria-label="{{ 'accessibility.cart' | t }}"
-      aria-describedby="cart-bubble-text"
-    >
-      {{ cart_icon }}
-    </a>
-  {% endif %}
+  <button
+    class="header-actions__action button-unstyled header-actions__wishlist-btn"
+    onclick="window.wishlistDrawer && window.wishlistDrawer.open()"
+    aria-label="Wishlist"
+  >
+    <span class="svg-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+    </span>
+    <span class="wishlist-count-badge header-actions__wishlist-count" data-wishlist-count hidden></span>
+  </button>
 
   <span
     ref="liveRegion"
