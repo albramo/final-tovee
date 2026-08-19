@@ -1286,6 +1286,24 @@
     opacity: 0;
   }
 
+  [dir="rtl"] .menu-drawer {
+    left: auto;
+    right: 0;
+    transform: translateX(100%);
+    border-right: none;
+    border-left: var(--style-border-drawer);
+  }
+
+  [dir="rtl"] .menu-open > .menu-drawer {
+    transform: translateX(0);
+  }
+
+  [dir="rtl"] .menu-drawer__submenu {
+    left: auto;
+    right: 0;
+    transform: translateX(5%);
+  }
+
   .menu-drawer__back-button > .svg-wrapper {
     margin-right: var(--padding-md);
     width: var(--icon-size-xs);

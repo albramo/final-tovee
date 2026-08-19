@@ -40,6 +40,18 @@
     right: 0;
   }
 
+  [dir="rtl"] .theme-drawer__dialog {
+    right: auto;
+    left: calc(-1 * var(--theme-drawer-width, var(--sidebar-width)));
+    border-left: none;
+    border-right: var(--style-border-drawer);
+  }
+
+  [dir="rtl"] .theme-drawer__dialog[open] {
+    right: auto;
+    left: 0;
+  }
+
   /* Promote the drawer to its own compositor layer while animating so the
      slide-in/out never triggers full-page paint work inside the click task
      (INP). Released once the animation class is removed. */
@@ -84,6 +96,26 @@
   @keyframes drawer-slide-out {
     to {
       transform: translateX(100%);
+    }
+  }
+
+  [dir="rtl"] .theme-drawer__dialog--opening {
+    animation: drawer-slide-in-rtl 0.3s var(--animation-timing-fade-in);
+  }
+
+  [dir="rtl"] .theme-drawer__dialog--closing {
+    animation: drawer-slide-out-rtl 0.25s var(--animation-timing-fade-out) forwards;
+  }
+
+  @keyframes drawer-slide-in-rtl {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes drawer-slide-out-rtl {
+    to {
+      transform: translateX(-100%);
     }
   }
 
