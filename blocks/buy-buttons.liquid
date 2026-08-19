@@ -356,7 +356,9 @@
   <div class="routine-section">
     <div class="routine-section__header">
       <h3 class="routine-section__title">
-        {% if block_settings.routine_title != blank %}
+        {% if request.locale.iso_code contains 'ar' %}
+          {{ 'products.product.complete_your_routine' | t }}
+        {% elsif block_settings.routine_title != blank %}
           {{ block_settings.routine_title }}
         {% else %}
           {{ 'products.product.complete_your_routine' | t }}
