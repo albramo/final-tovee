@@ -133,7 +133,7 @@
     endif
   endif
   capture search
-    {% comment %} Search is rendered strictly once inside header-actions {% endcomment %}
+    render 'search', style: search_style, class: search_class, display_style: section.settings.actions_display_style
   endcapture
 
   # Skip drawer search under specific conditions:
@@ -538,6 +538,19 @@
     #header-component[data-menu-style='menu'] :is(.header-menu, .dropdown-localization) {
       display: flex;
     }
+
+    /* Hide the standalone dropdown localization on desktop since
+       the language selector is now part of header-actions */
+    #header-component[data-menu-style='menu'] .dropdown-localization {
+      display: none !important;
+    }
+
+    /* Hide the standalone search from header-row on desktop since
+       the search button is now part of header-actions */
+    .header__column > search-button:not(.header-actions__mobile-search),
+    .header__columns > search-button:not(.header-actions__mobile-search) {
+      display: none !important;
+    }
   }
 
   #header-component[data-menu-style='drawer'] .header__column {
@@ -887,6 +900,7 @@
 
     @media screen and (max-width: 749px) {
       --header-template-columns: var(--header-mobile-bookend) 1fr auto;
+      position: relative;
 
       grid-template-areas: 'leftA center rightB';
       grid-column: span 3;
@@ -897,10 +911,16 @@
 
       .header-logo {
         grid-area: center;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
+        z-index: 2;
       }
 
-      search-button:not(.header-actions__search-btn),
-      .search-action:not(.header-actions__search-btn) {
+      .header__column > search-button:not(.header-actions__mobile-search),
+      .header__columns > search-button:not(.header-actions__mobile-search) {
         display: none !important;
       }
 
@@ -908,7 +928,7 @@
         grid-area: rightB;
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 0.15rem;
       }
     }
   }
@@ -918,6 +938,7 @@
   #header-component[data-menu-style='drawer'] .header__columns {
     --header-template-columns: var(--header-mobile-bookend) var(--header-mobile-bookend) 1fr
       auto auto;
+    position: relative;
 
     grid-template-areas: 'leftA leftB center rightA rightB';
     grid-column: span 3;
@@ -928,6 +949,12 @@
 
     .header-logo {
       grid-area: center;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0;
+      z-index: 2;
     }
 
     &:not(:has(header-actions)) .search-action {
@@ -1152,16 +1179,12 @@
   }
 
   dropdown-localization-component .localization-wrapper {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-    border: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
     background-color: var(--color-background);
-    max-height: 20rem;
-    min-width: 130px;
-    width: max-content;
-    padding: 4px;
-    border-radius: 8px;
+    max-height: 27.5rem;
     position: absolute;
-    top: calc(100% + 4px);
+    top: calc(100% + 6px);
     z-index: calc(var(--layer-header-menu) + 1);
     overflow: hidden;
   }

@@ -111,6 +111,7 @@ class LocalizationFormComponent extends Component {
 
     if (languageInput) {
       languageInput.value = languageCode;
+      this.resizeLanguageInput();
       form?.submit();
     }
   };
