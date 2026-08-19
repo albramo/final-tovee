@@ -67,7 +67,7 @@
 
   {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
     <button
-      class="header-actions__action button-unstyled{% if display_style == 'text' %} header-actions__text-style{% endif %}"
+      class="header-actions__action header-actions__cart-btn button-unstyled{% if display_style == 'text' %} header-actions__text-style{% endif %}"
       on:click="#cart-drawer/toggle"
       aria-haspopup="dialog"
       aria-expanded="false"
@@ -81,7 +81,7 @@
   {% else %}
     <a
       href="{{ routes.cart_url }}"
-      class="header-actions__action action__cart{% if display_style == 'text' %} header-actions__text-style{% endif %}"
+      class="header-actions__action action__cart header-actions__cart-btn{% if display_style == 'text' %} header-actions__text-style{% endif %}"
       aria-label="{{ 'accessibility.cart' | t }}"
       aria-describedby="cart-bubble-text"
     >
@@ -289,7 +289,23 @@
 
     @media screen and (max-width: 749px) {
       justify-self: flex-end;
-      gap: var(--gap-xs);
+      align-items: center;
+      gap: 16px;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .header-actions__cart-btn,
+    .action__cart {
+      order: 1;
+    }
+
+    .header-actions__mobile-search {
+      order: 2;
+    }
+
+    .header-actions__lang-wrapper {
+      order: 3;
     }
   }
 
