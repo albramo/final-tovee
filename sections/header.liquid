@@ -862,7 +862,7 @@
 
     @media screen and (max-width: 749px) {
       --header-template-columns: var(--header-mobile-bookend) var(--header-mobile-bookend) 1fr
-        var(--header-mobile-bookend) var(--header-mobile-bookend);
+        auto auto;
 
       grid-template-areas: 'leftA leftB center rightA rightB';
       grid-column: span 3;
@@ -897,7 +897,7 @@
     We could avoid the duplication using js to set the data-menu-style attribute on small screens instead of using @media queries */
   #header-component[data-menu-style='drawer'] .header__columns {
     --header-template-columns: var(--header-mobile-bookend) var(--header-mobile-bookend) 1fr
-      var(--header-mobile-bookend) var(--header-mobile-bookend);
+      auto auto;
 
     grid-template-areas: 'leftA leftB center rightA rightB';
     grid-column: span 3;
@@ -1032,8 +1032,18 @@
     font-family: var(--menu-localization-font);
     font-size: var(--menu-localization-font-size);
     font-weight: var(--menu-top-level-font-weight);
-    padding-inline: var(--padding-2xs);
-    margin-inline: calc(-1 * var(--padding-2xs));
+    padding: 6px 10px;
+    margin-inline: 0;
+    border-radius: 6px;
+    background-color: rgb(var(--color-foreground-rgb) / 0.04);
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
+    transition: background-color var(--animation-speed) var(--animation-easing),
+                border-color var(--animation-speed) var(--animation-easing);
+  }
+
+  .dropdown-localization__button:hover {
+    background-color: rgb(var(--color-foreground-rgb) / 0.08);
+    border-color: rgb(var(--color-foreground-rgb) / 0.15);
   }
 
   .dropdown-localization__button .svg-wrapper.icon-caret {
@@ -1043,6 +1053,7 @@
     top: calc(50% - var(--padding-2xs));
     flex-shrink: 0;
     transition: transform var(--animation-speed) var(--animation-easing);
+    opacity: 0.5;
   }
 
   .dropdown-localization__button .icon-flag {
@@ -1070,8 +1081,6 @@
   .dropdown-localization__button,
   .dropdown-localization__button:hover {
     box-shadow: none;
-    background-color: transparent;
-    border-color: transparent;
   }
 
   dropdown-localization-component .localization-form__list {
@@ -1081,12 +1090,12 @@
   .localization-wrapper {
     position: fixed;
     z-index: var(--layer-raised);
-    border-radius: var(--style-border-radius-popover);
+    border-radius: 10px;
     transition-property: display, opacity, translate;
-    transition-duration: 0.3s;
+    transition-duration: 0.25s;
     transition-timing-function: var(--ease-out-quad);
     transition-behavior: allow-discrete;
-    translate: 0 20px;
+    translate: 0 12px;
     opacity: 0;
   }
 
@@ -1097,7 +1106,7 @@
 
   @starting-style {
     .localization-wrapper:not([hidden]) {
-      translate: 0 20px;
+      translate: 0 12px;
       opacity: 0;
     }
   }
@@ -1114,6 +1123,8 @@
 
   dropdown-localization-component .country-filter__input {
     border: none;
+    background-color: rgb(var(--color-foreground-rgb) / 0.04);
+    border-radius: 6px;
   }
 
   dropdown-localization-component .localization-form__list-item {
@@ -1121,13 +1132,14 @@
   }
 
   dropdown-localization-component .localization-wrapper {
-    box-shadow: var(--shadow-popover);
-    border: var(--style-border-popover);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
     background-color: var(--color-background);
     max-height: 27.5rem;
     position: absolute;
-    top: calc(100% + 10px);
+    top: calc(100% + 6px);
     z-index: calc(var(--layer-header-menu) + 1);
+    overflow: hidden;
   }
 
   dropdown-localization-component .localization-wrapper.right-bound {
@@ -1143,6 +1155,7 @@
   /* Additional specificity due to dropdown-localization-component getting a low score */
   dropdown-localization-component .language-selector.language-selector {
     padding: 10px 8px 10px 16px;
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.06);
   }
 
   dropdown-localization-component .localization-form__currency {

@@ -279,6 +279,7 @@
 
     @media screen and (max-width: 749px) {
       justify-self: flex-end;
+      gap: var(--gap-xs);
     }
   }
 
@@ -413,7 +414,8 @@
   .header-actions__lang-wrapper {
     display: flex;
     align-items: center;
-    margin-inline-end: var(--gap-xs);
+    margin-inline-end: 6px;
+    margin-inline-start: 2px;
 
     @media screen and (min-width: 750px) {
       display: none !important;
@@ -424,16 +426,16 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    background-color: var(--color-background);
-    border: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
-    border-radius: var(--style-border-radius-buttons-primary, 20px);
-    padding: 4px 22px 4px 10px;
+    background-color: rgb(var(--color-foreground-rgb) / 0.06);
+    border: none;
+    border-radius: 6px;
+    padding: 5px 20px 5px 8px;
     cursor: pointer;
-    transition: border-color var(--animation-speed) var(--animation-easing);
+    transition: background-color var(--animation-speed) var(--animation-easing);
   }
 
   .header-actions__lang-select-container:hover {
-    border-color: rgb(var(--color-foreground-rgb) / 0.4);
+    background-color: rgb(var(--color-foreground-rgb) / 0.1);
   }
 
   .header-actions__lang-select {
@@ -449,31 +451,33 @@
   }
 
   .header-actions__lang-badge {
-    font-size: var(--font-size--xs, 0.75rem);
-    font-weight: 700;
+    font-size: 0.7rem;
+    font-weight: 600;
     text-transform: uppercase;
     color: var(--color-foreground);
     line-height: 1;
     pointer-events: none;
+    letter-spacing: 0.03em;
   }
 
   .header-actions__lang-caret {
     position: absolute;
-    right: 6px;
+    right: 5px;
     top: 50%;
     transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     color: var(--color-foreground);
     pointer-events: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0.5;
   }
 
   .header-actions__lang-caret svg {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
 
   .header-actions__text {
