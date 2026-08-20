@@ -6,7 +6,7 @@
 {%- comment -%} Grid styles required by the theme resource-list (same as "You may also like"); card and gallery styles are rendered by the card snippets themselves {%- endcomment -%}
 {% render 'resource-list-styles' %}
 
-<div class="products-tabs-section" data-section-id="{{ section.id }}" data-product-card-styles>
+<div class="products-tabs-section" data-section-id="{{ section.id }}" data-product-card-styles {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}>
 {%- comment -%} CSS Part: التصميم (كل القيم قابلة للتعديل من محرر الثيم) {%- endcomment -%}
 <style>
   .products-tabs-section {
@@ -23,6 +23,7 @@
   }
 
   .products-tabs__header h2 {
+    font-family: var(--font-heading--family);
     font-size: 32px;
     font-weight: 600;
     color: #333;
@@ -61,6 +62,7 @@
     background: transparent !important;
     border: 2px solid transparent !important;
     border-radius: {{ section.settings.tab_radius }}px;
+    font-family: var(--font-body--family);
     font-size: {{ section.settings.tab_font_size }}px;
     font-weight: 500;
     color: {{ section.settings.tab_color }};
