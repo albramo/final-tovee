@@ -2426,6 +2426,13 @@ main > .shopify-section:first-child .section:not(.disable-section-top-offset) {
     gap: 0.7rem !important;
   }
 
+  /* Mobile header: 2px gap between cart icon and screen edge */
+  header-actions > .header-actions__action:has(.header-actions__cart-icon),
+  header-actions > .header-actions__action[data-testid='cart-drawer-trigger'],
+  header-actions > .header-actions__action.action__cart {
+    margin-inline-end: 2px !important;
+  }
+
   /* Mobile header: normal action icons */
   .header-actions__action:not(.account-button) .svg-wrapper {
     width: 22px !important;
@@ -2437,15 +2444,28 @@ main > .shopify-section:first-child .section:not(.disable-section-top-offset) {
     height: 21px !important;
   }
 
-  /* Mobile header: cart icon */
-  .header-actions__action:not(.account-button) .header-actions__cart-icon .svg-wrapper {
+  /* Mobile header: search icon */
+  .header-actions__mobile-search .svg-wrapper,
+  .header-actions__action.search-action .svg-wrapper {
     width: 26px !important;
     height: 26px !important;
   }
 
-  .header-actions__action:not(.account-button) .header-actions__cart-icon .svg-wrapper > svg {
+  .header-actions__mobile-search .svg-wrapper > svg,
+  .header-actions__action.search-action .svg-wrapper > svg {
     width: 26px !important;
     height: 26px !important;
+  }
+
+  /* Mobile header: cart icon */
+  .header-actions__action:not(.account-button) .header-actions__cart-icon .svg-wrapper {
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .header-actions__action:not(.account-button) .header-actions__cart-icon .svg-wrapper > svg {
+    width: 30px !important;
+    height: 30px !important;
   }
 
   /* Mobile header language button smaller */
@@ -2557,4 +2577,17 @@ html[dir='rtl'] .header-actions__action:not(.account-button) .header-actions__ca
     margin: 0 !important;
     z-index: 2 !important;
   }
+}
+
+/* Product page: keep "Tovee labs" text and product title LTR regardless of language direction */
+.text-block--text_BM6tnF,
+.text-block--text_xrnftG,
+.text-block--product_title_M7MJkb,
+.text-block--product_title,
+.text-block--text_BM6tnF *,
+.text-block--text_xrnftG *,
+.text-block--product_title_M7MJkb *,
+.text-block--product_title * {
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
 }
