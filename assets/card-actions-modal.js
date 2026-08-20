@@ -591,6 +591,7 @@
         // as the modal teardown and blocks it (INP presentation delay).
         setTimeout(function() {
           document.body.style.overflow = '';
+          document.documentElement.removeAttribute('scroll-lock');
         }, 0);
       });
     });
