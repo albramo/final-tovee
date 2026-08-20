@@ -2635,6 +2635,13 @@ html[dir="rtl"] .product-details product-price,
   text-align: left !important;
 }
 
+/* Product card discount badge RTL alignment */
+[dir="rtl"] .product-discount-badge,
+html[dir="rtl"] .product-discount-badge {
+  left: auto !important;
+  right: 12px !important;
+}
+
 /* Complete Your Routine (أكمل روتينك) - styles must be global because the
    section is rendered inside the cart drawer on every page, while the
    buy-buttons block (which used to carry these styles) only loads on the

@@ -619,81 +619,95 @@
             assign show_country = false
           endif
         %}
-        {% if shop.policies.size > 0 %}
-          <details
-            class="details menu-drawer__policies"
-            data-testid="drawer-policies-details"
-          >
-            <summary class="details__header menu-drawer__policies-summary focus-inset">
-              <span class="details__heading menu-drawer__policies-heading">{{ 'content.terms_and_policies' | t }}</span>
-              <span class="svg-wrapper icon-plus menu-drawer__policies-toggle" aria-hidden="true">
-                {{- 'icon-plus.svg' | inline_asset_content -}}
-              </span>
-            </summary>
-            <div class="details-content menu-drawer__policies-content">
-              <ul class="menu-drawer__policies-list list-unstyled">
-                {%- for policy in shop.policies -%}
-                  {%- if policy != blank -%}
-                    <li>
-                      <a href="{{ policy.url }}" class="menu-drawer__policies-link">
-                        {{- policy.title | escape -}}
-                      </a>
-                    </li>
-                  {%- endif -%}
-                {%- endfor -%}
-              </ul>
+        <drawer-collapsible-accordion class="drawer-collapsible-accordion">
+          {% if shop.policies.size > 0 %}
+            <details
+              class="details menu-drawer__policies"
+              data-testid="drawer-policies-details"
+            >
+              <summary class="details__header menu-drawer__policies-summary focus-inset">
+                <span class="details__heading menu-drawer__policies-heading">{{ 'content.terms_and_policies' | t }}</span>
+                <span class="svg-wrapper icon-plus menu-drawer__policies-toggle" aria-hidden="true">
+                  {{- 'icon-plus.svg' | inline_asset_content -}}
+                </span>
+              </summary>
+              <div class="details-content-wrapper">
+                <div class="details-content-inner">
+                  <div class="details-content menu-drawer__policies-content">
+                    <ul class="menu-drawer__policies-list list-unstyled">
+                      {%- for policy in shop.policies -%}
+                        {%- if policy != blank -%}
+                          <li>
+                            <a href="{{ policy.url }}" class="menu-drawer__policies-link">
+                              {{- policy.title | escape -}}
+                            </a>
+                          </li>
+                        {%- endif -%}
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </details>
+          {% endif %}
+          {% if data_header_drawer_type == 'mobile-drawer' and show_country or show_language %}
+            {% liquid
+              assign localization_font = '--menu-localization-font: var(--font-[localization_font]--family); ' | replace: '[localization_font]', section.settings.localization_font
+              assign color_shadow = '--color-shadow: rgb(var(--color-foreground-rgb) / var(--opacity-10-25));'
+              assign form_style = localization_font | append: color_shadow
+            %}
+            <div class="menu-drawer__localization menu-drawer__localization--rows">
+              {% if show_language %}
+                <details class="drawer-localization-row">
+                  <summary class="drawer-localization-row__summary focus-inset">
+                    <span class="drawer-localization-row__value">{{ localization.language.endonym_name | capitalize }}</span>
+                    <span class="drawer-localization-row__icon drawer-localization-row__icon--toggle" aria-hidden="true">
+                      {{- 'icon-plus.svg' | inline_asset_content -}}
+                    </span>
+                  </summary>
+                  <div class="details-content-wrapper">
+                    <div class="details-content-inner">
+                      <div class="drawer-localization-row__content">
+                        {% render 'localization-form',
+                          show_country: false,
+                          show_language: true,
+                          localization_style: 'drawer',
+                          form_style: form_style,
+                          form_id: block.id,
+                          back: request.path
+                        %}
+                      </div>
+                    </div>
+                  </div>
+                </details>
+              {% endif %}
+              {% if show_country %}
+                <details class="drawer-localization-row">
+                  <summary class="drawer-localization-row__summary focus-inset">
+                    <span class="drawer-localization-row__value">{{ localization.country.currency.iso_code }}</span>
+                    <span class="drawer-localization-row__icon drawer-localization-row__icon--toggle" aria-hidden="true">
+                      {{- 'icon-plus.svg' | inline_asset_content -}}
+                    </span>
+                  </summary>
+                  <div class="details-content-wrapper">
+                    <div class="details-content-inner">
+                      <div class="drawer-localization-row__content">
+                        {% render 'localization-form',
+                          show_country: true,
+                          show_language: false,
+                          localization_style: 'drawer',
+                          form_style: form_style,
+                          form_id: block.id,
+                          back: request.path
+                        %}
+                      </div>
+                    </div>
+                  </div>
+                </details>
+              {% endif %}
             </div>
-          </details>
-        {% endif %}
-        {% if data_header_drawer_type == 'mobile-drawer' and show_country or show_language %}
-          {% liquid
-            assign localization_font = '--menu-localization-font: var(--font-[localization_font]--family); ' | replace: '[localization_font]', section.settings.localization_font
-            assign color_shadow = '--color-shadow: rgb(var(--color-foreground-rgb) / var(--opacity-10-25));'
-            assign form_style = localization_font | append: color_shadow
-          %}
-          <div class="menu-drawer__localization menu-drawer__localization--rows">
-            {% if show_language %}
-              <details class="drawer-localization-row">
-                <summary class="drawer-localization-row__summary focus-inset">
-                  <span class="drawer-localization-row__value">{{ localization.language.endonym_name | capitalize }}</span>
-                  <span class="drawer-localization-row__icon drawer-localization-row__icon--toggle" aria-hidden="true">
-                    {{- 'icon-plus.svg' | inline_asset_content -}}
-                  </span>
-                </summary>
-                <div class="drawer-localization-row__content">
-                  {% render 'localization-form',
-                    show_country: false,
-                    show_language: true,
-                    localization_style: 'drawer',
-                    form_style: form_style,
-                    form_id: block.id,
-                    back: request.path
-                  %}
-                </div>
-              </details>
-            {% endif %}
-            {% if show_country %}
-              <details class="drawer-localization-row">
-                <summary class="drawer-localization-row__summary focus-inset">
-                  <span class="drawer-localization-row__value">{{ localization.country.currency.iso_code }}</span>
-                  <span class="drawer-localization-row__icon drawer-localization-row__icon--toggle" aria-hidden="true">
-                    {{- 'icon-plus.svg' | inline_asset_content -}}
-                  </span>
-                </summary>
-                <div class="drawer-localization-row__content">
-                  {% render 'localization-form',
-                    show_country: true,
-                    show_language: false,
-                    localization_style: 'drawer',
-                    form_style: form_style,
-                    form_id: block.id,
-                    back: request.path
-                  %}
-                </div>
-              </details>
-            {% endif %}
-          </div>
-        {%- endif -%}
+          {%- endif -%}
+        </drawer-collapsible-accordion>
       </div>
 
     </div>
@@ -1450,6 +1464,38 @@
   }
 
   /* Drawer localization rows: language & currency collapsibles */
+  drawer-collapsible-accordion {
+    display: block;
+    width: 100%;
+  }
+
+  .menu-drawer .details-content-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .menu-drawer details[open] > .details-content-wrapper {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .menu-drawer .details-content-inner {
+    overflow: hidden;
+  }
+
+  .menu-drawer__policies-toggle,
+  .drawer-localization-row__icon {
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+
+  .menu-drawer__policies[open] .menu-drawer__policies-toggle,
+  .drawer-localization-row[open] .drawer-localization-row__icon {
+    transform: rotate(45deg) !important;
+  }
+
   .menu-drawer__localization--rows {
     display: flex;
     flex-direction: column;
@@ -1721,3 +1767,100 @@
     min-height: calc(2 * var(--padding-xs) + 1.5rem);
   }
 {% endstylesheet %}
+
+<script>
+  if (!customElements.get('drawer-collapsible-accordion')) {
+    class DrawerCollapsibleAccordion extends HTMLElement {
+      connectedCallback() {
+        const detailsList = Array.from(this.querySelectorAll('details'));
+
+        detailsList.forEach((details) => {
+          const summary = details.querySelector('summary');
+          const wrapper = details.querySelector('.details-content-wrapper');
+
+          if (!summary || !wrapper) return;
+
+          // Initialize open states
+          if (details.open) {
+            wrapper.style.gridTemplateRows = '1fr';
+            wrapper.style.opacity = '1';
+          } else {
+            wrapper.style.gridTemplateRows = '0fr';
+            wrapper.style.opacity = '0';
+          }
+
+          summary.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            if (details.dataset.isAnimating === 'true') return;
+
+            const isOpen = details.open;
+
+            // Close other open details smoothly in drawer
+            if (!isOpen) {
+              detailsList.forEach((other) => {
+                if (other !== details && other.open) {
+                  this.animateClose(other);
+                }
+              });
+              this.animateOpen(details);
+            } else {
+              this.animateClose(details);
+            }
+          });
+        });
+      }
+
+      animateOpen(details) {
+        const wrapper = details.querySelector('.details-content-wrapper');
+        if (!wrapper) return;
+
+        details.dataset.isAnimating = 'true';
+        details.open = true;
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            wrapper.style.gridTemplateRows = '1fr';
+            wrapper.style.opacity = '1';
+
+            const onEnd = (e) => {
+              if (e.target === wrapper) {
+                wrapper.removeEventListener('transitionend', onEnd);
+                details.dataset.isAnimating = 'false';
+              }
+            };
+            wrapper.addEventListener('transitionend', onEnd);
+            setTimeout(() => { details.dataset.isAnimating = 'false'; }, 380);
+          });
+        });
+      }
+
+      animateClose(details) {
+        const wrapper = details.querySelector('.details-content-wrapper');
+        if (!wrapper) {
+          details.open = false;
+          return;
+        }
+
+        details.dataset.isAnimating = 'true';
+        wrapper.style.gridTemplateRows = '0fr';
+        wrapper.style.opacity = '0';
+
+        const onEnd = (e) => {
+          if (e.target === wrapper) {
+            wrapper.removeEventListener('transitionend', onEnd);
+            details.open = false;
+            details.dataset.isAnimating = 'false';
+          }
+        };
+        wrapper.addEventListener('transitionend', onEnd);
+        setTimeout(() => {
+          details.open = false;
+          details.dataset.isAnimating = 'false';
+        }, 380);
+      }
+    }
+
+    customElements.define('drawer-collapsible-accordion', DrawerCollapsibleAccordion);
+  }
+</script>

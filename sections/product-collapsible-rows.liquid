@@ -75,54 +75,60 @@
       </div>
     </product-tabs>
 
-    {% assign enabled_index = 0 %}
-    {% for block in section.blocks %}
-      {% if block.settings.enable %}
-        <details
-          class="details product-tabs__mobile-details"
-          data-testid="collapsible-rows__details"
-          {% if section.settings.open_first_row_by_default and enabled_index == 0 %}open{% endif %}
-          {{ block.shopify_attributes }}
-        >
-          <summary class="details__header">
-            <span class="details__heading">{{ block.settings.title | escape }}</span>
-            <span class="svg-wrapper icon-plus" aria-hidden="true">
-              {{- 'icon-plus.svg' | inline_asset_content -}}
-            </span>
-          </summary>
-          {% if block.settings.description_metafield != blank %}
-            <div class="details-content">
-              {{ block.settings.description_metafield }}
-            </div>
-          {% endif %}
+    <collapsible-row-accordion class="collapsible-row-accordion">
+      {% assign enabled_index = 0 %}
+      {% for block in section.blocks %}
+        {% if block.settings.enable %}
+          <details
+            class="details product-tabs__mobile-details"
+            data-testid="collapsible-rows__details"
+            {% if section.settings.open_first_row_by_default and enabled_index == 0 %}open{% endif %}
+            {{ block.shopify_attributes }}
+          >
+            <summary class="details__header">
+              <span class="details__heading">{{ block.settings.title | escape }}</span>
+              <span class="svg-wrapper icon-plus" aria-hidden="true">
+                {{- 'icon-plus.svg' | inline_asset_content -}}
+              </span>
+            </summary>
+            <div class="details-content-wrapper">
+              <div class="details-content-inner">
+                {% if block.settings.description_metafield != blank %}
+                  <div class="details-content">
+                    {{ block.settings.description_metafield }}
+                  </div>
+                {% endif %}
 
-          {%- if tab_reference != blank -%}
-            {%- assign tab_text = tab_reference.value.tab_text -%}
-            {%- assign tab_image = tab_reference.value.tab_image -%}
-            {%- assign tab_img_url = tab_image | image_url: width: 1000 -%}
+                {%- if tab_reference != blank -%}
+                  {%- assign tab_text = tab_reference.value.tab_text -%}
+                  {%- assign tab_image = tab_reference.value.tab_image -%}
+                  {%- assign tab_img_url = tab_image | image_url: width: 1000 -%}
 
-            {%- if tab_text != blank -%}
-              <div class="details-content rte">
-                {{ tab_text }}
+                  {%- if tab_text != blank -%}
+                    <div class="details-content rte">
+                      {{ tab_text }}
+                    </div>
+                  {%- endif -%}
+
+                  {%- if tab_img_url != blank -%}
+                    <div class="details-content__image">
+                      <img
+                        src="{{ tab_img_url }}"
+                        alt="{{ tab_reference.value.tab_title | default: 'Tab image' | escape }}"
+                        loading="lazy"
+                        width="{{ tab_image.width }}"
+                        height="{{ tab_image.height }}"
+                      >
+                    </div>
+                  {%- endif -%}
+                {%- endif -%}
               </div>
-            {%- endif -%}
-
-          {%- if tab_img_url != blank -%}
-            <div class="details-content__image">
-              <img
-                src="{{ tab_img_url }}"
-                alt="{{ tab_reference.value.tab_title | default: 'Tab image' | escape }}"
-                loading="lazy"
-                width="{{ tab_image.width }}"
-                height="{{ tab_image.height }}"
-              >
             </div>
-          {%- endif -%}
-        {%- endif -%}
-        </details>
-        {% assign enabled_index = enabled_index | plus: 1 %}
-      {% endif %}
-    {% endfor %}
+          </details>
+          {% assign enabled_index = enabled_index | plus: 1 %}
+        {% endif %}
+      {% endfor %}
+    </collapsible-row-accordion>
   </div>
 {% endif %}
 
@@ -142,8 +148,31 @@
     padding-inline: clamp(16px, 3vw, 28px);
   }
 
+  collapsible-row-accordion {
+    display: block;
+    width: 100%;
+  }
+
   .collapsible-rows .product-tabs__mobile-details {
     border-block-start: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
+    overflow: hidden;
+  }
+
+  .collapsible-rows .product-tabs__mobile-details .details-content-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .collapsible-rows .product-tabs__mobile-details[open] .details-content-wrapper {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .collapsible-rows .product-tabs__mobile-details .details-content-inner {
+    overflow: hidden;
   }
 
   .collapsible-rows .product-tabs__mobile-details .details__header {
@@ -162,14 +191,19 @@
   }
 
   .collapsible-rows .product-tabs__mobile-details .details__heading {
-    font-size: 1.125rem;
-    font-weight: var(--font-weight-bold);
+    font-size: 0.95rem;
+    font-weight: 700;
   }
 
   .collapsible-rows .product-tabs__mobile-details .icon-plus {
     flex-shrink: 0;
     width: 18px;
     height: 18px;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .collapsible-rows .product-tabs__mobile-details[open] .icon-plus {
+    transform: rotate(45deg);
   }
 
   .collapsible-rows .product-tabs__mobile-details .icon-plus svg {
@@ -177,9 +211,11 @@
     height: 18px;
   }
 
-  .collapsible-rows .product-tabs__mobile-details .details-content {
+  .collapsible-rows .product-tabs__mobile-details .details-content,
+  .collapsible-rows .product-tabs__mobile-details .details-content p,
+  .collapsible-rows .product-tabs__mobile-details .details-content span {
     padding-block-end: var(--padding-lg);
-    font-size: 1rem;
+    font-size: 0.95rem;
     line-height: 1.7;
     color: rgb(var(--color-foreground-rgb) / 0.78);
   }
@@ -224,8 +260,8 @@
       border: 1px solid rgb(var(--color-foreground-rgb) / 0.25);
       border-radius: 9999px;
       padding: 8px 20px;
-      font-size: 0.9375rem;
-      font-weight: var(--font-weight-bold, 800);
+      font-size: 0.85rem;
+      font-weight: 700;
       letter-spacing: 0.06em;
       color: rgb(var(--color-foreground-rgb) / 0.5);
       cursor: pointer;
@@ -255,8 +291,10 @@
       display: block;
     }
 
-    .product-tabs__content {
-      font-size: 1.0625rem;
+    .product-tabs__content,
+    .product-tabs__content p,
+    .product-tabs__content span {
+      font-size: 0.95rem;
       line-height: 1.7;
       color: rgb(var(--color-foreground-rgb) / 0.75);
       text-align: center;
@@ -284,6 +322,101 @@
 {% endstylesheet %}
 
 <script>
+  if (!customElements.get('collapsible-row-accordion')) {
+    class CollapsibleRowAccordion extends HTMLElement {
+      connectedCallback() {
+        const detailsList = Array.from(this.querySelectorAll('details.product-tabs__mobile-details'));
+
+        detailsList.forEach((details) => {
+          const summary = details.querySelector('summary.details__header');
+          const wrapper = details.querySelector('.details-content-wrapper');
+
+          if (!summary || !wrapper) return;
+
+          // Initialize open states
+          if (details.open) {
+            wrapper.style.gridTemplateRows = '1fr';
+            wrapper.style.opacity = '1';
+          } else {
+            wrapper.style.gridTemplateRows = '0fr';
+            wrapper.style.opacity = '0';
+          }
+
+          summary.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            if (details.dataset.isAnimating === 'true') return;
+
+            const isOpen = details.open;
+
+            // Close other open details smoothly
+            if (!isOpen) {
+              detailsList.forEach((other) => {
+                if (other !== details && other.open) {
+                  this.animateClose(other);
+                }
+              });
+              this.animateOpen(details);
+            } else {
+              this.animateClose(details);
+            }
+          });
+        });
+      }
+
+      animateOpen(details) {
+        const wrapper = details.querySelector('.details-content-wrapper');
+        if (!wrapper) return;
+
+        details.dataset.isAnimating = 'true';
+        details.open = true;
+
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            wrapper.style.gridTemplateRows = '1fr';
+            wrapper.style.opacity = '1';
+
+            const onEnd = (e) => {
+              if (e.target === wrapper) {
+                wrapper.removeEventListener('transitionend', onEnd);
+                details.dataset.isAnimating = 'false';
+              }
+            };
+            wrapper.addEventListener('transitionend', onEnd);
+            setTimeout(() => { details.dataset.isAnimating = 'false'; }, 380);
+          });
+        });
+      }
+
+      animateClose(details) {
+        const wrapper = details.querySelector('.details-content-wrapper');
+        if (!wrapper) {
+          details.open = false;
+          return;
+        }
+
+        details.dataset.isAnimating = 'true';
+        wrapper.style.gridTemplateRows = '0fr';
+        wrapper.style.opacity = '0';
+
+        const onEnd = (e) => {
+          if (e.target === wrapper) {
+            wrapper.removeEventListener('transitionend', onEnd);
+            details.open = false;
+            details.dataset.isAnimating = 'false';
+          }
+        };
+        wrapper.addEventListener('transitionend', onEnd);
+        setTimeout(() => {
+          details.open = false;
+          details.dataset.isAnimating = 'false';
+        }, 380);
+      }
+    }
+
+    customElements.define('collapsible-row-accordion', CollapsibleRowAccordion);
+  }
+
   if (!customElements.get('product-tabs')) {
     class ProductTabs extends HTMLElement {
       connectedCallback() {
