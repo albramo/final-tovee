@@ -138,6 +138,8 @@
 
   .collapsible-rows {
     width: 100%;
+    background-color: #f5f5f5 !important;
+    padding-inline: clamp(16px, 3vw, 28px);
   }
 
   .collapsible-rows .product-tabs__mobile-details {
@@ -160,7 +162,8 @@
   }
 
   .collapsible-rows .product-tabs__mobile-details .details__heading {
-    font-weight: var(--font-weight-semibold);
+    font-size: 1.125rem;
+    font-weight: var(--font-weight-bold);
   }
 
   .collapsible-rows .product-tabs__mobile-details .icon-plus {
@@ -176,6 +179,9 @@
 
   .collapsible-rows .product-tabs__mobile-details .details-content {
     padding-block-end: var(--padding-lg);
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgb(var(--color-foreground-rgb) / 0.78);
   }
 
   .collapsible-rows .product-tabs__mobile-details img {
@@ -218,8 +224,8 @@
       border: 1px solid rgb(var(--color-foreground-rgb) / 0.25);
       border-radius: 9999px;
       padding: 8px 20px;
-      font-size: 0.8125rem;
-      font-weight: var(--font-weight-semibold, 600);
+      font-size: 0.9375rem;
+      font-weight: var(--font-weight-bold, 800);
       letter-spacing: 0.06em;
       color: rgb(var(--color-foreground-rgb) / 0.5);
       cursor: pointer;
@@ -250,9 +256,9 @@
     }
 
     .product-tabs__content {
-      font-size: 0.9375rem;
-      line-height: 1.6;
-      color: rgb(var(--color-foreground-rgb) / 0.7);
+      font-size: 1.0625rem;
+      line-height: 1.7;
+      color: rgb(var(--color-foreground-rgb) / 0.75);
       text-align: center;
     }
 
