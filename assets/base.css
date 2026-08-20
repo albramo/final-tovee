@@ -2426,11 +2426,11 @@ main > .shopify-section:first-child .section:not(.disable-section-top-offset) {
     gap: 0.7rem !important;
   }
 
-  /* Mobile header: 2px gap between cart icon and screen edge */
+  /* Mobile header: 4px gap between cart icon and screen edge */
   header-actions > .header-actions__action:has(.header-actions__cart-icon),
   header-actions > .header-actions__action[data-testid='cart-drawer-trigger'],
   header-actions > .header-actions__action.action__cart {
-    margin-inline-end: 2px !important;
+    margin-inline-end: 4px !important;
   }
 
   /* Mobile header: normal action icons */
@@ -2532,7 +2532,7 @@ main > .shopify-section:first-child .section:not(.disable-section-top-offset) {
 .header-actions__action:not(.account-button) .header-actions__cart-icon .cart-bubble {
   position: absolute !important;
   top: 3px !important;
-  right: -5px !important;
+  right: -2px !important;
   left: auto !important;
   width: 16px !important;
   height: 16px !important;
@@ -2540,7 +2540,7 @@ main > .shopify-section:first-child .section:not(.disable-section-top-offset) {
 
 html[dir='rtl'] .header-actions__action:not(.account-button) .header-actions__cart-icon .cart-bubble {
   right: auto !important;
-  left: -5px !important;
+  left: -2px !important;
 }
 
 @media screen and (max-width: 749px) {
