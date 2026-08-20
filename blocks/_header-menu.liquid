@@ -352,7 +352,7 @@
   .mega-menu__link-inner {
     display: flex;
     align-items: center;
-    gap: var(--gap-2xs);
+    gap: var(--gap-3xs);
     min-width: 0;
   }
 
@@ -370,9 +370,21 @@
     height: var(--icon-size-sm);
   }
 
+  .menu-list .menu-link-icon--lg,
+  .mega-menu .menu-link-icon--lg {
+    width: calc(var(--icon-size-sm) * 1.5);
+    height: calc(var(--icon-size-sm) * 1.2);
+  }
+
   .menu-list .menu-link-icon path,
   .mega-menu .menu-link-icon path {
     fill: currentColor;
+  }
+
+  .menu-list .menu-link-icon.menu-link-icon--stroke path,
+  .mega-menu .menu-link-icon.menu-link-icon--stroke path {
+    fill: none;
+    stroke: currentColor;
   }
 
   .mega-menu__link-inner > span:last-child {

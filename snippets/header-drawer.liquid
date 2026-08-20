@@ -1242,7 +1242,7 @@
   .menu-drawer__menu-item-inner {
     display: flex;
     align-items: center;
-    gap: var(--gap-sm);
+    gap: var(--gap-2xs);
     min-width: 0;
     flex: 1;
   }
@@ -1263,8 +1263,18 @@
     height: 1.5rem;
   }
 
+  .menu-drawer .menu-link-icon--lg {
+    width: calc(1.5rem * 1.35);
+    height: calc(1.5rem * 1.1);
+  }
+
   .menu-drawer .menu-link-icon path {
     fill: currentColor;
+  }
+
+  .menu-drawer .menu-link-icon.menu-link-icon--stroke path {
+    fill: none;
+    stroke: currentColor;
   }
 
   .menu-drawer__icon {
