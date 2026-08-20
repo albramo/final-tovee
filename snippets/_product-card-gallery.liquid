@@ -245,7 +245,7 @@
                     <circle cx="18" cy="20" r="2" fill="none" stroke="currentColor" stroke-width="2"/>
                   </svg>
                   <span class="product-card-modal__spinner" style="display:none;"></span>
-                  <span data-modal-add-text>Add to Cart</span>
+                  <span data-modal-add-text>{{ 'products.product.add_to_cart' | t }}</span>
                 </button>
                 <div class="product-card-modal__row-bottom">
                   {% assign modal_form_id = 'ProductModalForm-' | append: card_block_id %}
@@ -253,13 +253,13 @@
                     <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-modal-form-variant-id>
                     <input type="hidden" name="quantity" value="1" data-modal-form-quantity>
                     <div class="product-card-modal__express-checkout">
-                      <button type="button" class="button button-secondary product-card-modal__buy-btn" data-modal-buy-now>Buy Now</button>
+                      <button type="button" class="button button-secondary product-card-modal__buy-btn" data-modal-buy-now>{{ 'content.buy_now' | t }}</button>
                     </div>
                   {% endform %}
                 </div>
               </div>
 
-              <a href="{{ product.url }}" class="product-card-modal__view-details">View full details</a>
+              <a href="{{ product.url }}" class="product-card-modal__view-details">{{ 'content.view_full_details' | t }}</a>
             </div>
             </div>
           </div>
@@ -920,8 +920,9 @@
     color: var(--color-foreground, #000);
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
 
   .product-card-modal__compare-price {
@@ -1545,7 +1546,7 @@
 
             btn.disabled = true;
             btn.classList.add('is-loading');
-            if (addText) addText.textContent = 'Adding...';
+            if (addText) addText.textContent = addingText;
 
             var deferred = {};
             deferred.promise = new Promise(function(resolve, reject) {
@@ -1806,6 +1807,9 @@
 
         var addToCartText = '{{ 'products.product.add_to_cart' | t }}';
         var soldOutText = '{{ 'products.product.sold_out' | t }}';
+        var buyNowText = '{{ 'content.buy_now' | t }}';
+        var addingText = '{{ 'content.adding' | t }}';
+        var redirectingText = '{{ 'content.redirecting' | t }}';
 
         function setAvailabilityState(available) {
           var addBtnEl = modal.querySelector('[data-modal-add-to-cart]');
@@ -2009,7 +2013,7 @@
             var addText = modal.querySelector('[data-modal-add-text]');
             if (cartIcon) cartIcon.style.display = 'none';
             if (spinner) spinner.style.display = 'inline-block';
-            if (addText) addText.textContent = 'Adding...';
+            if (addText) addText.textContent = addingText;
 
             var deferred = {};
             deferred.promise = new Promise(function(resolve, reject) {
@@ -2085,7 +2089,7 @@
             if (!variantId) return;
 
             btn.disabled = true;
-            btn.textContent = 'Redirecting...';
+            btn.textContent = redirectingText;
 
             fetch('/cart/add.js', {
               method: 'POST',
@@ -2099,7 +2103,7 @@
               })
               .catch(function(err) {
                 btn.disabled = false;
-                btn.textContent = 'Buy Now';
+                btn.textContent = buyNowText;
                 document.dispatchEvent(new CustomEvent('shopify:cart:error', {
                   bubbles: true,
                   cancelable: true,

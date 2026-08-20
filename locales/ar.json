@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin language editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "accessibility": {
     "account": "الحساب",
@@ -138,6 +147,10 @@
     "cart_subtotal": "المجموع الفرعي",
     "cart_total": "إجمالي السلة",
     "checkout": "إتمام الشراء",
+    "buy_now": "اشتري الآن",
+    "adding": "جارٍ الإضافة...",
+    "redirecting": "جارٍ التحويل...",
+    "view_full_details": "عرض التفاصيل الكاملة",
     "collection_placeholder_title": "عنوان المجموعة",
     "discount_code": "كود الخصم",
     "shipping_discount_error": "خصومات الشحن تظهر عند الإتمام بعد إدخال العنوان",

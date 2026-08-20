@@ -619,6 +619,32 @@
             assign show_country = false
           endif
         %}
+        {% if shop.policies.size > 0 %}
+          <details
+            class="details menu-drawer__policies"
+            data-testid="drawer-policies-details"
+          >
+            <summary class="details__header menu-drawer__policies-summary focus-inset">
+              <span class="details__heading menu-drawer__policies-heading">{{ 'content.terms_and_policies' | t }}</span>
+              <span class="svg-wrapper icon-plus menu-drawer__policies-toggle" aria-hidden="true">
+                {{- 'icon-plus.svg' | inline_asset_content -}}
+              </span>
+            </summary>
+            <div class="details-content menu-drawer__policies-content">
+              <ul class="menu-drawer__policies-list list-unstyled">
+                {%- for policy in shop.policies -%}
+                  {%- if policy != blank -%}
+                    <li>
+                      <a href="{{ policy.url }}" class="menu-drawer__policies-link">
+                        {{- policy.title | escape -}}
+                      </a>
+                    </li>
+                  {%- endif -%}
+                {%- endfor -%}
+              </ul>
+            </div>
+          </details>
+        {% endif %}
         {% if data_header_drawer_type == 'mobile-drawer' and show_country or show_language %}
           {% liquid
             assign localization_font = '--menu-localization-font: var(--font-[localization_font]--family); ' | replace: '[localization_font]', section.settings.localization_font
@@ -630,11 +656,8 @@
               <details class="drawer-localization-row">
                 <summary class="drawer-localization-row__summary focus-inset">
                   <span class="drawer-localization-row__value">{{ localization.language.endonym_name | capitalize }}</span>
-                  <span class="drawer-localization-row__icon drawer-localization-row__icon--plus" aria-hidden="true">
+                  <span class="drawer-localization-row__icon drawer-localization-row__icon--toggle" aria-hidden="true">
                     {{- 'icon-plus.svg' | inline_asset_content -}}
-                  </span>
-                  <span class="drawer-localization-row__icon drawer-localization-row__icon--minus" aria-hidden="true">
-                    {{- 'icon-minus.svg' | inline_asset_content -}}
                   </span>
                 </summary>
                 <div class="drawer-localization-row__content">
@@ -653,11 +676,8 @@
               <details class="drawer-localization-row">
                 <summary class="drawer-localization-row__summary focus-inset">
                   <span class="drawer-localization-row__value">{{ localization.country.currency.iso_code }}</span>
-                  <span class="drawer-localization-row__icon drawer-localization-row__icon--plus" aria-hidden="true">
+                  <span class="drawer-localization-row__icon drawer-localization-row__icon--toggle" aria-hidden="true">
                     {{- 'icon-plus.svg' | inline_asset_content -}}
-                  </span>
-                  <span class="drawer-localization-row__icon drawer-localization-row__icon--minus" aria-hidden="true">
-                    {{- 'icon-minus.svg' | inline_asset_content -}}
                   </span>
                 </summary>
                 <div class="drawer-localization-row__content">
@@ -701,6 +721,11 @@
     --drawer-slide-ease: cubic-bezier(0.32, 0.72, 0, 1);
   }
 
+  /* في العربي (RTL) الأيقونة بتنعكس عشان الخطوط القصيرة تبقى من اليمين */
+  header-drawer[dir="rtl"] .header-drawer-icon--open svg {
+    transform: scaleX(-1);
+  }
+
   .header__icon--menu {
     position: initial;
   }
@@ -726,8 +751,14 @@
 
   .header__icon--summary .header-drawer-icon {
     margin: auto;
-    width: var(--icon-size-md);
-    height: var(--icon-size-md);
+    width: 2rem;
+    height: 2rem;
+  }
+
+  /* override base.css (.svg-wrapper > svg forces 20px) so the icon fills the button */
+  .header__icon--summary .header-drawer-icon svg {
+    width: 100%;
+    height: 100%;
   }
 
   /* Hamburger → X icon swap animation */
@@ -1463,21 +1494,26 @@
     display: flex;
     flex-shrink: 0;
     margin-inline-start: auto;
+    width: 18px;
+    height: 18px;
   }
 
-  .drawer-localization-row__icon--minus {
-    display: none;
+  .drawer-localization-row__icon svg {
+    width: 18px;
+    height: 18px;
   }
 
-  .drawer-localization-row[open] .drawer-localization-row__icon--plus {
-    display: none;
+  .drawer-localization-row__icon .horizontal {
+    transform-origin: center;
+    transition: transform 0.3s var(--animation-easing);
   }
 
-  .drawer-localization-row[open] .drawer-localization-row__icon--minus {
-    display: flex;
+  .drawer-localization-row[open] .drawer-localization-row__icon .horizontal {
+    transform: rotate(90deg);
   }
 
   .drawer-localization-row__content {
+    padding-block-start: var(--padding-2xs);
     padding-block-end: var(--padding-md);
   }
 
@@ -1504,9 +1540,90 @@
 
   .menu-drawer .drawer-localization-row__content .language-option-item {
     min-height: 48px;
-    padding: 12px var(--drawer-padding);
+    padding: 12px calc(var(--drawer-padding) + 1.5rem + var(--gap-2xs)) 12px var(--drawer-padding);
     border-radius: 0;
     border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
+  }
+
+  /* Drawer "Terms & Policies" collapsible row (matches footer collapsible rows) */
+  .menu-drawer__policies {
+    display: block;
+    width: 100%;
+    margin-inline: calc(-1 * var(--padding-xl)) 0;
+  }
+
+  .menu-drawer__policies-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-sm);
+    margin-inline: calc(var(--drawer-padding) * -1);
+    padding: var(--padding-md) var(--drawer-padding);
+    padding-inline-start: calc(var(--drawer-padding) + 1.5rem + var(--gap-2xs));
+    cursor: pointer;
+    min-height: var(--minimum-touch-target);
+    list-style: none;
+    font-family: var(--font-body--family);
+    font-size: var(--menu-font-md--size);
+    font-weight: 600;
+    color: var(--color-foreground);
+    text-transform: none;
+    transition: background-color 0.2s ease;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &:hover {
+      background-color: rgb(var(--color-foreground-rgb) / 0.06);
+    }
+  }
+
+  .menu-drawer__policies-toggle {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+  }
+
+  .menu-drawer__policies-toggle svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .menu-drawer__policies-toggle .horizontal {
+    transform-origin: center;
+    transition: transform 0.3s var(--animation-easing);
+  }
+
+  .menu-drawer__policies[open] .menu-drawer__policies-toggle .horizontal {
+    transform: rotate(90deg);
+  }
+
+  .menu-drawer__policies-content {
+    padding-block-start: var(--padding-2xs);
+    padding-block-end: var(--padding-md);
+  }
+
+  .menu-drawer__policies-list {
+    margin: 0;
+    padding-inline: calc(var(--drawer-padding) + 1.5rem + var(--gap-2xs)) var(--drawer-padding);
+    list-style: none;
+  }
+
+  .menu-drawer__policies-list li + li {
+    margin-block-start: 0.75rem;
+  }
+
+  .menu-drawer__policies-link {
+    display: inline-block;
+    font-size: 0.9rem;
+    color: rgb(var(--color-foreground-rgb) / 0.75);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .menu-drawer__policies-link:hover {
+    color: var(--color-foreground);
   }
 
   /* Modern menu item display */

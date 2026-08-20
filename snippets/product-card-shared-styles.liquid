@@ -50,6 +50,16 @@
     box-shadow: var(--product-card-shadow);
   }
 
+  /* السعر: السعرين (الأصلي والخصم) دايمًا في سطر واحد حتى على الموبايل */
+  [data-product-card-styles] product-price,
+  [data-product-card-styles] product-price [ref='priceContainer'] {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
   /* تنسيق أيقونات الكارت — خلفية شبه شفافة مع شكل دائري */
   [data-product-card-styles] .product-card-actions__add-btn,
   [data-product-card-styles] .product-card-actions__wishlist,
@@ -410,5 +420,13 @@
   [data-product-card-styles] product-price,
   [data-product-card-styles] product-price > * {
     font-size: var(--product-card-price-size) !important;
+  }
+
+  /* على الموبايل نقّص حجم السعر شوية عشان السعرين يقعدوا في سطر واحد */
+  @media (max-width: 749px) {
+    [data-product-card-styles] product-price,
+    [data-product-card-styles] product-price > * {
+      font-size: calc(var(--product-card-price-size) * 0.8) !important;
+    }
   }
 {% endstyle %}
