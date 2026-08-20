@@ -47,7 +47,9 @@
         {{ 'icon-cart.svg' | inline_asset_content }}
       </span>
       <span class="mobile-bottom-nav__label">{{ 'content.cart_title' | t }}</span>
-      {% render 'cart-bubble', limit: 100 %}
+      <cart-icon class="mobile-bottom-nav__cart-icon">
+        {% render 'cart-bubble', limit: 100 %}
+      </cart-icon>
     </button>
   {% else %}
     <a
@@ -59,7 +61,9 @@
         {{ 'icon-cart.svg' | inline_asset_content }}
       </span>
       <span class="mobile-bottom-nav__label">{{ 'content.cart_title' | t }}</span>
-      {% render 'cart-bubble', limit: 100 %}
+      <cart-icon class="mobile-bottom-nav__cart-icon">
+        {% render 'cart-bubble', limit: 100 %}
+      </cart-icon>
     </a>
   {% endif %}
 
