@@ -2416,4 +2416,145 @@ main > .shopify-section:first-child .section:not(.disable-section-top-offset) {
     text-align: center !important;
     font-size: clamp(1.5rem, 6vw, 2.5rem) !important;
   }
+
+  /* Mobile header: comfortable icon gaps for logo centering */
+  header-actions {
+    gap: 0.7rem !important;
+  }
+
+  .header__columns header-actions {
+    gap: 0.7rem !important;
+  }
+
+  /* Mobile header: normal action icons */
+  .header-actions__action:not(.account-button) .svg-wrapper {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  .header-actions__action:not(.account-button) svg {
+    width: 21px !important;
+    height: 21px !important;
+  }
+
+  /* Mobile header: cart icon */
+  .header-actions__action:not(.account-button) .header-actions__cart-icon .svg-wrapper {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .header-actions__action:not(.account-button) .header-actions__cart-icon .svg-wrapper > svg {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  /* Mobile header language button smaller */
+  .header-actions__lang-select-container {
+    padding: 2px 8px !important;
+    height: 28px !important;
+    gap: 3px !important;
+    border-radius: 15px !important;
+  }
+
+  .header-actions__lang-globe {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .header-actions__lang-globe svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .header-actions__lang-badge {
+    font-size: 0.7rem !important;
+  }
+
+  .header-actions__lang-caret {
+    width: 6px !important;
+    height: 6px !important;
+  }
+
+  .header-actions__lang-caret svg {
+    width: 6px !important;
+    height: 6px !important;
+  }
+}
+
+/* Header cart badge - on the side/top corner of the icon like the bottom nav bar */
+.header-actions__cart-icon {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: visible !important;
+}
+
+.header-actions__action.button-unstyled:has(.header-actions__cart-icon),
+.header-actions__action.button-unstyled:has(> .header-actions__cart-icon) {
+  overflow: visible !important;
+}
+
+.header-actions__action:not(.account-button) .header-actions__cart-icon .svg-wrapper {
+  overflow: visible !important;
+}
+
+.header-actions__action:not(.account-button) .header-actions__cart-icon .svg-wrapper > svg {
+  mask: none !important;
+  -webkit-mask: none !important;
+}
+
+.header-actions__action:not(.account-button) .header-actions__cart-icon.header-actions__cart-icon--has-cart svg {
+  mask: none !important;
+  -webkit-mask: none !important;
+}
+
+.header-actions__action:not(.account-button) .header-actions__cart-icon .cart-bubble {
+  position: absolute !important;
+  top: 3px !important;
+  right: -5px !important;
+  left: auto !important;
+  width: 16px !important;
+  height: 16px !important;
+}
+
+html[dir='rtl'] .header-actions__action:not(.account-button) .header-actions__cart-icon .cart-bubble {
+  right: auto !important;
+  left: -5px !important;
+}
+
+@media screen and (max-width: 749px) {
+  .header-actions__action:not(.account-button) .header-actions__cart-icon .cart-bubble {
+    top: -4px !important;
+  }
+
+  html[dir='rtl'] .header-actions__action:not(.account-button) .header-actions__cart-icon .cart-bubble {
+    top: -4px !important;
+  }
+}
+
+.header-actions__action:not(.account-button) .header-actions__cart-icon .cart-bubble__text {
+  font-size: 0.5rem !important;
+  font-weight: 600 !important;
+}
+
+.header-actions__action:not(.account-button) .header-actions__cart-icon .cart-bubble__background {
+  border-radius: 50% !important;
+}
+
+/* Force logo perfectly centered on mobile */
+@media screen and (max-width: 749px) {
+  .header__columns {
+    position: relative !important;
+  }
+
+  .header__columns .header-logo,
+  #header-component[data-menu-style='drawer'] .header__columns .header-logo {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+    z-index: 2 !important;
+  }
 }
