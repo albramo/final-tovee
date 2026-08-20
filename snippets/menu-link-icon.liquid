@@ -1,11 +1,17 @@
 {%- doc -%}
   Renders an SVG icon for a menu link, picked from the theme icon library
   based on keywords in the link title (English + Arabic).
+  The 'home' keyword renders a custom house icon (24x24).
   @param {string} link_title - The title of the menu link
+  @param {boolean} [show_default] - Whether to render the default arrow icon when no keyword matches (default true)
 {%- enddoc -%}
 
 {%- liquid
   assign title = link_title | default: '' | downcase | strip
+
+  if show_default == nil
+    assign show_default = true
+  endif
 
   if title contains '[' and title contains ']'
     assign title_parts = title | split: '['
@@ -56,12 +62,35 @@
   {%- assign icon_name = 'question_mark' -%}
 {%- endif -%}
 
-<svg
-  class="menu-drawer__menu-item-icon"
-  aria-hidden="true"
-  focusable="false"
-  xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 20 20"
->
-  {%- render 'icon', icon: icon_name -%}
-</svg>
+{%- if icon_name == 'arrow' and show_default == false -%}
+  {%- assign icon_name = 'none' -%}
+{%- endif -%}
+
+{%- unless icon_name == 'none' -%}
+  {%- if icon_name == 'home' -%}
+    <svg
+      class="menu-link-icon"
+      aria-hidden="true"
+      focusable="false"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M21.4498 10.275L11.9998 3.1875L2.5498 10.275L2.9998 11.625H3.7498V20.25H20.2498V11.625H20.9998L21.4498 10.275ZM5.2498 18.75V10.125L11.9998 5.0625L18.7498 10.125V18.75H14.9999V14.3333L14.2499 13.5833H9.74988L8.99988 14.3333V18.75H5.2498ZM10.4999 18.75H13.4999V15.0833H10.4999V18.75Z"
+        fill="currentColor"
+      ></path>
+    </svg>
+  {%- else -%}
+    <svg
+      class="menu-link-icon"
+      aria-hidden="true"
+      focusable="false"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+    >
+      {%- render 'icon', icon: icon_name -%}
+    </svg>
+  {%- endif -%}
+{%- endunless -%}

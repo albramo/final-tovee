@@ -20,7 +20,7 @@
     --product-discount-badge-radius: {{ settings.badge_radius }}px;
     --product-card-bg: {{ settings.card_background }};
     --product-card-radius: {{ settings.card_radius }}px;
-    --product-card-shadow: {% if settings.card_shadow %}0 12px 32px rgba(0, 0, 0, 0.10){% else %}none{% endif %};
+    --product-card-shadow: {% if settings.card_shadow %}0 6px 16px rgba(0, 0, 0, 0.10){% else %}none{% endif %};
     --product-card-image-ratio: {{ settings.card_image_ratio }};
     --product-card-actions-bg: {{ settings.actions_bg }};
     --product-card-actions-fg: {{ settings.actions_color }};
@@ -48,6 +48,8 @@
     border-radius: var(--product-card-radius);
     background: var(--product-card-bg);
     box-shadow: var(--product-card-shadow);
+    /* مسافة تحت الصورة عشان الظل يخفت قبل ما يوصّل للعنوان اللي تحت */
+    margin-block-end: 12px;
   }
 
   /* تنسيق أيقونات الكارت — خلفية شبه شفافة مع شكل دائري */
