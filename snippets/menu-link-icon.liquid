@@ -1,0 +1,67 @@
+{%- doc -%}
+  Renders an SVG icon for a menu link, picked from the theme icon library
+  based on keywords in the link title (English + Arabic).
+  @param {string} link_title - The title of the menu link
+{%- enddoc -%}
+
+{%- liquid
+  assign title = link_title | default: '' | downcase | strip
+
+  if title contains '[' and title contains ']'
+    assign title_parts = title | split: '['
+    assign title = ''
+    for part in title_parts
+      assign clean_part = part | split: ']' | last
+      assign title = title | append: clean_part
+    endfor
+    assign title = title | strip | replace: '  ', ' '
+  endif
+
+  assign icon_name = 'arrow'
+-%}
+
+{%- if title contains 'home' or title contains 'الرئيسية' or title contains 'الرئيسيه' -%}
+  {%- assign icon_name = 'home' -%}
+{%- elsif title contains 'sale' or title contains 'offer' or title contains 'deal' or title contains 'discount' or title contains 'تخفيضات' or title contains 'عروض' or title contains 'خصومات' or title contains 'اوفر' -%}
+  {%- assign icon_name = 'price_tag' -%}
+{%- elsif title contains 'wishlist' or title contains 'favorite' or title contains 'favourite' or title contains 'مفضلة' or title contains 'المفضلة' or title contains 'مفضلتي' or title contains 'هدية' or title contains 'هدايا' -%}
+  {%- assign icon_name = 'heart' -%}
+{%- elsif title contains 'best' or title contains 'top' or title contains 'hot' or title contains 'الأكثر مبيعا' or title contains 'الأكثر مبيعاً' -%}
+  {%- assign icon_name = 'fire' -%}
+{%- elsif title contains 'new' or title contains 'arrival' or title contains 'جديد' or title contains 'وصل حديثا' or title contains 'وصل حديثاً' -%}
+  {%- assign icon_name = 'star' -%}
+{%- elsif title contains 'skin' or title contains 'care' or title contains 'body' or title contains 'health' or title contains 'بشرة' or title contains 'عناية' or title contains 'صحة' -%}
+  {%- assign icon_name = 'leaf' -%}
+{%- elsif title contains 'perfume' or title contains 'عطر' or title contains 'عطور' -%}
+  {%- assign icon_name = 'perfume' -%}
+{%- elsif title contains 'shop' or title contains 'store' or title contains 'product' or title contains 'catalog' or title contains 'تسوق' or title contains 'متجر' or title contains 'منتجات' or title contains 'المنتجات' -%}
+  {%- assign icon_name = 'shop' -%}
+{%- elsif title contains 'collection' or title contains 'category' or title contains 'مجموعات' or title contains 'التصنيفات' or title contains 'الفئات' or title contains 'أقسام' or title contains 'اقسام' -%}
+  {%- assign icon_name = 'box' -%}
+{%- elsif title contains 'wholesale' or title contains 'bulk' or title contains 'جملة' or title contains 'بالجملة' -%}
+  {%- assign icon_name = 'box' -%}
+{%- elsif title contains 'about' or title contains 'story' or title contains 'من نحن' or title contains 'قصتنا' or title contains 'حول' -%}
+  {%- assign icon_name = 'silhouette' -%}
+{%- elsif title contains 'account' or title contains 'login' or title contains 'sign in' or title contains 'حسابي' or title contains 'حساب' or title contains 'تسجيل الدخول' -%}
+  {%- assign icon_name = 'silhouette' -%}
+{%- elsif title contains 'contact' or title contains 'تواصل' or title contains 'اتصل' -%}
+  {%- assign icon_name = 'contact' -%}
+{%- elsif title contains 'blog' or title contains 'news' or title contains 'journal' or title contains 'مدونة' or title contains 'أخبار' -%}
+  {%- assign icon_name = 'blog' -%}
+{%- elsif title contains 'ship' or title contains 'deliver' or title contains 'track' or title contains 'شحن' or title contains 'توصيل' or title contains 'تتبع' -%}
+  {%- assign icon_name = 'truck' -%}
+{%- elsif title contains 'return' or title contains 'refund' or title contains 'إرجاع' or title contains 'استرجاع' or title contains 'مرتجعات' -%}
+  {%- assign icon_name = 'return' -%}
+{%- elsif title contains 'help' or title contains 'faq' or title contains 'support' or title contains 'question' or title contains 'مساعدة' or title contains 'أسئلة' or title contains 'الدعم' -%}
+  {%- assign icon_name = 'question_mark' -%}
+{%- endif -%}
+
+<svg
+  class="menu-drawer__menu-item-icon"
+  aria-hidden="true"
+  focusable="false"
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 20 20"
+>
+  {%- render 'icon', icon: icon_name -%}
+</svg>

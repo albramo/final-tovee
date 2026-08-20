@@ -127,6 +127,7 @@
                         class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset"
                       >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: link.title %}</span>
                     </span>
                         <span class="svg-wrapper icon-plus">
@@ -195,6 +196,7 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
@@ -253,6 +255,7 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
@@ -284,6 +287,7 @@
                       on:click="header-drawer/open/submenu"
                     >
                       <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: link.title %}</span>
                       </span>
                       <span class="svg-wrapper icon-caret icon-caret--forward">
@@ -590,6 +594,7 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
@@ -1246,6 +1251,17 @@
     flex: 1;
   }
 
+  .menu-drawer .menu-drawer__menu-item-icon {
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
+    flex-shrink: 0;
+    color: inherit;
+  }
+
+  .menu-drawer .menu-drawer__menu-item-icon path {
+    fill: currentColor;
+  }
+
   .menu-drawer__icon {
     width: var(--icon-size-md);
     height: var(--icon-size-md);
@@ -1479,12 +1495,12 @@
 
   /* Modern menu item display */
   .menu-drawer__menu > .menu-drawer__list-item {
-    min-height: calc(2 * var(--padding-lg) + var(--icon-size-md));
+    min-height: calc(2 * var(--padding-md) + var(--icon-size-md));
   }
 
   .menu-drawer__menu-item--mainlist,
   .menu-drawer__menu-item--parent {
-    padding-block: var(--padding-md);
+    padding-block: var(--padding-sm);
   }
 
   .menu-drawer__menu-item {

@@ -20,7 +20,7 @@
     --product-discount-badge-radius: {{ settings.badge_radius }}px;
     --product-card-bg: {{ settings.card_background }};
     --product-card-radius: {{ settings.card_radius }}px;
-    --product-card-shadow: {% if settings.card_shadow %}0 6px 16px rgba(0, 0, 0, 0.12){% else %}none{% endif %};
+    --product-card-shadow: {% if settings.card_shadow %}0 12px 32px rgba(0, 0, 0, 0.10){% else %}none{% endif %};
     --product-card-image-ratio: {{ settings.card_image_ratio }};
     --product-card-actions-bg: {{ settings.actions_bg }};
     --product-card-actions-fg: {{ settings.actions_color }};
@@ -81,7 +81,6 @@
   [data-product-card-styles] .product-card-actions__quick-view:focus-visible {
     background: color-mix(in srgb, var(--product-card-actions-bg), #000000 8%) !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18) !important;
-    transform: scale(1.1);
   }
 
   /* زرار إغلاق المودال — ثابت على الإطار يمين فوق (الموضع والاستجابة بتيجي من سنيبت الكارت) */
@@ -380,7 +379,6 @@
     [data-product-card-styles] .product-card-actions__quick-view:hover {
       background: rgba(255, 255, 255, 1);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-      transform: scale(1.1);
     }
   }
 
