@@ -2588,9 +2588,7 @@ html[dir='rtl'] .header-actions__action:not(.account-button) .header-actions__ca
   }
 }
 
-/* Product page: keep "Tovee labs" text and product title LTR regardless of language direction */
-.product-details,
-.product-details *,
+/* Product page: keep "Tovee labs" text LTR and left-aligned regardless of language direction */
 .text-block--text_BM6tnF,
 .text-block--text_BM6tnF * {
   direction: ltr !important;
