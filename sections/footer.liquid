@@ -143,8 +143,6 @@
       var title = getColumnHeading(col);
       if (!title) return;
 
-      hideOriginalHeading(col);
-
       var details = document.createElement('details');
       details.className = 'details product-tabs__mobile-details';
       details.dataset.testid = 'footer-collapsible-details';
@@ -173,8 +171,29 @@
       var content = document.createElement('div');
       content.className = 'details-content';
 
-      while (col.firstChild) {
-        content.appendChild(col.firstChild);
+      // Handle menu blocks that render their own <details class="menu__details">
+      var innerMenuDetails = col.querySelector('details.menu__details, details');
+      if (innerMenuDetails) {
+        var navContent = innerMenuDetails.querySelector('nav, ul, .details-content');
+        if (navContent) {
+          var clonedNav = navContent.cloneNode(true);
+          clonedNav.style.display = 'block';
+          content.appendChild(clonedNav);
+        } else {
+          var children = Array.from(innerMenuDetails.children);
+          children.forEach(function(child) {
+            if (child.tagName.toLowerCase() !== 'summary') {
+              content.appendChild(child.cloneNode(true));
+            }
+          });
+        }
+        innerMenuDetails.style.display = 'none';
+        hideOriginalHeading(col);
+      } else {
+        hideOriginalHeading(col);
+        while (col.firstChild) {
+          content.appendChild(col.firstChild);
+        }
       }
 
       inner.appendChild(content);
@@ -209,23 +228,68 @@
 
     function undoCollapsible(col) {
       var details = col.querySelector(':scope > .details.product-tabs__mobile-details');
-      if (!details) return;
-
-      var content = details.querySelector('.details-content');
-      while (content && content.firstChild) {
-        col.appendChild(content.firstChild);
+      if (details) {
+        details.remove();
       }
 
-      details.remove();
+      var innerMenuDetails = col.querySelector('details.menu__details, details.menu');
+      if (innerMenuDetails) {
+        innerMenuDetails.style.display = '';
+        innerMenuDetails.removeAttribute('open');
+      }
+
       col.classList.remove('footer-column--collapsible');
       delete col.dataset.footerCollapsible;
       showOriginalHeading(col);
     }
 
+    function resetColumn(col) {
+      undoCollapsible(col);
+      col.classList.remove('footer-brand-column', 'footer-newsletter-column', 'footer-menu-column', 'footer-column--collapsible');
+      delete col.dataset.footerCollapsible;
+    }
+
+    function isBrandBlock(el) {
+      if (!el) return false;
+      if (el.classList.contains('footer-brand-column') || el.classList.contains('footer-newsletter-column') || el.classList.contains('footer-menu-column')) {
+        if (el.classList.contains('footer-brand-column')) return true;
+        return false;
+      }
+      // If it contains a menu, policy list, or email signup, it is NOT the brand block
+      if (el.querySelector('.menu, .footer-policy-column, .email-signup, form[action*="contact"], .newsletter')) {
+        return false;
+      }
+      // If it contains logo block or social links block or logo image
+      if (el.querySelector('.logo-block, .social-links, .social-icons') || el.classList.contains('logo-block') || el.classList.contains('social-links')) {
+        return true;
+      }
+      // If it contains an image and has no menu heading
+      if (el.querySelector('img') && !getColumnHeading(el)) {
+        return true;
+      }
+      return false;
+    }
+
     function buildToggles() {
       var columns = document.querySelectorAll('.footer-content > *');
-      columns.forEach(function(col, index) {
-        if (index === 0) return;
+
+      // Reset all columns first
+      columns.forEach(function(col) {
+        resetColumn(col);
+      });
+
+      columns.forEach(function(col) {
+        if (isBrandBlock(col)) {
+          col.classList.add('footer-brand-column');
+          return;
+        }
+
+        if (col.querySelector('.email-signup, form[action*="contact"], .newsletter')) {
+          col.classList.add('footer-newsletter-column');
+          return;
+        }
+
+        col.classList.add('footer-menu-column');
 
         if (isMobile()) {
           makeCollapsible(col);
@@ -241,7 +305,11 @@
       buildToggles();
     }
 
-    window.addEventListener('resize', buildToggles);
+    var resizeTimeout;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(buildToggles, 200);
+    });
   })();
 </script>
 
@@ -249,71 +317,89 @@
   .footer-content {
     contain: content;
     content-visibility: auto;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--footer-gap);
-    align-items: start;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: clamp(24px, 3.5vw, 48px);
+    width: 100%;
   }
 
   .footer-content .menu__heading__default {
     font-weight: var(--font-heading--weight);
   }
 
-  @media screen and (min-width: 750px) and (max-width: 989px) {
-    .footer-content {
-      grid-template-columns: repeat(min(var(--grid-columns), 3), 1fr);
-      grid-auto-flow: row;
-    }
-
-    .footer-content[style*='--grid-columns: 4'] {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .footer-content--isolated-grid-item-tablet > :last-child {
-      grid-column: 1 / -1;
-    }
-  }
-
-  @media screen and (min-width: 990px) {
+  @media screen and (min-width: 750px) {
     .footer-content {
       position: relative;
       display: flex;
+      flex-direction: row;
       flex-wrap: wrap;
       justify-content: center;
       align-items: flex-start;
-      gap: var(--footer-gap);
+      gap: 80px;
+      padding-inline-start: 260px;
     }
 
-    /* Brand bar (logo + social) pinned to top-left */
-    .footer-content > :first-child {
-      position: absolute;
+    /* Brand bar (Logo + Social links) - Pinned to the top-left */
+    .footer-brand-column {
+      position: absolute !important;
       top: 0;
       inset-inline-start: 0;
-      flex: none;
-      width: auto;
-      max-width: 320px;
+      flex: 0 0 240px !important;
+      max-width: 260px !important;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 16px;
     }
 
-    /* Newsletter section spans full width below the columns */
-    .footer-content > :last-child:not(:first-child) {
-      flex: 1 0 100%;
-      max-width: 100%;
-      margin-block-start: var(--footer-gap);
+    /* Menu columns centered in the middle with 80px gap */
+    .footer-menu-column,
+    .footer-column--collapsible {
+      flex: 0 0 auto !important;
+      width: auto !important;
+      min-width: 140px !important;
     }
 
-    /* Middle columns centered on the same row as the logo */
-    .footer-content > :not(:first-child):not(:last-child) {
-      flex: 0 1 auto;
-      width: auto;
-      min-width: 0;
-      max-width: 100%;
+    /* Newsletter section spans full width below all columns */
+    .footer-newsletter-column {
+      flex: 1 0 100% !important;
+      width: 100% !important;
+      margin-block-start: 32px;
+      padding-block-start: 28px;
+      border-block-start: 1px solid rgba(255, 255, 255, 0.15);
     }
   }
 
-  @media screen and (min-width: 750px) and (max-width: 989px) {
-    .footer-content > :last-child:not(:first-child) {
-      grid-column: 1 / -1;
-      margin-block-start: var(--footer-gap);
+  @media screen and (max-width: 749px) {
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      width: 100%;
+    }
+
+    .footer-brand-column {
+      order: -2 !important;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      margin-block-end: 20px;
+    }
+
+    .footer-menu-column {
+      order: 0 !important;
+      width: 100%;
+    }
+
+    .footer-newsletter-column {
+      order: 99 !important;
+      width: 100%;
+      margin-block-start: 24px;
+      padding-block-start: 24px;
+      border-block-start: 1px solid rgba(255, 255, 255, 0.15);
     }
   }
 
@@ -324,6 +410,59 @@
   footer .color-custom-footer-main .text-block {
     background-color: #000 !important;
     color: #ffffff !important;
+  }
+
+  /* Matching all Footer Menus to the exact design of Terms & Policies with tight spacing */
+  footer .footer-content .menu__heading__default,
+  footer .footer-content .menu__heading,
+  footer .footer-content .details__heading,
+  footer .footer-policy-column__heading {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    letter-spacing: 0.02em;
+    line-height: 1.3 !important;
+    margin-block-end: 0.5rem !important;
+  }
+
+  @media screen and (min-width: 750px) {
+    footer .footer-content accordion-custom .details__header,
+    footer .footer-content .menu__heading,
+    footer .footer-content .footer-policy-column__heading {
+      min-height: 2.2em !important;
+      display: flex !important;
+      align-items: center;
+      padding-block: 0 !important;
+    }
+  }
+
+  footer .footer-content .details-content,
+  footer .footer-content nav,
+  footer .footer-content ul {
+    margin-block-start: 0 !important;
+    padding-block-start: 0 !important;
+  }
+
+  footer .footer-content .menu__item + .menu__item,
+  footer .footer-content ul li + li {
+    margin-block-start: 0.5rem !important;
+  }
+
+  footer .footer-content .menu__item a,
+  footer .footer-content .footer-policy-column__link,
+  footer .footer-content .details-content a {
+    display: inline-block;
+    font-size: 0.9rem !important;
+    color: rgba(255, 255, 255, 0.65) !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease, opacity 0.2s ease;
+  }
+
+  footer .footer-content .menu__item a:hover,
+  footer .footer-content .footer-policy-column__link:hover,
+  footer .footer-content .details-content a:hover {
+    color: #ffffff !important;
+    opacity: 1;
   }
 
   footer,
@@ -382,17 +521,25 @@
   }
 
   /* Brand bar: logo + social links pinned top-left */
-  footer .footer-content > :first-child {
+  footer .footer-brand-column,
+  footer .footer-content > :first-child:not(.footer-menu-column) {
     align-self: flex-start;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
   }
 
   /* Newsletter section below columns */
+  footer .footer-newsletter-column,
   footer .footer-content > :last-child:not(:first-child) {
     padding-block-start: 28px;
     margin-block-start: 28px;
     border-block-start: 1px solid rgba(255, 255, 255, 0.15);
   }
 
+  footer .footer-brand-column .social-icons__icon,
+  footer .footer-brand-column .social-icons__icon svg,
   footer .footer-content > :first-child .social-icons__icon,
   footer .footer-content > :first-child .social-icons__icon svg {
     color: #ffffff !important;
@@ -400,13 +547,21 @@
     stroke: #ffffff !important;
   }
 
+  footer .footer-brand-column .social-icons__icon:hover,
   footer .footer-content > :first-child .social-icons__icon:hover {
     color: #d4a853 !important;
   }
 
-  footer .footer-content > :first-child .social-icons__wrapper {
+  footer .footer-brand-column .social-icons__wrapper,
+  footer .footer-brand-column .social-links,
+  footer .footer-content > :first-child .social-icons__wrapper,
+  footer .footer-content > :first-child .social-links {
+    display: flex;
+    flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
+    gap: 12px;
+    margin-block-start: 4px;
   }
 
   /* Policy column heading matches brand style */
