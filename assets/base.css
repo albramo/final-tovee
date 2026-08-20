@@ -2590,15 +2590,10 @@ html[dir='rtl'] .header-actions__action:not(.account-button) .header-actions__ca
 
 /* Product page: keep "Tovee labs" text and product title LTR regardless of language direction */
 .text-block--text_BM6tnF,
-.text-block--text_xrnftG,
-.text-block--product_title_M7MJkb,
-.text-block--product_title,
-.text-block--text_BM6tnF *,
-.text-block--text_xrnftG *,
-.text-block--product_title_M7MJkb *,
-.text-block--product_title * {
+.text-block--text_BM6tnF * {
   direction: ltr !important;
   unicode-bidi: isolate !important;
+  text-align: left !important;
 }
 
 /* Complete Your Routine (أكمل روتينك) - styles must be global because the
