@@ -620,4 +620,31 @@
       margin-inline-start: 0;
     }
   }
+
+  /* Mobile: push cart icon away from edge & enlarge cart + search icons */
+  @media screen and (max-width: 749px) {
+    header-actions {
+      padding-inline-end: 4px;
+    }
+
+    .header-actions__cart-icon .svg-wrapper {
+      width: 2rem;
+      height: 2rem;
+
+      & > svg {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+
+    .header-actions__mobile-search .svg-wrapper {
+      width: 2rem;
+      height: 2rem;
+
+      & > svg {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+  }
 {% endstylesheet %}
