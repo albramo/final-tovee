@@ -4,7 +4,12 @@
   Typography follows the theme variables, so Arabic uses Noto Kufi Arabic automatically.
 {%- endcomment -%}
 
-{%- capture is_arabic -%}{%- if request.locale.iso_code contains 'ar' -%}true{%- endif -%}{%- endcapture -%}
+{%- liquid
+  assign is_arabic = true
+  if request.locale.iso_code contains 'en' or request.path contains '/en/'
+    assign is_arabic = false
+  endif
+-%}
 
 {%- if is_arabic -%}
   {%- assign heading_text = section.settings.heading_ar | default: 'عذراً، الصفحة غير موجودة' -%}
