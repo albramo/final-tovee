@@ -403,13 +403,14 @@
     padding-block-start: 4px;
   }
 
-  /* السعر في النص — العناصر الداخلية inline فمحتاجين text-align */
+  /* السعر دايماً على اليمين وعريض — مش بيتأثر باتجاه اللغة */
   [data-product-card-styles] product-price {
-    text-align: center;
+    text-align: right !important;
+    font-weight: 700 !important;
   }
 
   [data-product-card-styles] product-price > * {
-    text-align: center;
+    text-align: right !important;
   }
 
   /* حجم عنوان المنتج وسعره — قابل للتعديل من محرر الثيم */

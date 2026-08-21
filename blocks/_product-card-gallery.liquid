@@ -290,6 +290,8 @@
     padding: 4px 8px;
     border-radius: 4px;
     pointer-events: none;
+    direction: ltr;
+    unicode-bidi: isolate;
   }
 
   @media screen and (max-width: 749px) {
@@ -297,11 +299,12 @@
       left: auto;
       right: 12px;
     }
+  }
 
-    [dir="rtl"] .product-discount-badge {
-      left: auto !important;
-      right: 12px !important;
-    }
+  /* العربي (RTL): بادج الخصم دايماً على الشمال — موبايل وكمبيوتر */
+  [dir="rtl"] .product-discount-badge {
+    left: 12px !important;
+    right: auto !important;
   }
 
   .product-card-actions {
