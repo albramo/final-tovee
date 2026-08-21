@@ -376,6 +376,45 @@
     height: calc(var(--icon-size-sm) * 1.2);
   }
 
+  /* PC: تصغير أيقونات المنيو (Home/shop/Contact/Blogs) وتقريبها من النص + مسافات بين الصفحات */
+  @media screen and (min-width: 750px) {
+    .menu-list__link-inner,
+    .mega-menu__link-inner {
+      gap: 3px !important;
+    }
+
+    .menu-list__link-title {
+      padding-inline: 3px !important;
+    }
+
+    /* مسافة بين كل صفحة والتانية (Home | shop | Contact | Blogs) */
+    .menu-list__list {
+      gap: 18px !important;
+    }
+
+    .overflow-menu::part(list) {
+      gap: 18px !important;
+    }
+
+    .menu-list .menu-link-icon,
+    .mega-menu .menu-link-icon {
+      width: 1rem !important;
+      height: 1rem !important;
+    }
+
+    .menu-list .menu-link-icon--wide,
+    .mega-menu .menu-link-icon--wide {
+      width: 1.15rem !important;
+      height: 1rem !important;
+    }
+
+    .menu-list .menu-link-icon--lg,
+    .mega-menu .menu-link-icon--lg {
+      width: 1.3rem !important;
+      height: 1.05rem !important;
+    }
+  }
+
   .menu-list .menu-link-icon path,
   .mega-menu .menu-link-icon path {
     fill: currentColor;
@@ -423,6 +462,20 @@
   .menu-list .menu-list__list-item:where(:hover, :focus-within) .menu-list__link,
   .menu-list .menu-list__list-item:is([slot='more'], [slot='overflow']) .menu-list__link[aria-expanded='true'] {
     color: var(--menu-top-level-font-color);
+  }
+
+  /* Active page - burgundy highlight */
+  .menu-list__link--active,
+  .menu-list__link[aria-current='page'] {
+    color: #800020 !important;
+    font-weight: 600 !important;
+  }
+
+  .menu-list__link--active .menu-link-icon,
+  .menu-list__link[aria-current='page'] .menu-link-icon,
+  .menu-list__link--active .menu-list__link-title,
+  .menu-list__link[aria-current='page'] .menu-list__link-title {
+    color: #800020 !important;
   }
 
   .overflow-menu::part(list) {
