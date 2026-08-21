@@ -1,195 +1,305 @@
+{%- comment -%}
+  Section: 404 Error Page
+  Custom elegant 404 with bilingual (EN/AR) content and RTL support.
+  Typography follows the theme variables, so Arabic uses Noto Kufi Arabic automatically.
+{%- endcomment -%}
 
-
-{% liquid
-  if section.settings.background_color != blank
-    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id
+{%- liquid
+  assign is_arabic = true
+  if request.locale.iso_code contains 'en' or request.path contains '/en/'
+    assign is_arabic = false
   endif
-%}
+-%}
 
-<div
-  class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
-></div>
-<div
-  class="
-    section section--{{ section.settings.section_width }}{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}
-    {% if section.settings.section_height != "" %} {{ section.settings.section_height | prepend: "section--height-" }}{% endif %}
-  "
+{%- if is_arabic -%}
+  {%- assign heading_text = section.settings.heading_ar | default: 'عذراً، الصفحة غير موجودة' -%}
+  {%- assign subheading_text = section.settings.subheading_ar | default: 'يبدو أن الصفحة التي تبحث عنها غير متوفرة أو تم نقلها. لا تقلق — يمكنك العودة للمتجر ومتابعة التسوق.' -%}
+  {%- assign shop_label = section.settings.shop_label_ar | default: 'تسوق جميع المنتجات' -%}
+  {%- assign badge_text = 'خطأ 404' -%}
+{%- else -%}
+  {%- assign heading_text = section.settings.heading | default: 'Oops! Page not found' -%}
+  {%- assign subheading_text = section.settings.subheading | default: 'The page you are looking for does not exist or has been moved. No worries — head back to the store and keep shopping.' -%}
+  {%- assign shop_label = section.settings.shop_label | default: 'Shop All Products' -%}
+  {%- assign badge_text = 'Error 404' -%}
+{%- endif -%}
+
+{%- assign accent_color = section.settings.accent_color | default: '#ECE2CF' -%}
+{%- assign ink_color = section.settings.text_color | default: '#111111' -%}
+{%- assign shop_url = section.settings.shop_link | default: routes.all_products_collection_url -%}
+
+{% style %}
+  .error-404 {
+    --error-accent: {{ accent_color }};
+    --error-ink: {{ ink_color }};
+
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100svh - var(--header-group-height, 0px));
+    padding: clamp(48px, 8vw, 96px) 20px;
+    background: var(--color-background, #ffffff);
+    text-align: center;
+  }
+
+  .error-404__orb {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .error-404__orb--a {
+    width: clamp(300px, 46vw, 580px);
+    height: clamp(300px, 46vw, 580px);
+    top: -12%;
+    left: -10%;
+    background: radial-gradient(circle at 30% 30%, var(--error-accent), transparent 72%);
+    opacity: 0.55;
+  }
+
+  .error-404__orb--b {
+    width: clamp(240px, 38vw, 460px);
+    height: clamp(240px, 38vw, 460px);
+    bottom: -14%;
+    right: -8%;
+    background: radial-gradient(circle at 60% 60%, var(--error-accent), transparent 70%);
+    opacity: 0.4;
+  }
+
+  .error-404__inner {
+    position: relative;
+    z-index: 1;
+    max-width: 46rem;
+    margin-inline: auto;
+    animation: error-404-rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .error-404__code {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(2px, 1.5vw, 14px);
+    font-family: var(--font-heading--family);
+    line-height: 1;
+    color: var(--error-ink);
+  }
+
+  .error-404__digit {
+    font-size: clamp(7.5rem, 22vw, 15rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .error-404__digit--zero {
+    position: relative;
+  }
+
+  .error-404__ring {
+    position: absolute;
+    inset: -0.05em;
+    border: 4px dashed var(--error-accent);
+    border-radius: 50%;
+    animation: error-404-spin 24s linear infinite;
+  }
+
+  .error-404__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: clamp(20px, 4vw, 40px);
+    padding: 8px 18px;
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.35);
+    border-radius: 999px;
+    font-family: var(--font-body--family);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-foreground, #000000);
+    background: transparent;
+  }
+
+  .error-404__heading {
+    margin: clamp(16px, 3vw, 28px) auto 0;
+    max-width: 32ch;
+    font-family: var(--font-heading--family);
+    font-size: clamp(1.5rem, 3.4vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--color-foreground, #111111);
+  }
+
+  .error-404__text {
+    margin: 14px auto 0;
+    max-width: 40ch;
+    font-family: var(--font-body--family);
+    font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+    font-weight: 400;
+    line-height: 1.7;
+    color: rgb(var(--color-foreground-rgb) / 0.72);
+  }
+
+  .error-404__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    margin-top: clamp(28px, 5vw, 44px);
+  }
+
+  .error-404__shop-btn {
+    background-color: #800020 !important;
+    color: #ffffff !important;
+    border-color: #800020 !important;
+  }
+
+  .error-404__shop-btn:hover {
+    background-color: #600018 !important;
+  }
+
+  @keyframes error-404-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes error-404-rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .error-404__ring,
+    .error-404__inner {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .error-404__actions {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .error-404__actions .button,
+    .error-404__actions .button-secondary {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+{% endstyle %}
+
+<section
+  class="error-404"
+  data-section-id="{{ section.id }}"
+  {% if is_arabic %}dir="rtl"{% endif %}
 >
-  <div>
-    <div
-      class="
-        spacing-style
-        layout-panel-flex
-        layout-panel-flex--column
-        section-content-wrapper
-        mobile-column
-      "
-      style="
-        {% render 'layout-panel-style', settings: section.settings %}
-        {% render 'spacing-style', settings: section.settings %}
-      "
-    >
-      {% content_for 'blocks' %}
+  <div class="error-404__orb error-404__orb--a" aria-hidden="true"></div>
+  <div class="error-404__orb error-404__orb--b" aria-hidden="true"></div>
+
+  <div class="error-404__inner">
+    <div class="error-404__code" aria-hidden="true">
+      <span class="error-404__digit">4</span>
+      <span class="error-404__digit error-404__digit--zero">
+        <span class="error-404__ring"></span>
+        <span class="error-404__zero-char">0</span>
+      </span>
+      <span class="error-404__digit">4</span>
+    </div>
+
+    <span class="error-404__badge">{{ badge_text }}</span>
+
+    <h1 class="error-404__heading">{{ heading_text }}</h1>
+    <p class="error-404__text">{{ subheading_text }}</p>
+
+    <div class="error-404__actions">
+      <a href="{{ shop_url }}" class="button error-404__shop-btn">{{ shop_label }}</a>
     </div>
   </div>
-</div>
+</section>
 
 {% schema %}
 {
   "name": "t:names.404",
-  "class": "section-wrapper",
-  "blocks": [
-    {
-      "type": "@theme"
-    },
-    {
-      "type": "@app"
-    },
-    {
-      "type": "_divider"
-    }
-  ],
+  "tag": "section",
+  "class": "section-error-404",
   "settings": [
     {
-      "type": "select",
-      "id": "content_direction",
-      "label": "t:settings.direction",
-      "options": [
-        {
-          "value": "column",
-          "label": "t:options.vertical"
-        }
-      ],
-      "default": "column",
-      "visible_if": "{{ section.settings.horizontal_alignment_flex_direction_column == 'fake-value' }}"
+      "type": "header",
+      "content": "English"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Oops! Page not found"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "The page you are looking for does not exist or has been moved. No worries — head back to the store and keep shopping."
     },
     {
       "type": "header",
-      "content": "t:content.layout"
+      "content": "العربية"
     },
     {
-      "type": "select",
-      "id": "section_width",
-      "label": "t:settings.width",
-      "options": [
-        {
-          "value": "page-width",
-          "label": "t:options.page"
-        },
-        {
-          "value": "full-width",
-          "label": "t:options.full"
-        }
-      ],
-      "default": "page-width"
+      "type": "text",
+      "id": "heading_ar",
+      "label": "العنوان",
+      "default": "عذراً، الصفحة غير موجودة"
     },
     {
-      "type": "select",
-      "id": "section_height",
-      "label": "t:settings.height",
-      "options": [
-        {
-          "value": "",
-          "label": "t:options.auto"
-        },
-        {
-          "value": "small",
-          "label": "t:options.small"
-        },
-        {
-          "value": "medium",
-          "label": "t:options.medium"
-        },
-        {
-          "value": "large",
-          "label": "t:options.large"
-        },
-        {
-          "value": "full-screen",
-          "label": "t:options.full_screen"
-        }
-      ],
-      "default": ""
+      "type": "textarea",
+      "id": "subheading_ar",
+      "label": "الوصف",
+      "default": "يبدو أن الصفحة التي تبحث عنها غير متوفرة أو تم نقلها. لا تقلق — يمكنك العودة للمتجر ومتابعة التسوق."
     },
     {
-      "type": "select",
-      "id": "horizontal_alignment_flex_direction_column",
-      "label": "t:settings.alignment",
-      "options": [
-        {
-          "value": "flex-start",
-          "label": "t:options.left"
-        },
-        {
-          "value": "center",
-          "label": "t:options.center"
-        },
-        {
-          "value": "flex-end",
-          "label": "t:options.right"
-        }
-      ],
-      "default": "center"
+      "type": "header",
+      "content": "Buttons"
     },
     {
-      "type": "select",
-      "id": "vertical_alignment_flex_direction_column",
-      "label": "t:settings.position",
-      "options": [
-        {
-          "value": "flex-start",
-          "label": "t:options.top"
-        },
-        {
-          "value": "center",
-          "label": "t:options.center"
-        },
-        {
-          "value": "flex-end",
-          "label": "t:options.bottom"
-        }
-      ],
-      "default": "center"
+      "type": "text",
+      "id": "shop_label",
+      "label": "Shop button label",
+      "default": "Shop All Products"
     },
     {
-      "type": "range",
-      "id": "gap",
-      "label": "t:settings.gap",
-      "min": 0,
-      "max": 100,
-      "step": 1,
-      "unit": "px",
-      "default": 12
+      "type": "text",
+      "id": "shop_label_ar",
+      "label": "زر المتجر",
+      "default": "تسوق جميع المنتجات"
+    },
+    {
+      "type": "url",
+      "id": "shop_link",
+      "label": "Shop button link"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
     },
     {
       "type": "color",
-      "id": "background_color",
-      "label": "t:settings.background_color",
-      "placeholder": "t:settings.default"
+      "id": "accent_color",
+      "label": "Accent color",
+      "default": "#ECE2CF"
     },
     {
-      "type": "header",
-      "content": "t:content.padding"
-    },
-    {
-      "type": "range",
-      "id": "padding-block-start",
-      "label": "t:settings.top",
-      "min": 0,
-      "max": 100,
-      "step": 1,
-      "unit": "px",
-      "default": 0
-    },
-    {
-      "type": "range",
-      "id": "padding-block-end",
-      "label": "t:settings.bottom",
-      "min": 0,
-      "max": 100,
-      "step": 1,
-      "unit": "px",
-      "default": 0
+      "type": "color",
+      "id": "text_color",
+      "label": "Title color",
+      "default": "#111111"
     }
   ]
 }

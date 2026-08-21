@@ -4,6 +4,7 @@
     class="shopify-design-mode"
   {% endif %}
   lang="{{ request.locale.iso_code }}"
+  dir="{% if request.locale.iso_code == 'ar' or request.locale.iso_code == 'he' or request.locale.iso_code == 'fa' or request.locale.iso_code == 'ur' %}rtl{% else %}ltr{% endif %}"
 >
   <head>
     <script>
@@ -99,6 +100,18 @@
         --color-secondary-button-hover-background: #ECE2CF;
         --color-secondary-button-hover-text: #000000;
         --color-secondary-button-hover-border: #ECE2CF;
+      }
+    {% endstyle %}
+
+    {% comment %} FIX: منع المساحة البيضاء في RTL موبايل بسبب 100vw و left:-99999px {% endcomment %}
+    {% style %}
+      html, body { overflow-x: clip; max-width: 100%; }
+      html[dir='rtl'] { overflow-x: clip; }
+      @media screen and (max-width: 749px) {
+        html[dir='rtl'], html[dir='rtl'] body, html[dir='rtl'] .page-wrapper {
+          overflow-x: clip;
+          max-width: 100%;
+        }
       }
     {% endstyle %}
 

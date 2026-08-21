@@ -1,4 +1,14 @@
-{% if shop.policies.size > 0 %}
+{% liquid
+  assign has_policies = false
+  if shop.policies.size > 0
+    assign has_policies = true
+  endif
+  # Fallback: also check if any policy body exists
+  if shop.privacy_policy.body != blank or shop.terms_of_service.body != blank or shop.shipping_policy.body != blank or shop.refund_policy.body != blank
+    assign has_policies = true
+  endif
+%}
+{% if has_policies %}
   <div
     class="footer-policy-column"
     style="
@@ -6,23 +16,71 @@
     "
     {{ block.shopify_attributes }}
   >
-    <div class="footer-policy-column__heading">
-      {{ 'content.terms_and_policies' | t }}
-    </div>
-    <ul class="footer-policy-column__list list-unstyled">
+    <details class="footer-policy-details" open>
+      <summary class="footer-policy-summary">
+        <span class="footer-policy-column__heading">{{ 'content.terms_and_policies' | t }}</span>
+        <span class="footer-policy-summary__icon" aria-hidden="true">
+          <svg class="icon-plus" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg class="icon-minus" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+      </summary>
+      <ul class="footer-policy-column__list list-unstyled">
       {%- for policy in shop.policies -%}
         {%- if policy != blank -%}
+          {% liquid
+            assign display_title = policy.title
+            if request.locale.iso_code == 'ar'
+              assign lower_title = policy.title | downcase
+              if lower_title == 'privacy policy'
+                assign display_title = 'سياسة الخصوصية'
+              elsif lower_title == 'terms of service' or lower_title == 'terms and conditions'
+                assign display_title = 'شروط الخدمة'
+              elsif lower_title == 'shipping policy'
+                assign display_title = 'سياسة الشحن'
+              elsif lower_title == 'refund policy' or lower_title == 'return policy'
+                assign display_title = 'سياسة الاسترجاع'
+              elsif lower_title contains 'contact'
+                assign display_title = 'معلومات الاتصال'
+              elsif lower_title == 'legal notice' or lower_title == 'terms of sale'
+                assign display_title = 'إشعار قانوني'
+              endif
+            endif
+          %}
           <li>
             <a
               href="{{ policy.url }}"
               class="footer-policy-column__link"
             >
-              {{- policy.title | escape -}}
+              {{- display_title | escape -}}
             </a>
           </li>
         {%- endif -%}
       {%- endfor -%}
-    </ul>
+      {% liquid
+        assign has_contact = false
+        for p in shop.policies
+          if p.title contains 'Contact' or p.title contains 'contact' or p.title contains 'اتصال'
+            assign has_contact = true
+          endif
+        endfor
+      %}
+      {% if has_contact == false %}
+        {%- if pages['contact'] != blank -%}
+          <li>
+            <a href="{{ pages['contact'].url }}" class="footer-policy-column__link">
+              {% if request.locale.iso_code == 'ar' %}معلومات الاتصال{% else %}Contact information{% endif %}
+            </a>
+          </li>
+        {%- elsif shop.policies.size < 5 -%}
+          <li>
+            <a href="{{ shop.privacy_policy.url | default: '/policies/privacy-policy' }}" class="footer-policy-column__link" {% if shop.privacy_policy.url == blank %}style="opacity:0.6;"{% endif %}>
+              {% if request.locale.iso_code == 'ar' %}معلومات الاتصال{% else %}Contact information{% endif %}
+            </a>
+          </li>
+        {%- endif -%}
+      {% endif %}
+      </ul>
+    </details>
   </div>
 {% endif %}
 
@@ -35,7 +93,60 @@
     font-size: 1rem;
     font-weight: 700;
     color: var(--color-foreground);
-    margin-block-end: 1.25rem;
+    margin: 0;
+  }
+
+  .footer-policy-details {
+    width: 100%;
+  }
+
+  .footer-policy-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.25rem 0;
+  }
+
+  .footer-policy-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .footer-policy-summary__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: var(--color-foreground);
+    flex-shrink: 0;
+  }
+
+  .footer-policy-details .icon-minus {
+    display: none;
+  }
+
+  .footer-policy-details[open] .icon-plus {
+    display: none;
+  }
+
+  .footer-policy-details[open] .icon-minus {
+    display: block;
+  }
+
+  @media screen and (max-width: 749px) {
+    .footer-policy-summary {
+      margin-block-end: 0;
+      padding-block: 12px;
+      border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
+    }
+
+    .footer-policy-column__list {
+      padding-block-start: 12px;
+    }
   }
 
   .footer-policy-column__list {
@@ -59,6 +170,16 @@
   .footer-policy-column__link:hover {
     color: var(--color-foreground);
     opacity: 1;
+  }
+
+  /* RTL: ensure policy links align to start */
+  html[dir='rtl'] .footer-policy-column,
+  html[dir='rtl'] .footer-policy-column__heading,
+  html[dir='rtl'] .footer-policy-column__list {
+    text-align: start;
+  }
+  html[dir='rtl'] .footer-policy-column__link {
+    text-align: start;
   }
 {% endstylesheet %}
 

@@ -600,17 +600,23 @@
   }
 
   .quick-add-modal .add-to-cart-button {
-    background-color: #000000 !important;
+    background-color: #800020 !important;
     color: #ffffff !important;
-    border: 1px solid #000000 !important;
-    border-radius: var(--style-border-radius-inputs, 8px) !important;
+    border: 1px solid #800020 !important;
+    border-radius: 25px !important;
+    box-shadow: inset 0 0 0 1px #800020 !important;
     width: 100% !important;
     flex: 1 0 100% !important;
   }
 
   .quick-add-modal .add-to-cart-button:hover {
-    background-color: #1a1a1a !important;
-    color: #ffffff !important;
+    --button-color: #800020 !important;
+    --button-background-color: #ffffff !important;
+    --button-border-color: #800020 !important;
+    color: #800020 !important;
+    background-color: #ffffff !important;
+    border: 1px solid #800020 !important;
+    box-shadow: inset 0 0 0 1px #800020 !important;
   }
 
   .quick-add-modal shopify-accelerated-checkout {
@@ -619,10 +625,29 @@
     flex: 1 0 100% !important;
     margin-inline: auto !important;
     --shopify-accelerated-checkout-button-background-color: #ffffff !important;
-    --shopify-accelerated-checkout-button-text-color: #000000 !important;
-    --shopify-accelerated-checkout-button-border-color: #000000 !important;
-    --shopify-accelerated-checkout-button-border-radius: var(--style-border-radius-inputs, 8px) !important;
+    --shopify-accelerated-checkout-button-text-color: #800020 !important;
+    --shopify-accelerated-checkout-button-border-color: #800020 !important;
+    --shopify-accelerated-checkout-button-border-radius: 25px !important;
     --shopify-accelerated-checkout-button-block-size: 52px !important;
+  }
+
+  .quick-add-modal .product-wishlist-btn {
+    border: 1px solid #cccccc !important;
+    color: var(--color-input-text) !important;
+  }
+
+  .quick-add-modal .product-wishlist-btn:hover,
+  .quick-add-modal .product-wishlist-btn[data-active] {
+    color: #800020 !important;
+    border-color: #800020 !important;
+  }
+
+  .quick-add-modal .product-wishlist-btn[data-active] {
+    background-color: #fdf2f4 !important;
+  }
+
+  .quick-add-modal .product-wishlist-btn[data-active] svg {
+    fill: #800020 !important;
   }
 
   .quick-add-modal shopify-accelerated-checkout > * {

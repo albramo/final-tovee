@@ -116,6 +116,7 @@
             ref="menuitem"
           >
             <span class="menu-list__link-inner">
+              {% render 'menu-link-icon', link_title: link.title %}
               <span class="menu-list__link-title">{% render 'menu-link-title', link_title: link.title %}</span>
             </span>
           </a>
@@ -351,8 +352,39 @@
   .mega-menu__link-inner {
     display: flex;
     align-items: center;
-    gap: var(--gap-2xs);
+    gap: var(--gap-3xs);
     min-width: 0;
+  }
+
+  .menu-list .menu-link-icon,
+  .mega-menu .menu-link-icon {
+    width: var(--icon-size-sm);
+    height: var(--icon-size-sm);
+    flex-shrink: 0;
+    color: inherit;
+  }
+
+  .menu-list .menu-link-icon--wide,
+  .mega-menu .menu-link-icon--wide {
+    width: calc(var(--icon-size-sm) * 1.2);
+    height: var(--icon-size-sm);
+  }
+
+  .menu-list .menu-link-icon--lg,
+  .mega-menu .menu-link-icon--lg {
+    width: calc(var(--icon-size-sm) * 1.5);
+    height: calc(var(--icon-size-sm) * 1.2);
+  }
+
+  .menu-list .menu-link-icon path,
+  .mega-menu .menu-link-icon path {
+    fill: currentColor;
+  }
+
+  .menu-list .menu-link-icon.menu-link-icon--stroke path,
+  .mega-menu .menu-link-icon.menu-link-icon--stroke path {
+    fill: none;
+    stroke: currentColor;
   }
 
   .mega-menu__link-inner > span:last-child {

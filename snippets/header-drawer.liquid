@@ -127,6 +127,7 @@
                         class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset"
                       >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: link.title %}</span>
                     </span>
                         <span class="svg-wrapper icon-plus">
@@ -170,6 +171,7 @@
                                 %}
                               {% endif %}
                               <span class="menu-drawer__menu-item-inner">
+                                {% render 'menu-link-icon', link_title: childlink.title %}
                                 <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: childlink.title %}</span>
                               </span>
                             </a>
@@ -830,10 +832,9 @@
 
   .menu-drawer__backdrop {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100dvh;
+    inset: 0;
+    width: auto;
+    height: auto;
     backdrop-filter: brightness(0.55) blur(2px);
     -webkit-backdrop-filter: brightness(0.55) blur(2px);
     z-index: var(--layer-overlay);
@@ -1458,9 +1459,21 @@
 
   .menu-drawer .drawer-localization-row__content .language-selector {
     width: 100%;
-    padding-inline: var(--drawer-padding);
+    padding-inline: 0;
     font-family: var(--menu-localization-font);
     font-size: var(--menu-localization-font-size);
+  }
+
+  .menu-drawer .drawer-localization-row__content .localization-form__list--language {
+    padding: 0;
+    gap: 0;
+  }
+
+  .menu-drawer .drawer-localization-row__content .language-option-item {
+    min-height: 48px;
+    padding: 12px var(--drawer-padding);
+    border-radius: 0;
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
   }
 
   /* Modern menu item display */
@@ -1531,5 +1544,20 @@
 
   .menu-drawer .menu-drawer__menu-item:hover {
     background-color: rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  /* Drawer menu icons (Tovee) */
+  .menu-drawer .menu-link-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--color-foreground);
+    margin-inline-end: 10px;
+  }
+
+  .menu-drawer .menu-drawer__menu-item-inner {
+    display: flex;
+    align-items: center;
+    gap: 0;
   }
 {% endstylesheet %}

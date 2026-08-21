@@ -228,15 +228,41 @@
     assign form_style = localization_font | append: localization_font_size | append: color_shadow
   %}
   {% if show_language and show_country == false %}
-    <div class="dropdown-localization mobile:hidden">
-      {% render 'localization-form',
-        show_country: show_country,
-        show_language: show_language,
-        localization_style: 'dropdown',
-        form_style: form_style,
-        form_id: section.id
-      %}
-    </div>
+    <dropdown-localization-component
+      class="dropdown-localization mobile:hidden"
+    >
+      <button
+        type="button"
+        class="button dropdown-localization__button localization-selector header-actions__action"
+        aria-expanded="false"
+        aria-controls="dropdown-localization-results"
+        ref="button"
+        on:click="/toggleSelector"
+        style="{{ localization_font }} {{ localization_font_size }}"
+      >
+        <span>
+          {{ localization.language.iso_code | upcase }}
+        </span>
+        <span class="svg-wrapper icon-caret">
+          {{- 'icon-caret.svg' | inline_asset_content -}}
+        </span>
+      </button>
+
+      <div
+        class="localization-wrapper {{ section.settings.localization_position }}-bound color-custom-popover"
+        hidden
+        ref="panel"
+      >
+        {% render 'localization-form',
+          show_country: false,
+          show_language: show_language,
+          localization_style: 'dropdown',
+          form_style: form_style,
+          form_id: section.id,
+          back: request.path
+        %}
+      </div>
+    </dropdown-localization-component>
   {% elsif show_country %}
     <dropdown-localization-component
       class="dropdown-localization mobile:hidden"
@@ -308,7 +334,8 @@
           show_language: show_language,
           localization_style: 'dropdown',
           form_style: form_style,
-          form_id: section.id
+          form_id: section.id,
+          back: request.path
         %}
       </div>
     </dropdown-localization-component>
@@ -512,6 +539,19 @@
   @media screen and (min-width: 750px) {
     #header-component[data-menu-style='menu'] :is(.header-menu, .dropdown-localization) {
       display: flex;
+    }
+
+    /* Hide the standalone dropdown localization on desktop since
+       the language selector is now part of header-actions */
+    #header-component[data-menu-style='menu'] .dropdown-localization {
+      display: none !important;
+    }
+
+    /* Hide the standalone search from header-row on desktop since
+       the search button is now part of header-actions */
+    .header__column > search-button:not(.header-actions__mobile-search),
+    .header__columns > search-button:not(.header-actions__mobile-search) {
+      display: none !important;
     }
   }
 
@@ -861,10 +901,10 @@
     }
 
     @media screen and (max-width: 749px) {
-      --header-template-columns: var(--header-mobile-bookend) var(--header-mobile-bookend) 1fr
-        auto auto;
+      --header-template-columns: var(--header-mobile-bookend) 1fr auto;
+      position: relative;
 
-      grid-template-areas: 'leftA leftB center rightA rightB';
+      grid-template-areas: 'leftA center rightB';
       grid-column: span 3;
       column-gap: 0;
       align-items: center;
@@ -873,22 +913,24 @@
 
       .header-logo {
         grid-area: center;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
+        z-index: 2;
       }
 
-      &:not(:has(header-actions)) .search-action {
-        grid-area: leftB;
-      }
-
-      &:not(:has(shopify-account)) .search-action {
-        grid-area: rightA;
-      }
-
-      .search-action {
-        grid-area: leftB;
+      .header__column > search-button:not(.header-actions__mobile-search),
+      .header__columns > search-button:not(.header-actions__mobile-search) {
+        display: none !important;
       }
 
       header-actions {
         grid-area: rightB;
+        display: flex;
+        align-items: center;
+        gap: 0.15rem;
       }
     }
   }
@@ -898,6 +940,7 @@
   #header-component[data-menu-style='drawer'] .header__columns {
     --header-template-columns: var(--header-mobile-bookend) var(--header-mobile-bookend) 1fr
       auto auto;
+    position: relative;
 
     grid-template-areas: 'leftA leftB center rightA rightB';
     grid-column: span 3;
@@ -908,6 +951,12 @@
 
     .header-logo {
       grid-area: center;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0;
+      z-index: 2;
     }
 
     &:not(:has(header-actions)) .search-action {
@@ -1148,8 +1197,8 @@
   }
 
   dropdown-localization-component .localization-wrapper.left-bound {
-    left: -8px;
-    right: unset;
+    inset-inline-start: -8px;
+    inset-inline-end: unset;
   }
 
   /* Additional specificity due to dropdown-localization-component getting a low score */

@@ -533,7 +533,7 @@
       flex: 0 0 auto;
       justify-content: space-between;
       min-width: 0;
-      height: 32px;
+      height: 38px;
       padding: 0;
       border-radius: 25px;
       margin-inline-start: 0;
@@ -542,7 +542,7 @@
     }
 
     .sticky-add-to-cart__qty-btn {
-      width: 28px;
+      width: 32px;
       height: 100%;
       border-radius: 0;
     }
@@ -557,24 +557,38 @@
 
     .sticky-add-to-cart__qty-btn .svg-wrapper,
     .sticky-add-to-cart__qty-btn .svg-wrapper > svg {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
     }
 
     .sticky-add-to-cart__qty-value {
-      min-width: 22px;
+      min-width: 30px;
       padding-inline: 4px;
-      font-size: 0.8rem;
+      font-size: 1.05rem;
+      font-weight: 700;
     }
 
     .sticky-add-to-cart__button {
       flex: 0 0 auto;
       width: auto;
-      height: 32px;
-      padding-inline: 10px;
-      font-size: 0.75rem;
+      height: 34px;
+      padding-inline: 16px;
+      font-size: 0.85rem;
       margin-inline-start: 0;
       border-radius: 25px;
+    }
+
+    .sticky-add-to-cart__button .add-to-cart-text,
+    .sticky-add-to-cart__button .add-to-cart-text__content {
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .sticky-add-to-cart__button .svg-wrapper,
+    .sticky-add-to-cart__button .svg-wrapper > svg,
+    .sticky-add-to-cart__button .add-to-cart-icon {
+      width: 16px;
+      height: 16px;
     }
 
     sticky-add-to-cart:not([data-variant-available='true']) .add-to-cart-text__content {
