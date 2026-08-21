@@ -103,6 +103,12 @@
       }
     {% endstyle %}
 
+    {% comment %} FIX: منع المساحة البيضاء في RTL موبايل بسبب 100vw {% endcomment %}
+    {% style %}
+      html, body { overflow-x: clip; max-width: 100%; }
+      html[dir='rtl'] { overflow-x: clip; }
+    {% endstyle %}
+
     {% if request.design_mode %}
       {%- render 'theme-editor' -%}
     {% endif %}

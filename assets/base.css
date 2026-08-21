@@ -363,8 +363,9 @@ p:empty {
   );
 
   /* Offset for full-width sections to account for the page margin,
-  used for Marquee — note that --util-page-margin-offset doesn't work here */
-  --full-page-margin-inline-offset: calc(((100vw - var(--full-page-grid-central-column-width)) / 2) * -1);
+  used for Marquee — note that --util-page-margin-offset doesn't work here
+  FIX: 100vw يسبب سكرول أفقي ومساحة بيضاء في RTL على الموبايل (100vw يشمل السكرول بار) -> نستخدم 100% */
+  --full-page-margin-inline-offset: calc(((100% - var(--full-page-grid-central-column-width)) / 2) * -1);
 
   width: 100%;
 
