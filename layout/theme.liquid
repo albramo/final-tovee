@@ -105,15 +105,64 @@
 
     {% comment %} RTL / Arabic support - logical properties & font tweaks {% endcomment %}
     {% style %}
+      /* === RTL overflow guard: تمنع المساحة البيضاء والموقع اللي يجي على جنب في الموبايل === */
       html[dir='rtl'] {
-        /* Ensure base direction inherits */
         text-align: start;
+        overflow-x: clip;
+        max-width: 100%;
       }
       html[dir='rtl'] body {
         direction: rtl;
-        /* Better Arabic font rendering if Cairo/Tajawal available, fallback to system */
         font-feature-settings: 'liga' 1, 'calt' 1;
         letter-spacing: normal;
+        overflow-x: clip;
+        max-width: 100%;
+        /* مهم للموبايل: يمنع سحب الصفحة أفقياً */
+        overscroll-behavior-x: none;
+      }
+      html[dir='rtl'] .page-wrapper {
+        overflow-x: clip;
+        max-width: 100%;
+        width: 100%;
+      }
+      html[dir='rtl'] .section,
+      html[dir='rtl'] .shopify-section {
+        max-width: 100%;
+        overflow-x: clip;
+      }
+      /* أي عنصر كان 100vw يسبب overflow في RTL — نحوله 100% */
+      html[dir='rtl'] .menu-drawer__backdrop {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      html[dir='rtl'] zoom-dialog dialog {
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      /* إصلاح منطقي للـ grid المركزي: في RTL كان --full-page-margin-inline-offset يسبب انحراف */
+      html[dir='rtl'] .section {
+        /* يضمن عدم خروج الشبكة عن الشاشة */
+        overflow: clip;
+      }
+      /* === إصلاح الكاروسيل/السلايدر في RTL: القفل على LTR للـ scroller يمنع تعطل الـ JS === */
+      html[dir='rtl'] slideshow-slides,
+      html[dir='rtl'] .slideshow-slides,
+      html[dir='rtl'] scroll-hint,
+      html[dir='rtl'] [part='list'] {
+        direction: ltr;
+      }
+      html[dir='rtl'] slideshow-slide,
+      html[dir='rtl'] .slideshow-slide,
+      html[dir='rtl'] scroll-hint > *,
+      html[dir='rtl'] [part='list'] > * {
+        direction: rtl;
+      }
+      /* يضمن أن حسابات scrollIntoView و Scroller لا تنكسر بسبب scrollLeft السالب في RTL */
+      html[dir='rtl'] slideshow-component {
+        direction: ltr;
+      }
+      html[dir='rtl'] slideshow-component slideshow-slide {
+        direction: rtl;
       }
       /* Footer RTL: padding flips automatically via padding-inline-start, brand inset flips too - no extra needed */
       html[dir='rtl'] .footer-brand-column {
@@ -138,12 +187,49 @@
         padding-inline-start: calc(var(--margin-md) + var(--padding-xl));
         padding-inline-end: var(--padding-lg);
       }
-      /* Fix any remaining physical left/right in search & icons */
-      html[dir='rtl'] .header-logo {
-        /* keep centered - no change */
+      /* Policy & Page content RTL - ensure correct reading direction */
+      html[dir='rtl'] .page-content,
+      html[dir='rtl'] .page-content .rte,
+      html[dir='rtl'] rte-formatter,
+      html[dir='rtl'] .shopify-policy__body,
+      html[dir='rtl'] .shopify-policy__title,
+      html[dir='rtl'] .rte,
+      html[dir='rtl'] .text-block {
+        direction: rtl;
+        text-align: start;
       }
-      html[dir='rtl'] [style*='left: 50%'] {
-        /* centered elements stay centered */
+      html[dir='rtl'] .page-content h1,
+      html[dir='rtl'] .page-content h2,
+      html[dir='rtl'] .page-content h3,
+      html[dir='rtl'] .shopify-policy__title {
+        text-align: start;
+      }
+      /* Contact form and generic pages flip labels */
+      html[dir='rtl'] .field__label,
+      html[dir='rtl'] label {
+        text-align: start;
+      }
+      /* Header logo: استخدم logical properties بدل left الفيزيائي */
+      html[dir='rtl'] .header__columns .header-logo,
+      html[dir='rtl'] #header-component[data-menu-style='drawer'] .header__columns .header-logo {
+        left: auto !important;
+        inset-inline-start: 50% !important;
+        transform: translate(-50%, -50%) !important;
+      }
+      /* منع أي عنصر يهرب خارج الشاشة في RTL موبايل */
+      @media screen and (max-width: 749px) {
+        html[dir='rtl'] {
+          scrollbar-gutter: auto !important;
+        }
+        html[dir='rtl'] body,
+        html[dir='rtl'] .page-wrapper {
+          overflow-x: clip !important;
+        }
+        html[dir='rtl'] img,
+        html[dir='rtl'] picture,
+        html[dir='rtl'] video {
+          max-width: 100% !important;
+        }
       }
     {% endstyle %}
 

@@ -103,7 +103,12 @@ export class Scroller {
 
     if (input instanceof HTMLElement) {
       const paddingStart = calculatePaddingStart(this.element, this.axis);
-      value = input[`offset${this.#edge}`] - paddingStart;
+      // RTL guard: في RTL المتصفحات تختلف في إشارة scrollLeft، لكن بما أن scroller مقفول LTR عبر CSS
+      // (html[dir=rtl] slideshow-slides {direction:ltr}) فإن offsetLeft يبقى ثابتاً ولا نحتاج تعديل إشارة.
+      // لو لم يكن مقفولاً، نصحح الإشارة هنا:
+      const isRTL = this.axis === 'x' && getComputedStyle(this.element).direction === 'rtl';
+      const rawOffset = input[`offset${this.#edge}`] - paddingStart;
+      value = isRTL ? -rawOffset : rawOffset;
     } else {
       value = input;
     }

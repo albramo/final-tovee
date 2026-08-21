@@ -35,6 +35,25 @@ html {
   /* Keep the scrollbar gutter reserved so toggling body overflow (drawers, modals)
      doesn't shift the page content and make cards/shadows visibly jump. */
   scrollbar-gutter: stable;
+  /* RTL guard: يمنع المساحة البيضاء الجانبية على الموبايل */
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+html[dir='rtl'] {
+  overflow-x: clip;
+}
+
+html[dir='rtl'] body,
+html[dir='rtl'] .page-wrapper {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+@media screen and (max-width: 749px) {
+  html[dir='rtl'] {
+    scrollbar-gutter: auto;
+  }
 }
 
 @media (min-width: 990px) {
@@ -347,9 +366,9 @@ p:empty {
 }
 
 /* Section width full vs. page
-   The reason we use a grid to contain the section is to allow for the section to have a
-   full-width background image even if the section content is constrained by the page width. Do not try
-   to rewrite this to max-width: --page-width; margin: 0 auto;, it doesn't work. */
+    The reason we use a grid to contain the section is to allow for the section to have a
+    full-width background image even if the section content is constrained by the page width. Do not try
+    to rewrite this to max-width: --page-width; margin: 0 auto;, it doesn't work. */
 .section {
   --full-page-grid-central-column-width: min(
     var(--page-width) - var(--page-margin) * 2,
@@ -366,10 +385,13 @@ p:empty {
   );
 
   /* Offset for full-width sections to account for the page margin,
-  used for Marquee — note that --util-page-margin-offset doesn't work here */
-  --full-page-margin-inline-offset: calc(((100vw - var(--full-page-grid-central-column-width)) / 2) * -1);
+  used for Marquee — note that --util-page-margin-offset doesn't work here
+  RTL guard: use 100% instead of 100vw to avoid horizontal overflow on mobile RTL */
+  --full-page-margin-inline-offset: calc(((100% - var(--full-page-grid-central-column-width)) / 2) * -1);
 
   width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 
   /* This is required to make background images work, which are <img> rendered absolutely */
   position: relative;
@@ -378,6 +400,10 @@ p:empty {
   display: grid;
   grid-template-columns: var(--full-page-grid-with-margins);
   min-height: var(--section-min-height, 'auto');
+}
+
+html[dir='rtl'] .section {
+  --full-page-margin-inline-offset: calc(((100% - var(--full-page-grid-central-column-width)) / 2) * -1);
 }
 
 /* Place all direct children in the center column by default */
@@ -2571,7 +2597,7 @@ html[dir='rtl'] .header-actions__action:not(.account-button) .header-actions__ca
   border-radius: 50% !important;
 }
 
-/* Force logo perfectly centered on mobile */
+/* Force logo perfectly centered on mobile - logical properties for RTL */
 @media screen and (max-width: 749px) {
   .header__columns {
     position: relative !important;
@@ -2581,11 +2607,28 @@ html[dir='rtl'] .header-actions__action:not(.account-button) .header-actions__ca
   #header-component[data-menu-style='drawer'] .header__columns .header-logo {
     position: absolute !important;
     left: 50% !important;
+    inset-inline-start: 50% !important;
     top: 50% !important;
     transform: translate(-50%, -50%) !important;
     margin: 0 !important;
     z-index: 2 !important;
   }
+
+  html[dir='rtl'] .header__columns .header-logo,
+  html[dir='rtl'] #header-component[data-menu-style='drawer'] .header__columns .header-logo {
+    left: auto !important;
+    inset-inline-start: 50% !important;
+  }
+}
+
+/* RTL: منع 100vw من التسبب في overflow على الموبايل */
+html[dir='rtl'] .menu-drawer__backdrop {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+html[dir='rtl'] zoom-dialog dialog {
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 /* Product page: keep "Tovee labs" text LTR and left-aligned regardless of language direction */
