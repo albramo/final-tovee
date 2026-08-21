@@ -74,19 +74,8 @@
       --text-corner-radius: {{ block_settings.corner_radius }}px;
       --text-padding: max(var(--padding-2xs), calc((var(--text-corner-radius) + var(--padding-xs)) * (1 - cos(45deg))));
     {% endif %}
-    {% if block.id contains 'BM6tnF' %}
-      --text-align: left;
-      align-self: flex-end !important;
-      margin-left: 0 !important;
-      margin-right: auto !important;
-      text-align: left !important;
-      direction: ltr !important;
-    {% endif %}
   "
 
-  {% if block.id contains 'BM6tnF' %}
-    dir="ltr"
-  {% endif %}
   {{ block.shopify_attributes }}
 {% endcapture %}
 

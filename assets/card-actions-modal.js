@@ -242,25 +242,16 @@
           .then(function(response) { return response.json(); })
           .then(function(data) {
             if (data.status) throw new Error(data.message || 'Add to cart failed');
-            // /cart/add.js returns only the added line, not the full cart, so
-            // fetch /cart.js to get the real item_count for the header bubble.
-            return fetch('/cart.js', {
-              headers: { 'Accept': 'application/json' },
-              credentials: 'same-origin'
-            })
-              .then(function(r) { return r.json(); })
-              .then(function(cart) { return { data: data, cart: cart }; });
+            return data;
           })
-          .then(function(result) {
-            var data = result.data;
-            var cart = result.cart;
+          .then(function(data) {
             requestAnimationFrame(function() {
               deferred.resolve({
-                cart: normalizeCart(cart),
+                cart: normalizeCart(data),
                 detail: {
                   sections: data.sections || {},
-                  items: cart.items || [],
-                  itemCount: cart.item_count || 0,
+                  items: data.items || [],
+                  itemCount: data.item_count || 0,
                   source: 'product-card-actions',
                   didError: false
                 }
@@ -504,22 +495,13 @@
             .then(function(r) { return r.json(); })
             .then(function(data) {
               if (data.status) throw new Error(data.message || 'Add to cart failed');
-              // /cart/add.js returns only the added line, not the full cart, so
-              // fetch /cart.js to get the real item_count for the header bubble.
-              return fetch('/cart.js', {
-                headers: { 'Accept': 'application/json' },
-                credentials: 'same-origin'
-              })
-                .then(function(r) { return r.json(); })
-                .then(function(cart) { return { data: data, cart: cart }; });
+              return data;
             })
-            .then(function(result) {
-              var data = result.data;
-              var cart = result.cart;
+            .then(function(data) {
               requestAnimationFrame(function() {
                 deferred.resolve({
-                  cart: normalizeCart(cart),
-                  detail: { sections: data.sections || {}, items: cart.items || [], itemCount: cart.item_count || 0, source: 'product-card-modal', didError: false }
+                  cart: data,
+                  detail: { sections: data.sections || {}, items: data.items || [], itemCount: data.item_count || 0, source: 'product-card-modal', didError: false }
                 });
 
                 if (cartIcon) cartIcon.style.display = 'block';
@@ -609,7 +591,6 @@
         // as the modal teardown and blocks it (INP presentation delay).
         setTimeout(function() {
           document.body.style.overflow = '';
-          document.documentElement.removeAttribute('scroll-lock');
         }, 0);
       });
     });

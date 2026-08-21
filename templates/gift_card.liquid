@@ -1,7 +1,7 @@
 {% layout none %}
 
 <!doctype html>
-<html lang="{{ request.locale.iso_code }}" dir="{% if request.locale.iso_code == 'ar' or request.locale.iso_code == 'he' %}rtl{% else %}ltr{% endif %}">
+<html lang="{{ request.locale.iso_code }}">
   <head>
     {%- render 'stylesheets' -%}
     {{ 'template-giftcard.css' | asset_url | stylesheet_tag }}

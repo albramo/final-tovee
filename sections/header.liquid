@@ -258,8 +258,7 @@
           show_language: show_language,
           localization_style: 'dropdown',
           form_style: form_style,
-          form_id: section.id,
-          back: request.path
+          form_id: section.id
         %}
       </div>
     </dropdown-localization-component>
@@ -334,8 +333,7 @@
           show_language: show_language,
           localization_style: 'dropdown',
           form_style: form_style,
-          form_id: section.id,
-          back: request.path
+          form_id: section.id
         %}
       </div>
     </dropdown-localization-component>
@@ -539,19 +537,6 @@
   @media screen and (min-width: 750px) {
     #header-component[data-menu-style='menu'] :is(.header-menu, .dropdown-localization) {
       display: flex;
-    }
-
-    /* Hide the standalone dropdown localization on desktop since
-       the language selector is now part of header-actions */
-    #header-component[data-menu-style='menu'] .dropdown-localization {
-      display: none !important;
-    }
-
-    /* Hide the standalone search from header-row on desktop since
-       the search button is now part of header-actions */
-    .header__column > search-button:not(.header-actions__mobile-search),
-    .header__columns > search-button:not(.header-actions__mobile-search) {
-      display: none !important;
     }
   }
 
@@ -902,7 +887,6 @@
 
     @media screen and (max-width: 749px) {
       --header-template-columns: var(--header-mobile-bookend) 1fr auto;
-      position: relative;
 
       grid-template-areas: 'leftA center rightB';
       grid-column: span 3;
@@ -913,12 +897,6 @@
 
       .header-logo {
         grid-area: center;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        margin: 0;
-        z-index: 2;
       }
 
       .header__column > search-button:not(.header-actions__mobile-search),
@@ -930,7 +908,7 @@
         grid-area: rightB;
         display: flex;
         align-items: center;
-        gap: 0.15rem;
+        gap: var(--gap-md);
       }
     }
   }
@@ -940,7 +918,6 @@
   #header-component[data-menu-style='drawer'] .header__columns {
     --header-template-columns: var(--header-mobile-bookend) var(--header-mobile-bookend) 1fr
       auto auto;
-    position: relative;
 
     grid-template-areas: 'leftA leftB center rightA rightB';
     grid-column: span 3;
@@ -951,12 +928,6 @@
 
     .header-logo {
       grid-area: center;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      margin: 0;
-      z-index: 2;
     }
 
     &:not(:has(header-actions)) .search-action {
@@ -1197,8 +1168,8 @@
   }
 
   dropdown-localization-component .localization-wrapper.left-bound {
-    left: -8px;
-    right: unset;
+    inset-inline-start: -8px;
+    inset-inline-end: unset;
   }
 
   /* Additional specificity due to dropdown-localization-component getting a low score */

@@ -74,18 +74,13 @@
       var heading = el.querySelector('.footer-policy-column__heading, h1, h2, h3, h4, h5, h6, .menu__heading__default, .email-signup__heading');
       if (heading) {
         heading.style.display = 'none';
-        heading.dataset.footerHeadingHidden = 'true';
       }
     }
 
     function showOriginalHeading(el) {
-      var heading = el.querySelector('[data-footer-heading-hidden="true"]');
+      var heading = el.querySelector('.footer-policy-column__heading, h1, h2, h3, h4, h5, h6, .menu__heading__default, .email-signup__heading');
       if (heading) {
         heading.style.display = '';
-        delete heading.dataset.footerHeadingHidden;
-      } else {
-        var fallback = el.querySelector('.footer-policy-column__heading, h1, h2, h3, h4, h5, h6, .menu__heading__default, .email-signup__heading');
-        if (fallback) fallback.style.display = '';
       }
     }
 
@@ -93,55 +88,13 @@
       return window.matchMedia('(max-width: 749px)').matches;
     }
 
-    function animateOpen(details) {
-      var wrapper = details.querySelector('.details-content-wrapper');
-      if (!wrapper) return;
-      details.dataset.isAnimating = 'true';
-      details.open = true;
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          wrapper.style.gridTemplateRows = '1fr';
-          wrapper.style.opacity = '1';
-          var onEnd = function(e) {
-            if (e.target === wrapper) {
-              wrapper.removeEventListener('transitionend', onEnd);
-              details.dataset.isAnimating = 'false';
-            }
-          };
-          wrapper.addEventListener('transitionend', onEnd);
-          setTimeout(function() { details.dataset.isAnimating = 'false'; }, 380);
-        });
-      });
-    }
-
-    function animateClose(details) {
-      var wrapper = details.querySelector('.details-content-wrapper');
-      if (!wrapper) {
-        details.open = false;
-        return;
-      }
-      details.dataset.isAnimating = 'true';
-      wrapper.style.gridTemplateRows = '0fr';
-      wrapper.style.opacity = '0';
-      var onEnd = function(e) {
-        if (e.target === wrapper) {
-          wrapper.removeEventListener('transitionend', onEnd);
-          details.open = false;
-          details.dataset.isAnimating = 'false';
-        }
-      };
-      wrapper.addEventListener('transitionend', onEnd);
-      setTimeout(function() {
-        details.open = false;
-        details.dataset.isAnimating = 'false';
-      }, 380);
-    }
-
     function makeCollapsible(col) {
       if (col.dataset.footerCollapsible) return;
+
       var title = getColumnHeading(col);
       if (!title) return;
-      if (col.querySelector(':scope > details.product-tabs__mobile-details')) return;
+
+      hideOriginalHeading(col);
 
       var details = document.createElement('details');
       details.className = 'details product-tabs__mobile-details';
@@ -149,141 +102,28 @@
 
       var summary = document.createElement('summary');
       summary.className = 'details__header';
+
       var heading = document.createElement('span');
       heading.className = 'details__heading';
       heading.textContent = title;
+
       var iconWrapper = document.createElement('span');
       iconWrapper.className = 'svg-wrapper icon-plus';
       iconWrapper.setAttribute('aria-hidden', 'true');
       iconWrapper.innerHTML = PLUS_ICON_SVG;
+
       summary.appendChild(heading);
       summary.appendChild(iconWrapper);
 
-      var wrapper = document.createElement('div');
-      wrapper.className = 'details-content-wrapper';
-      var inner = document.createElement('div');
-      inner.className = 'details-content-inner';
       var content = document.createElement('div');
       content.className = 'details-content';
 
-      // Handle menu blocks that render their own <details class="menu__details"> inside accordion-custom
-      var accordion = col.querySelector('accordion-custom');
-      var innerMenuDetails = col.querySelector('accordion-custom details.menu__details, details.menu__details, accordion-custom details');
-      // Fallback: any details that is NOT our own (we already checked direct child)
-      if (!innerMenuDetails) {
-        var allDetails = col.querySelectorAll('details');
-        for (var i = 0; i < allDetails.length; i++) {
-          if (!allDetails[i].classList.contains('product-tabs__mobile-details')) {
-            innerMenuDetails = allDetails[i];
-            break;
-          }
-        }
+      while (col.firstChild) {
+        content.appendChild(col.firstChild);
       }
 
-      if (innerMenuDetails) {
-        var navContent = innerMenuDetails.querySelector('nav, ul, .details-content');
-        if (navContent) {
-          var clonedNav = navContent.cloneNode(true);
-          clonedNav.style.display = 'block';
-          clonedNav.removeAttribute('hidden');
-          content.appendChild(clonedNav);
-        } else {
-          var children = Array.from(innerMenuDetails.children);
-          children.forEach(function(child) {
-            if (child.tagName.toLowerCase() !== 'summary') {
-              var c = child.cloneNode(true);
-              c.style.display = '';
-              content.appendChild(c);
-            }
-          });
-        }
-        if (accordion) accordion.style.display = 'none';
-        innerMenuDetails.style.display = 'none';
-        hideOriginalHeading(col);
-      } else {
-        // Non-menu columns (policy list, custom text, etc.) - CLONE instead of MOVE to preserve original DOM
-        hideOriginalHeading(col);
-        var childNodes = Array.from(col.childNodes);
-        var hasCloned = false;
-        childNodes.forEach(function(node) {
-          if (node.nodeType === 1) {
-            // Element node - skip our own details if any (not yet appended)
-            if (node.classList && node.classList.contains('product-tabs__mobile-details')) return;
-            // Mark original as hidden, keep in DOM for desktop restore
-            if (!node.dataset.footerOriginalHidden) {
-              node.dataset.footerOriginalHidden = 'true';
-              node.style.display = 'none';
-            }
-            var clone = node.cloneNode(true);
-            // Clean clone from hidden markers and inline display none
-            if (clone.dataset) delete clone.dataset.footerOriginalHidden;
-            clone.style.display = '';
-            // Remove duplicate heading from cloned content (summary already shows the title)
-            var hiddenHeadingInClone = clone.querySelector && clone.querySelector('[data-footer-heading-hidden]');
-            if (hiddenHeadingInClone) {
-              hiddenHeadingInClone.remove();
-            } else {
-              // Fallback: if heading wasn't marked (edge case), remove matching heading by text
-              var dupHeading = clone.querySelector && clone.querySelector('.footer-policy-column__heading, .menu__heading__default, h1, h2, h3, h4');
-              if (dupHeading && dupHeading.textContent.trim() === heading.textContent.trim()) {
-                dupHeading.remove();
-              }
-            }
-            // Also handle case where the cloned node itself is the heading
-            if (clone.matches && clone.matches('.footer-policy-column__heading, .menu__heading__default, h1, h2, h3, h4, h5, h6') && clone.textContent.trim() === heading.textContent.trim()) {
-              // Don't append heading itself as content
-              hasCloned = hasCloned; // keep flag but skip append
-              return;
-            }
-            // Also ensure any display:none from original is cleared in clone's children
-            var hiddenInClone = clone.querySelectorAll ? clone.querySelectorAll('[data-footer-original-hidden]') : [];
-            hiddenInClone.forEach(function(el) { el.style.display = ''; delete el.dataset.footerOriginalHidden; });
-            content.appendChild(clone);
-            hasCloned = true;
-          } else if (node.nodeType === 3) {
-            var text = node.textContent;
-            if (text.trim() !== '') {
-              // Keep original text node but hide via empty, store backup
-              if (node._footerOriginalText === undefined) {
-                node._footerOriginalText = text;
-                node.textContent = '';
-              }
-              var span = document.createElement('span');
-              span.textContent = text.trim();
-              content.appendChild(span);
-              hasCloned = true;
-            }
-          }
-        });
-        // Fallback if no element children (e.g., empty), just ensure we don't leave column empty in mobile
-        if (!hasCloned) {
-          var fallback = document.createElement('div');
-          fallback.textContent = '';
-          content.appendChild(fallback);
-        }
-      }
-
-      inner.appendChild(content);
-      wrapper.appendChild(inner);
       details.appendChild(summary);
-      details.appendChild(wrapper);
-
-      summary.addEventListener('click', function(event) {
-        event.preventDefault();
-        if (details.dataset.isAnimating === 'true') return;
-        var isOpen = details.open;
-        var allFooterDetails = document.querySelectorAll('footer .footer-column--collapsible details');
-        if (!isOpen) {
-          allFooterDetails.forEach(function(other) {
-            if (other !== details && other.open) {
-              animateClose(other);
-            }
-          });
-          animateOpen(details);
-        } else {
-          animateClose(details);
-        }
-      });
+      details.appendChild(content);
 
       col.appendChild(details);
       col.classList.add('footer-column--collapsible');
@@ -291,105 +131,25 @@
     }
 
     function undoCollapsible(col) {
-      var details = col.querySelector(':scope > details.product-tabs__mobile-details');
-      if (details) {
-        // Cancel any pending animation
-        details.dataset.isAnimating = 'false';
-        details.remove();
-      } else {
-        // Fallback for browsers without :scope support
-        var direct = col.querySelector('details.product-tabs__mobile-details');
-        if (direct && direct.parentElement === col) direct.remove();
+      var details = col.querySelector(':scope > .details.product-tabs__mobile-details');
+      if (!details) return;
+
+      var content = details.querySelector(':scope > .details-content');
+      while (content && content.firstChild) {
+        col.appendChild(content.firstChild);
       }
 
-      var accordion = col.querySelector('accordion-custom');
-      if (accordion) accordion.style.display = '';
-
-      var innerMenuDetails = col.querySelector('accordion-custom details.menu__details, details.menu__details, details');
-      // Only restore if it's not our own (already removed)
-      if (innerMenuDetails && !innerMenuDetails.classList.contains('product-tabs__mobile-details')) {
-        innerMenuDetails.style.display = '';
-        // Ensure accordion-custom's internal details is open on desktop
-        if (isMobile() === false) {
-          innerMenuDetails.setAttribute('open', '');
-          innerMenuDetails.open = true;
-        } else {
-          innerMenuDetails.removeAttribute('open');
-        }
-      }
-
-      // Restore all originally hidden elements
-      var hiddenEls = col.querySelectorAll('[data-footer-original-hidden="true"]');
-      hiddenEls.forEach(function(el) {
-        el.style.display = '';
-        delete el.dataset.footerOriginalHidden;
-      });
-
-      // Restore text nodes
-      Array.from(col.childNodes).forEach(function(node) {
-        if (node._footerOriginalText !== undefined) {
-          node.textContent = node._footerOriginalText;
-          delete node._footerOriginalText;
-        }
-      });
-
+      details.remove();
       col.classList.remove('footer-column--collapsible');
       delete col.dataset.footerCollapsible;
       showOriginalHeading(col);
     }
 
-    function resetColumn(col) {
-      undoCollapsible(col);
-      col.classList.remove('footer-brand-column', 'footer-newsletter-column', 'footer-menu-column', 'footer-column--collapsible');
-      delete col.dataset.footerCollapsible;
-      // Clean any leftover hidden markers that might have been missed
-      var leftover = col.querySelectorAll('[data-footer-original-hidden]');
-      leftover.forEach(function(el) { el.style.display = ''; delete el.dataset.footerOriginalHidden; });
-      showOriginalHeading(col);
-    }
-
-    function isBrandBlock(el) {
-      if (!el) return false;
-      // Already classified in previous build - respect it during reset check
-      if (el.classList.contains('footer-brand-column') || el.classList.contains('footer-newsletter-column') || el.classList.contains('footer-menu-column')) {
-        if (el.classList.contains('footer-brand-column')) return true;
-        return false;
-      }
-      if (el.querySelector('.menu, .footer-policy-column, .email-signup, form[action*="contact"], .newsletter')) {
-        return false;
-      }
-      if (el.querySelector('.logo-block, .social-links, .social-icons, .group-block')) {
-        // Further check: if group-block contains email-signup, it's not brand
-        if (el.querySelector('.email-signup')) return false;
-        if (el.querySelector('.logo-block, .social-links, .social-icons') || el.classList.contains('logo-block') || el.classList.contains('social-links')) {
-          // If it has heading + menu, not brand
-          if (getColumnHeading(el) && el.querySelector('ul, nav, .footer-policy-column__list')) return false;
-          return true;
-        }
-      }
-      if (el.querySelector('img') && !getColumnHeading(el)) {
-        return true;
-      }
-      // Group with logo image - detect group_top_logo by content
-      if (el.querySelector('.group-block') && el.querySelector('img')) return true;
-      return false;
-    }
-
     function buildToggles() {
       var columns = document.querySelectorAll('.footer-content > *');
-      columns.forEach(function(col) {
-        resetColumn(col);
-      });
-      columns.forEach(function(col) {
-        if (isBrandBlock(col)) {
-          col.classList.add('footer-brand-column');
-          return;
-        }
-        if (col.querySelector('.email-signup, form[action*="contact"], .newsletter')) {
-          col.classList.add('footer-newsletter-column');
-          return;
-        }
-        col.classList.add('footer-menu-column');
+      columns.forEach(function(col, index) {
+        if (index === 0) return;
+
         if (isMobile()) {
           makeCollapsible(col);
         } else {
@@ -404,148 +164,79 @@
       buildToggles();
     }
 
-    var resizeTimeout;
-    var lastIsMobile = isMobile();
-    window.addEventListener('resize', function() {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(function() {
-        var currentIsMobile = isMobile();
-        // Only rebuild if breakpoint crossed or ensure state is correct
-        if (currentIsMobile !== lastIsMobile) {
-          lastIsMobile = currentIsMobile;
-          buildToggles();
-        } else {
-          // Still rebuild to handle edge cases but debounce
-          buildToggles();
-        }
-      }, 150);
-    });
-
-    // Also listen to media query change for more reliable breakpoint detection
-    var mql = window.matchMedia('(max-width: 749px)');
-    if (mql.addEventListener) {
-      mql.addEventListener('change', function() { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(buildToggles, 50); });
-    } else if (mql.addListener) {
-      mql.addListener(function() { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(buildToggles, 50); });
-    }
+    window.addEventListener('resize', buildToggles);
   })();
 </script>
 
 {% stylesheet %}
   .footer-content {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: clamp(24px, 3.5vw, 48px);
-    width: 100%;
-    box-sizing: border-box;
-    min-width: 0;
+    contain: content;
+    content-visibility: auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--footer-gap);
+    align-items: start;
   }
 
   .footer-content .menu__heading__default {
     font-weight: var(--font-heading--weight);
   }
 
-  /* DESKTOP: Brand pinned left, Menus centered */
-  @media screen and (min-width: 750px) {
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    .footer-content {
+      grid-template-columns: repeat(min(var(--grid-columns), 3), 1fr);
+      grid-auto-flow: row;
+    }
+
+    .footer-content[style*='--grid-columns: 4'] {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .footer-content--isolated-grid-item-tablet > :last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media screen and (min-width: 990px) {
     .footer-content {
       position: relative;
       display: flex;
-      flex-direction: row;
       flex-wrap: wrap;
       justify-content: center;
       align-items: flex-start;
-      gap: 48px 80px;
-      padding-inline-start: 260px;
-      box-sizing: border-box;
+      gap: var(--footer-gap);
     }
 
-    /* Brand bar (Logo + Social links) - pinned top-left, always first visually */
-    .footer-brand-column {
-      order: -1 !important;
-      position: absolute !important;
+    /* Brand bar (logo + social) pinned to top-left */
+    .footer-content > :first-child {
+      position: absolute;
       top: 0;
       inset-inline-start: 0;
-      flex: 0 0 240px !important;
-      max-width: 240px !important;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: flex-start;
-      gap: 16px;
+      flex: none;
+      width: auto;
+      max-width: 320px;
     }
 
-    /* Menu columns - centered as a group, unified style for any new menu */
-    .footer-menu-column,
-    .footer-column--collapsible {
-      order: 0 !important;
-      flex: 0 0 auto !important;
-      width: auto !important;
-      min-width: 140px !important;
-      max-width: 200px;
+    /* Newsletter section spans full width below the columns */
+    .footer-content > :last-child:not(:first-child) {
+      flex: 1 0 100%;
+      max-width: 100%;
+      margin-block-start: var(--footer-gap);
     }
 
-    /* Newsletter section spans full width below all columns */
-    .footer-newsletter-column {
-      order: 99 !important;
-      flex: 1 0 100% !important;
-      width: 100% !important;
-      margin-block-start: 16px;
-      padding-block-start: 28px;
-      border-block-start: 1px solid rgba(255, 255, 255, 0.15);
+    /* Middle columns centered on the same row as the logo */
+    .footer-content > :not(:first-child):not(:last-child) {
+      flex: 0 1 auto;
+      width: auto;
+      min-width: 0;
+      max-width: 100%;
     }
   }
 
-  @media screen and (min-width: 750px) and (max-width: 999px) {
-    .footer-content {
-      gap: 32px 48px;
-      padding-inline-start: 240px;
-    }
-    .footer-brand-column {
-      flex: 0 0 220px !important;
-      max-width: 220px !important;
-    }
-    .footer-menu-column,
-    .footer-column--collapsible {
-      min-width: 130px !important;
-      max-width: 180px;
-    }
-  }
-
-  @media screen and (min-width: 1100px) {
-    .footer-content {
-      gap: 60px 80px;
-    }
-  }
-
-  @media screen and (max-width: 749px) {
-    .footer-content {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      width: 100%;
-    }
-
-    .footer-brand-column {
-      order: -2 !important;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
-      margin-block-end: 20px;
-    }
-
-    .footer-menu-column {
-      order: 0 !important;
-      width: 100%;
-    }
-
-    .footer-newsletter-column {
-      order: 99 !important;
-      width: 100%;
-      margin-block-start: 24px;
-      padding-block-start: 24px;
-      border-block-start: 1px solid rgba(255, 255, 255, 0.15);
+  @media screen and (min-width: 750px) and (max-width: 989px) {
+    .footer-content > :last-child:not(:first-child) {
+      grid-column: 1 / -1;
+      margin-block-start: var(--footer-gap);
     }
   }
 
@@ -555,72 +246,6 @@
   footer .color-custom-footer-main,
   footer .color-custom-footer-main .text-block {
     background-color: #000 !important;
-    color: #ffffff !important;
-  }
-
-  /* Matching all Footer Menus to the exact design of Terms & Policies with tight spacing */
-  footer .footer-content .menu__heading__default,
-  footer .footer-content .menu__heading,
-  footer .footer-content .details__heading,
-  footer .footer-policy-column__heading {
-    font-size: 1rem !important;
-    font-weight: 700 !important;
-    color: #ffffff !important;
-    letter-spacing: 0.02em;
-    line-height: 1.3 !important;
-    margin-block-end: 0.5rem !important;
-  }
-
-  @media screen and (min-width: 750px) {
-    footer .footer-content accordion-custom .details__header,
-    footer .footer-content .menu__heading,
-    footer .footer-content .footer-policy-column__heading {
-      min-height: 2.2em !important;
-      display: flex !important;
-      align-items: center;
-      padding-block: 0 !important;
-    }
-  }
-
-  footer .footer-content .details-content,
-  footer .footer-content nav,
-  footer .footer-content ul {
-    margin-block-start: 0 !important;
-    padding-block-start: 0 !important;
-  }
-
-  footer .footer-content .menu__item + .menu__item,
-  footer .footer-content ul li + li {
-    margin-block-start: 0.5rem !important;
-  }
-
-  /* Unified link style for ALL menus - any new menu added will inherit same style */
-  footer .footer-content .menu__item a,
-  footer .footer-content .footer-policy-column__link,
-  footer .footer-content .details-content a,
-  footer .footer-menu-column a,
-  footer .footer-column--collapsible a {
-    display: inline-block;
-    font-size: 0.9rem !important;
-    color: rgba(255, 255, 255, 0.65) !important;
-    text-decoration: none !important;
-    transition: color 0.2s ease, opacity 0.2s ease;
-  }
-
-  footer .footer-content .menu__item a:hover,
-  footer .footer-content .footer-policy-column__link:hover,
-  footer .footer-content .details-content a:hover,
-  footer .footer-menu-column a:hover,
-  footer .footer-column--collapsible a:hover {
-    color: #ffffff !important;
-    opacity: 1;
-  }
-
-  /* Ensure any new menu block heading uses same style */
-  footer .footer-menu-column .menu__heading__default,
-  footer .footer-column--collapsible .details__heading {
-    font-size: 1rem !important;
-    font-weight: 700 !important;
     color: #ffffff !important;
   }
 
@@ -679,34 +304,32 @@
     stroke: #ffffff !important;
   }
 
-  /* Brand bar: logo + social links */
-  footer .footer-brand-column {
+  /* Brand bar: logo + social links pinned top-left */
+  footer .footer-content > :first-child {
     align-self: flex-start;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
   }
 
-  footer .footer-brand-column .social-icons__icon,
-  footer .footer-brand-column .social-icons__icon svg {
+  /* Newsletter section below columns */
+  footer .footer-content > :last-child:not(:first-child) {
+    padding-block-start: 28px;
+    margin-block-start: 28px;
+    border-block-start: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  footer .footer-content > :first-child .social-icons__icon,
+  footer .footer-content > :first-child .social-icons__icon svg {
     color: #ffffff !important;
     fill: #ffffff !important;
     stroke: #ffffff !important;
   }
 
-  footer .footer-brand-column .social-icons__icon:hover {
+  footer .footer-content > :first-child .social-icons__icon:hover {
     color: #d4a853 !important;
   }
 
-  footer .footer-brand-column .social-icons__wrapper,
-  footer .footer-brand-column .social-links {
-    display: flex;
-    flex-wrap: wrap;
+  footer .footer-content > :first-child .social-icons__wrapper {
     justify-content: flex-start;
     align-items: center;
-    gap: 12px;
-    margin-block-start: 4px;
   }
 
   /* Policy column heading matches brand style */
@@ -729,24 +352,6 @@
   @media screen and (max-width: 749px) {
     footer .footer-content > .footer-column--collapsible {
       border-block-start: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
-      overflow: hidden;
-    }
-
-    footer .footer-content > .footer-column--collapsible .details-content-wrapper {
-      display: grid;
-      grid-template-rows: 0fr;
-      opacity: 0;
-      transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                  opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    footer .footer-content > .footer-column--collapsible details[open] .details-content-wrapper {
-      grid-template-rows: 1fr;
-      opacity: 1;
-    }
-
-    footer .footer-content > .footer-column--collapsible .details-content-inner {
-      overflow: hidden;
     }
 
     footer .footer-content > .footer-column--collapsible .details__header {
@@ -774,16 +379,20 @@
       width: 18px;
       height: 18px;
       color: #ffffff !important;
-      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    footer .footer-content > .footer-column--collapsible details[open] .icon-plus {
-      transform: rotate(45deg);
     }
 
     footer .footer-content > .footer-column--collapsible .icon-plus svg {
       width: 18px;
       height: 18px;
+    }
+
+    footer .footer-content > .footer-column--collapsible .icon-plus .horizontal {
+      transform-origin: center;
+      transition: transform 0.3s var(--animation-easing);
+    }
+
+    footer .footer-content > .footer-column--collapsible details[open] .icon-plus .horizontal {
+      transform: rotate(90deg);
     }
 
     footer .footer-content > .footer-column--collapsible .details-content {

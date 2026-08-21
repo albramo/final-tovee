@@ -1,14 +1,4 @@
-{% liquid
-  assign has_policies = false
-  if shop.policies.size > 0
-    assign has_policies = true
-  endif
-  # Fallback: also check if any policy body exists
-  if shop.privacy_policy.body != blank or shop.terms_of_service.body != blank or shop.shipping_policy.body != blank or shop.refund_policy.body != blank
-    assign has_policies = true
-  endif
-%}
-{% if has_policies %}
+{% if shop.policies.size > 0 %}
   <div
     class="footer-policy-column"
     style="
@@ -22,58 +12,16 @@
     <ul class="footer-policy-column__list list-unstyled">
       {%- for policy in shop.policies -%}
         {%- if policy != blank -%}
-          {% liquid
-            assign display_title = policy.title
-            if request.locale.iso_code == 'ar'
-              assign lower_title = policy.title | downcase
-              if lower_title == 'privacy policy'
-                assign display_title = 'سياسة الخصوصية'
-              elsif lower_title == 'terms of service' or lower_title == 'terms and conditions'
-                assign display_title = 'شروط الخدمة'
-              elsif lower_title == 'shipping policy'
-                assign display_title = 'سياسة الشحن'
-              elsif lower_title == 'refund policy' or lower_title == 'return policy'
-                assign display_title = 'سياسة الاسترجاع'
-              elsif lower_title contains 'contact'
-                assign display_title = 'معلومات الاتصال'
-              elsif lower_title == 'legal notice' or lower_title == 'terms of sale'
-                assign display_title = 'إشعار قانوني'
-              endif
-            endif
-          %}
           <li>
             <a
               href="{{ policy.url }}"
               class="footer-policy-column__link"
             >
-              {{- display_title | escape -}}
+              {{- policy.title | escape -}}
             </a>
           </li>
         {%- endif -%}
       {%- endfor -%}
-      {% liquid
-        assign has_contact = false
-        for p in shop.policies
-          if p.title contains 'Contact' or p.title contains 'contact' or p.title contains 'اتصال'
-            assign has_contact = true
-          endif
-        endfor
-      %}
-      {% if has_contact == false %}
-        {%- if pages['contact'] != blank -%}
-          <li>
-            <a href="{{ pages['contact'].url }}" class="footer-policy-column__link">
-              {% if request.locale.iso_code == 'ar' %}معلومات الاتصال{% else %}Contact information{% endif %}
-            </a>
-          </li>
-        {%- elsif shop.policies.size < 5 -%}
-          <li>
-            <a href="{{ shop.privacy_policy.url | default: '/policies/privacy-policy' }}" class="footer-policy-column__link" {% if shop.privacy_policy.url == blank %}style="opacity:0.6;"{% endif %}>
-              {% if request.locale.iso_code == 'ar' %}معلومات الاتصال{% else %}Contact information{% endif %}
-            </a>
-          </li>
-        {%- endif -%}
-      {% endif %}
     </ul>
   </div>
 {% endif %}
@@ -111,16 +59,6 @@
   .footer-policy-column__link:hover {
     color: var(--color-foreground);
     opacity: 1;
-  }
-
-  /* RTL: ensure policy links align to start */
-  html[dir='rtl'] .footer-policy-column,
-  html[dir='rtl'] .footer-policy-column__heading,
-  html[dir='rtl'] .footer-policy-column__list {
-    text-align: start;
-  }
-  html[dir='rtl'] .footer-policy-column__link {
-    text-align: start;
   }
 {% endstylesheet %}
 

@@ -14,27 +14,6 @@
     "footer_m9NzUG": {
       "type": "footer",
       "blocks": {
-        "menu_YNwUM4": {
-          "type": "menu",
-          "name": "t:names.menu",
-          "settings": {
-            "menu": "footer",
-            "heading": "",
-            "menu_spacing": 12,
-            "show_as_accordion": false,
-            "accordion_icon": "caret",
-            "accordion_dividers": false,
-            "background_color": "",
-            "text_color": "",
-            "heading_preset": "h3",
-            "link_preset": "paragraph",
-            "padding-block-start": 0,
-            "padding-block-end": 0,
-            "padding-inline-start": 0,
-            "padding-inline-end": 0
-          },
-          "blocks": {}
-        },
         "group_top_logo": {
           "type": "group",
           "settings": {
@@ -78,15 +57,13 @@
               "type": "logo",
               "settings": {
                 "inverse": false,
-                "font": "heading",
-                "text_color": "",
                 "unit": "pixel",
-                "percent_width": 100,
                 "pixel_height": 48,
+                "percent_width": 100,
                 "custom_mobile_size": false,
                 "unit_mobile": "pixel",
-                "percent_width_mobile": 100,
                 "pixel_height_mobile": 120,
+                "percent_width_mobile": 100,
                 "padding-block-start": 0,
                 "padding-block-end": 0,
                 "padding-inline-start": 0,
@@ -119,15 +96,6 @@
             "logo_block",
             "social_links_block"
           ]
-        },
-        "footer_policy_list_V2": {
-          "type": "footer-policy-list",
-          "settings": {
-            "text_color": "",
-            "font_size": "0.875rem",
-            "case": "none"
-          },
-          "blocks": {}
         },
         "group_H6VpwJ": {
           "type": "group",
@@ -256,10 +224,18 @@
             "text_f9CFLH",
             "email_signup_crihX7"
           ]
+        },
+        "footer_policy_list_V2": {
+          "type": "footer-policy-list",
+          "settings": {
+            "text_color": "",
+            "font_size": "0.875rem",
+            "case": "none"
+          },
+          "blocks": {}
         }
       },
       "block_order": [
-        "menu_YNwUM4",
         "group_top_logo",
         "footer_policy_list_V2",
         "group_H6VpwJ"

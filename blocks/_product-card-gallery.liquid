@@ -234,7 +234,7 @@
                     <circle cx="18" cy="20" r="2" stroke="currentColor" stroke-width="2"/>
                   </svg>
                   <span class="product-card-modal__spinner" style="display:none;"></span>
-                  <span data-modal-add-text>{{ 'products.product.add_to_cart' | t }}</span>
+                  <span data-modal-add-text>Add to Cart</span>
                 </button>
                 <div class="product-card-modal__row-bottom">
                   {% assign modal_form_id = 'ProductModalForm-' | append: card_block_id %}
@@ -242,13 +242,13 @@
                     <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}" data-modal-form-variant-id>
                     <input type="hidden" name="quantity" value="1" data-modal-form-quantity>
                     <div class="product-card-modal__express-checkout">
-                      <button type="button" class="button button-secondary product-card-modal__buy-btn" data-modal-buy-now>{{ 'content.buy_now' | t }}</button>
+                      <button type="button" class="button button-secondary product-card-modal__buy-btn" data-modal-buy-now>Buy Now</button>
                     </div>
                   {% endform %}
                 </div>
               </div>
 
-              <a href="{{ product.url }}" class="product-card-modal__view-details">{{ 'content.view_full_details' | t }}</a>
+              <a href="{{ product.url }}" class="product-card-modal__view-details">View full details</a>
             </div>
             </div>
           </div>
@@ -290,8 +290,6 @@
     padding: 4px 8px;
     border-radius: 4px;
     pointer-events: none;
-    direction: ltr;
-    unicode-bidi: isolate;
   }
 
   @media screen and (max-width: 749px) {
@@ -299,12 +297,11 @@
       left: auto;
       right: 12px;
     }
-  }
 
-  /* العربي (RTL): بادج الخصم دايماً على الشمال — موبايل وكمبيوتر */
-  [dir="rtl"] .product-discount-badge {
-    left: 12px !important;
-    right: auto !important;
+    [dir="rtl"] .product-discount-badge {
+      left: 12px;
+      right: auto;
+    }
   }
 
   .product-card-actions {
@@ -411,15 +408,13 @@
     display: flex !important;
     position: static;
     height: 42px;
-    background: rgba(255, 255, 255, 0.15);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 999px;
     align-items: center;
     gap: 0;
     overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   }
 
   .product-card-actions__qty-btn {
@@ -1096,18 +1091,18 @@
   }
 
   .product-card-modal__wishlist:hover {
-    color: #800020;
-    border-color: #800020;
+    color: #f178b3;
+    border-color: #f178b3;
   }
 
   .product-card-modal__wishlist[data-active] {
-    color: #800020;
-    border-color: #800020;
+    color: #f178b3;
+    border-color: #f178b3;
     background-color: #fff0f6;
   }
 
   .product-card-modal__wishlist[data-active] svg {
-    fill: #800020;
+    fill: #f178b3;
   }
 
   .product-card-modal__qty-value {
@@ -1133,11 +1128,11 @@
     padding: 0 !important;
     margin: 0 !important;
     background: transparent !important;
-    --shopify-accelerated-checkout-button-border-radius: 25px !important;
+    --shopify-accelerated-checkout-button-border-radius: var(--style-border-radius-inputs, 8px) !important;
     --shopify-accelerated-checkout-button-block-size: 52px !important;
     --shopify-accelerated-checkout-button-background-color: #ffffff !important;
-    --shopify-accelerated-checkout-button-text-color: #800020 !important;
-    --shopify-accelerated-checkout-button-border-color: #800020 !important;
+    --shopify-accelerated-checkout-button-text-color: #000000 !important;
+    --shopify-accelerated-checkout-button-border-color: #000000 !important;
   }
 
   .product-card-modal__express-checkout shopify-accelerated-checkout > div,
@@ -1152,11 +1147,11 @@
     max-width: 100% !important;
     height: 52px !important;
     min-height: 52px !important;
-    border-radius: 25px !important;
-    border: 1.5px solid #800020 !important;
+    border-radius: var(--style-border-radius-inputs, 8px) !important;
+    border: 1.5px solid #000000 !important;
     box-shadow: none !important;
     background-color: #ffffff !important;
-    color: #800020 !important;
+    color: #000000 !important;
     font-weight: 700 !important;
     font-size: 1.05rem !important;
     margin: 0 !important;
@@ -1179,10 +1174,10 @@
     width: 100% !important;
     height: 52px !important;
     border-radius: 25px !important;
-    border: 1px solid #800020 !important;
-    box-shadow: inset 0 0 0 1px #800020 !important;
+    border: 1px solid #f178b3 !important;
+    box-shadow: inset 0 0 0 1px #f178b3 !important;
     background-color: #ffffff !important;
-    color: #800020 !important;
+    color: #f178b3 !important;
     font-weight: 700 !important;
     font-size: 1.05rem !important;
     margin: 0 !important;
@@ -1205,21 +1200,21 @@
 
   .product-card-modal .product-card-modal__add-btn.button.button-secondary.add-to-cart-button {
     --button-color: #ffffff !important;
-    --button-background-color: #800020 !important;
-    --button-border-color: #800020 !important;
+    --button-background-color: #f178b3 !important;
+    --button-border-color: #f178b3 !important;
     color: #ffffff !important;
-    background-color: #800020 !important;
-    border: 1px solid #800020 !important;
-    box-shadow: inset 0 0 0 1px #800020 !important;
+    background-color: #f178b3 !important;
+    border: 1px solid #f178b3 !important;
+    box-shadow: inset 0 0 0 1px #f178b3 !important;
   }
 
   .product-card-modal .product-card-modal__add-btn.button.button-secondary.add-to-cart-button:hover {
-    --button-color: #800020 !important;
+    --button-color: #f178b3 !important;
     --button-background-color: #ffffff !important;
-    --button-border-color: #800020 !important;
-    color: #800020 !important;
+    --button-border-color: #f178b3 !important;
+    color: #f178b3 !important;
     background-color: #ffffff !important;
-    border-color: #800020 !important;
+    border-color: #f178b3 !important;
     transform: translateY(-1px);
   }
 
@@ -1243,16 +1238,16 @@
     text-align: center;
     margin-inline: auto !important;
     background-color: #ffffff !important;
-    color: #800020 !important;
-    border: 1px solid #800020 !important;
-    box-shadow: inset 0 0 0 1px #800020 !important;
+    color: #f178b3 !important;
+    border: 1px solid #f178b3 !important;
+    box-shadow: inset 0 0 0 1px #f178b3 !important;
     transition: all 0.25s ease;
   }
 
   .product-card-modal__buy-btn:hover {
-    background-color: #800020 !important;
+    background-color: #f178b3 !important;
     color: #ffffff !important;
-    border-color: #800020 !important;
+    border-color: #f178b3 !important;
     transform: translateY(-1px);
   }
 
@@ -1338,12 +1333,6 @@
 
 <script>
   (function() {
-    var addToCartText = '{{ 'products.product.add_to_cart' | t }}';
-    var soldOutText = '{{ 'products.product.sold_out' | t }}';
-    var buyNowText = '{{ 'content.buy_now' | t }}';
-    var addingText = '{{ 'content.adding' | t }}';
-    var redirectingText = '{{ 'content.redirecting' | t }}';
-
     function normalizeCart(cart) {
       var currency = cart.currency || 'USD';
       return {
@@ -1503,7 +1492,7 @@
 
             btn.disabled = true;
             btn.classList.add('is-loading');
-            if (addText) addText.textContent = addingText;
+            if (addText) addText.textContent = 'Adding...';
 
             var deferred = {};
             deferred.promise = new Promise(function(resolve, reject) {
@@ -1535,25 +1524,16 @@
             .then(function(response) { return response.json(); })
             .then(function(data) {
               if (data.status) throw new Error(data.message || 'Add to cart failed');
-              // /cart/add.js returns only the added line, not the full cart, so
-              // fetch /cart.js to get the real item_count for the header bubble.
-              return fetch('/cart.js', {
-                headers: { 'Accept': 'application/json' },
-                credentials: 'same-origin'
-              })
-                .then(function(r) { return r.json(); })
-                .then(function(cart) { return { data: data, cart: cart }; });
+              return data;
             })
-            .then(function(result) {
-              var data = result.data;
-              var cart = result.cart;
+            .then(function(data) {
               requestAnimationFrame(function() {
                 deferred.resolve({
-                  cart: normalizeCart(cart),
+                  cart: normalizeCart(data),
                   detail: {
                     sections: data.sections || {},
-                    items: cart.items || [],
-                    itemCount: cart.item_count || 0,
+                    items: data.items || [],
+                    itemCount: data.item_count || 0,
                     source: 'product-card-actions',
                     didError: false
                   }
@@ -1771,6 +1751,9 @@
           });
         }
 
+        var addToCartText = '{{ 'products.product.add_to_cart' | t }}';
+        var soldOutText = '{{ 'products.product.sold_out' | t }}';
+
         function setAvailabilityState(available) {
           var addBtnEl = modal.querySelector('[data-modal-add-to-cart]');
           var buyBtnEl = modal.querySelector('[data-modal-buy-now]');
@@ -1973,7 +1956,7 @@
             var addText = modal.querySelector('[data-modal-add-text]');
             if (cartIcon) cartIcon.style.display = 'none';
             if (spinner) spinner.style.display = 'inline-block';
-            if (addText) addText.textContent = addingText;
+            if (addText) addText.textContent = 'Adding...';
 
             var deferred = {};
             deferred.promise = new Promise(function(resolve, reject) {
@@ -1999,22 +1982,13 @@
               .then(function(r) { return r.json(); })
               .then(function(data) {
                 if (data.status) throw new Error(data.message || 'Add to cart failed');
-                // /cart/add.js returns only the added line, not the full cart, so
-                // fetch /cart.js to get the real item_count for the header bubble.
-                return fetch('/cart.js', {
-                  headers: { 'Accept': 'application/json' },
-                  credentials: 'same-origin'
-                })
-                  .then(function(r) { return r.json(); })
-                  .then(function(cart) { return { data: data, cart: cart }; });
+                return data;
               })
-              .then(function(result) {
-                var data = result.data;
-                var cart = result.cart;
+              .then(function(data) {
                 requestAnimationFrame(function() {
                   deferred.resolve({
-                    cart: normalizeCart(cart),
-                    detail: { sections: data.sections || {}, items: cart.items || [], itemCount: cart.item_count || 0, source: 'product-card-modal', didError: false }
+                    cart: data,
+                    detail: { sections: data.sections || {}, items: data.items || [], itemCount: data.item_count || 0, source: 'product-card-modal', didError: false }
                   });
 
                   if (cartIcon) cartIcon.style.display = 'block';
@@ -2058,7 +2032,7 @@
             if (!variantId) return;
 
             btn.disabled = true;
-            btn.textContent = redirectingText;
+            btn.textContent = 'Redirecting...';
 
             fetch('/cart/add.js', {
               method: 'POST',
@@ -2072,7 +2046,7 @@
               })
               .catch(function(err) {
                 btn.disabled = false;
-                btn.textContent = buyNowText;
+                btn.textContent = 'Buy Now';
                 document.dispatchEvent(new CustomEvent('shopify:cart:error', {
                   bubbles: true,
                   cancelable: true,

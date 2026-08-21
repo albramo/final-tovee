@@ -116,7 +116,6 @@
             ref="menuitem"
           >
             <span class="menu-list__link-inner">
-              {% render 'menu-link-icon', link_title: link.title %}
               <span class="menu-list__link-title">{% render 'menu-link-title', link_title: link.title %}</span>
             </span>
           </a>
@@ -301,10 +300,6 @@
     visibility: hidden;
   }
 
-  .menu-list__list-item:not(:first-of-type):not([slot='overflow']):not([slot='more']) {
-    border-inline-start: 1px solid rgb(var(--color-foreground-rgb) / 0.12);
-  }
-
   .menu-list__link {
     font-family: var(--menu-top-level-font-family);
     font-style: var(--menu-top-level-font-style);
@@ -318,10 +313,8 @@
     flex-direction: column;
     justify-content: center;
     cursor: pointer;
-    height: calc(100% - 12px);
-    margin-block: 6px;
-    border-radius: 8px;
-    transition: background-color 0.2s var(--animation-easing), color 0.2s var(--animation-easing);
+    height: 100%;
+    margin-block: 0;
 
     &::after {
       content: '';
@@ -347,12 +340,8 @@
     }
   }
 
-  .menu-list__list-item:where(:hover, :focus-within) > .menu-list__link {
-    background-color: rgb(var(--color-foreground-rgb) / 0.07);
-  }
-
   .menu-list__link-title {
-    padding-inline: var(--gap-2xs);
+    padding-inline: calc(var(--gap-xl) / 2);
   }
   [slot='overflow'] .menu-list__link-title {
     padding-inline: 0;
@@ -362,39 +351,8 @@
   .mega-menu__link-inner {
     display: flex;
     align-items: center;
-    gap: var(--gap-3xs);
+    gap: var(--gap-2xs);
     min-width: 0;
-  }
-
-  .menu-list .menu-link-icon,
-  .mega-menu .menu-link-icon {
-    width: var(--icon-size-sm);
-    height: var(--icon-size-sm);
-    flex-shrink: 0;
-    color: inherit;
-  }
-
-  .menu-list .menu-link-icon--wide,
-  .mega-menu .menu-link-icon--wide {
-    width: calc(var(--icon-size-sm) * 1.2);
-    height: var(--icon-size-sm);
-  }
-
-  .menu-list .menu-link-icon--lg,
-  .mega-menu .menu-link-icon--lg {
-    width: calc(var(--icon-size-sm) * 1.5);
-    height: calc(var(--icon-size-sm) * 1.2);
-  }
-
-  .menu-list .menu-link-icon path,
-  .mega-menu .menu-link-icon path {
-    fill: currentColor;
-  }
-
-  .menu-list .menu-link-icon.menu-link-icon--stroke path,
-  .mega-menu .menu-link-icon.menu-link-icon--stroke path {
-    fill: none;
-    stroke: currentColor;
   }
 
   .mega-menu__link-inner > span:last-child {
@@ -439,8 +397,8 @@
     /* Make sure focus outline is not cut off by overflow hidden */
     --focus-outline-size: calc(var(--focus-outline-offset) + var(--focus-outline-width));
 
-    gap: var(--gap-2xs);
-    margin-inline: calc(-1 * var(--gap-2xs) / 2);
+    gap: 0;
+    margin-inline: calc(-1 * var(--menu-horizontal-gap) / 2);
   }
 
   .overflow-menu {

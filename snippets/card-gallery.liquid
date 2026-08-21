@@ -482,24 +482,21 @@
     visibility: visible;
   }
 
-  /* Hover preview + image zoom only apply to devices with a real hover
-     (mouse/trackpad). On touch devices (phones) they get triggered by taps
-     and cause the image/card to visibly tremble, so they're disabled there. */
-  @media (hover: hover) {
-    .card-gallery slideshow-slides > slideshow-slide[data-preview-hover] {
-      opacity: 1 !important;
-      visibility: visible;
-      z-index: 1;
-    }
+  /* Hover preview: the next image fades in while the resting slide fades out.
+     The image swap is preloaded by JS, so it never flashes white. */
+  .card-gallery slideshow-slides > slideshow-slide[data-preview-hover] {
+    opacity: 1 !important;
+    visibility: visible;
+    z-index: 1;
+  }
 
-    /* The resting slide fades out when another slide is being previewed. */
-    .card-gallery[data-previewing] slideshow-slides > slideshow-slide[data-card-active]:not([data-preview-hover]) {
-      opacity: 0 !important;
-    }
+  /* The resting slide fades out when another slide is being previewed. */
+  .card-gallery[data-previewing] slideshow-slides > slideshow-slide[data-card-active]:not([data-preview-hover]) {
+    opacity: 0 !important;
+  }
 
-    :is(product-card, .product-card):hover .card-gallery .product-media__image {
-      transform: scale(1.05);
-    }
+  :is(product-card, .product-card):hover .card-gallery .product-media__image {
+    transform: scale(1.05);
   }
 
   .card-gallery .product-media__image {
