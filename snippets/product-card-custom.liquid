@@ -53,7 +53,7 @@
   </product-swatches>
   {%- endif -%}
 
-  <product-price class="text-block text-block--align-center h6" data-product-id="{{ product.id }}" style="--width: 100%; --horizontal-alignment: center;">
+  <product-price class="text-block h6 product-card__price" data-product-id="{{ product.id }}" style="--width: 100%; --horizontal-alignment: flex-end; text-align: right !important; font-weight: 700;">
     {% render 'price', product_resource: product, show_sale_price_first: true %}
   </product-price>
 {% endcapture %}

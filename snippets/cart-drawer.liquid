@@ -445,12 +445,20 @@
   }
 
   .theme-drawer__dialog .cart__checkout-button {
+    background-color: #800020 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
     border-radius: var(--style-border-radius-buttons-primary);
-    transition: transform 0.2s var(--ease-out-cubic), filter 0.2s ease;
+    transition: transform 0.2s var(--ease-out-cubic), filter 0.2s ease, box-shadow 0.2s ease;
 
     &:hover:not(:disabled) {
+      background-color: #6b001b !important;
+      color: #ffffff !important;
       transform: translateY(-1px);
-      filter: brightness(1.04);
+      box-shadow: 0 4px 14px rgba(128, 0, 32, 0.3);
     }
   }
 

@@ -4,6 +4,7 @@
     class="shopify-design-mode"
   {% endif %}
   lang="{{ request.locale.iso_code }}"
+  dir="{% if request.locale.iso_code == 'ar' or request.locale.iso_code == 'he' or request.locale.iso_code == 'fa' or request.locale.iso_code == 'ur' %}rtl{% else %}ltr{% endif %}"
 >
   <head>
     <script>
@@ -99,6 +100,50 @@
         --color-secondary-button-hover-background: #ECE2CF;
         --color-secondary-button-hover-text: #000000;
         --color-secondary-button-hover-border: #ECE2CF;
+      }
+    {% endstyle %}
+
+    {% comment %} RTL / Arabic support - logical properties & font tweaks {% endcomment %}
+    {% style %}
+      html[dir='rtl'] {
+        /* Ensure base direction inherits */
+        text-align: start;
+      }
+      html[dir='rtl'] body {
+        direction: rtl;
+        /* Better Arabic font rendering if Cairo/Tajawal available, fallback to system */
+        font-feature-settings: 'liga' 1, 'calt' 1;
+        letter-spacing: normal;
+      }
+      /* Footer RTL: padding flips automatically via padding-inline-start, brand inset flips too - no extra needed */
+      html[dir='rtl'] .footer-brand-column {
+        text-align: start;
+      }
+      html[dir='rtl'] .footer-content .menu__item a,
+      html[dir='rtl'] .footer-content .footer-policy-column__link {
+        text-align: start;
+      }
+      /* Localization dropdown mirrors correctly in RTL */
+      html[dir='rtl'] dropdown-localization-component .localization-wrapper.right-bound {
+        right: unset;
+        inset-inline-end: 0;
+        inset-inline-start: unset;
+      }
+      html[dir='rtl'] dropdown-localization-component .localization-wrapper.left-bound {
+        left: unset;
+        inset-inline-start: -8px;
+        inset-inline-end: unset;
+      }
+      html[dir='rtl'] .country-filter__input {
+        padding-inline-start: calc(var(--margin-md) + var(--padding-xl));
+        padding-inline-end: var(--padding-lg);
+      }
+      /* Fix any remaining physical left/right in search & icons */
+      html[dir='rtl'] .header-logo {
+        /* keep centered - no change */
+      }
+      html[dir='rtl'] [style*='left: 50%'] {
+        /* centered elements stay centered */
       }
     {% endstyle %}
 
