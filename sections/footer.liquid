@@ -218,11 +218,22 @@
             // Clean clone from hidden markers and inline display none
             if (clone.dataset) delete clone.dataset.footerOriginalHidden;
             clone.style.display = '';
-            // Remove hidden heading style inside clone if any
+            // Remove duplicate heading from cloned content (summary already shows the title)
             var hiddenHeadingInClone = clone.querySelector && clone.querySelector('[data-footer-heading-hidden]');
             if (hiddenHeadingInClone) {
-              hiddenHeadingInClone.style.display = '';
-              delete hiddenHeadingInClone.dataset.footerHeadingHidden;
+              hiddenHeadingInClone.remove();
+            } else {
+              // Fallback: if heading wasn't marked (edge case), remove matching heading by text
+              var dupHeading = clone.querySelector && clone.querySelector('.footer-policy-column__heading, .menu__heading__default, h1, h2, h3, h4');
+              if (dupHeading && dupHeading.textContent.trim() === heading.textContent.trim()) {
+                dupHeading.remove();
+              }
+            }
+            // Also handle case where the cloned node itself is the heading
+            if (clone.matches && clone.matches('.footer-policy-column__heading, .menu__heading__default, h1, h2, h3, h4, h5, h6') && clone.textContent.trim() === heading.textContent.trim()) {
+              // Don't append heading itself as content
+              hasCloned = hasCloned; // keep flag but skip append
+              return;
             }
             // Also ensure any display:none from original is cleared in clone's children
             var hiddenInClone = clone.querySelectorAll ? clone.querySelectorAll('[data-footer-original-hidden]') : [];
