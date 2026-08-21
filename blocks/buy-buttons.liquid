@@ -305,6 +305,8 @@
   {%- endif -%}
 </span>
 
+{% render 'delivery-estimate' %}
+
 {% comment %} Delivery & Return + Ask a Question {% endcomment %}
 <div class="delivery-return-text-wrapper" {% if request.locale.iso_code contains 'ar' %}dir="rtl"{% endif %}>
   <button type="button" class="delivery-return-text" data-delivery-modal-trigger>
