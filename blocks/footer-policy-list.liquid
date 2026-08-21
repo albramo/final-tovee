@@ -192,6 +192,28 @@
     }
   }
 
+  @media screen and (min-width: 750px) {
+    .footer-policy-summary {
+      cursor: default;
+      pointer-events: none;
+      min-height: auto;
+      padding-block: 0;
+      border-block-end: none;
+      margin-block-end: 0.5rem;
+    }
+    .footer-policy-summary__icon {
+      display: none !important;
+    }
+    /* Ensure list always visible on desktop - like normal menu, not collapsible */
+    .footer-policy-details::details-content,
+    .footer-policy-details .footer-policy-column__list {
+      display: block !important;
+      opacity: 1 !important;
+      block-size: auto !important;
+      overflow: visible !important;
+    }
+  }
+
   html[dir='rtl'] .footer-policy-column,
   html[dir='rtl'] .footer-policy-column__heading,
   html[dir='rtl'] .footer-policy-column__list {
