@@ -34,18 +34,14 @@
     cursor: grab;
   }
 
-   /*
-    * Slideshow Slides
-    * RTL guard: نحافظ على LTR للـ scroller نفسه لكي لا تنكسر حسابات scrollLeft في RTL،
-    * لكن المحتوى الداخلي يعود RTL.
-    */
+  /*
+   * Slideshow Slides
+   */
   slideshow-slides {
     width: 100%;
     position: relative;
     display: flex;
     overflow-x: scroll;
-    overflow-y: hidden;
-    overscroll-behavior-x: contain;
     scroll-snap-type: x mandatory;
     scroll-behavior: smooth;
     scrollbar-color: transparent transparent;

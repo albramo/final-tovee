@@ -127,7 +127,6 @@
                         class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset"
                       >
                     <span class="menu-drawer__menu-item-inner">
-                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: link.title %}</span>
                     </span>
                         <span class="svg-wrapper icon-plus">
@@ -196,7 +195,6 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
-                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
@@ -255,7 +253,6 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
-                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
@@ -287,7 +284,6 @@
                       on:click="header-drawer/open/submenu"
                     >
                       <span class="menu-drawer__menu-item-inner">
-                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: link.title %}</span>
                       </span>
                       <span class="svg-wrapper icon-caret icon-caret--forward">
@@ -594,7 +590,6 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
-                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
@@ -619,95 +614,59 @@
             assign show_country = false
           endif
         %}
-        <drawer-collapsible-accordion class="drawer-collapsible-accordion">
-          {% if shop.policies.size > 0 %}
-            <details
-              class="details menu-drawer__policies"
-              data-testid="drawer-policies-details"
-            >
-              <summary class="details__header menu-drawer__policies-summary focus-inset">
-                <span class="details__heading menu-drawer__policies-heading">{{ 'content.terms_and_policies' | t }}</span>
-                <span class="svg-wrapper icon-plus menu-drawer__policies-toggle" aria-hidden="true">
-                  {{- 'icon-plus.svg' | inline_asset_content -}}
-                </span>
-              </summary>
-              <div class="details-content-wrapper">
-                <div class="details-content-inner">
-                  <div class="details-content menu-drawer__policies-content">
-                    <ul class="menu-drawer__policies-list list-unstyled">
-                      {%- for policy in shop.policies -%}
-                        {%- if policy != blank -%}
-                          <li>
-                            <a href="{{ policy.url }}" class="menu-drawer__policies-link">
-                              {{- policy.title | escape -}}
-                            </a>
-                          </li>
-                        {%- endif -%}
-                      {%- endfor -%}
-                    </ul>
-                  </div>
+        {% if data_header_drawer_type == 'mobile-drawer' and show_country or show_language %}
+          {% liquid
+            assign localization_font = '--menu-localization-font: var(--font-[localization_font]--family); ' | replace: '[localization_font]', section.settings.localization_font
+            assign color_shadow = '--color-shadow: rgb(var(--color-foreground-rgb) / var(--opacity-10-25));'
+            assign form_style = localization_font | append: color_shadow
+          %}
+          <div class="menu-drawer__localization menu-drawer__localization--rows">
+            {% if show_language %}
+              <details class="drawer-localization-row">
+                <summary class="drawer-localization-row__summary focus-inset">
+                  <span class="drawer-localization-row__value">{{ localization.language.endonym_name | capitalize }}</span>
+                  <span class="drawer-localization-row__icon drawer-localization-row__icon--plus" aria-hidden="true">
+                    {{- 'icon-plus.svg' | inline_asset_content -}}
+                  </span>
+                  <span class="drawer-localization-row__icon drawer-localization-row__icon--minus" aria-hidden="true">
+                    {{- 'icon-minus.svg' | inline_asset_content -}}
+                  </span>
+                </summary>
+                <div class="drawer-localization-row__content">
+                  {% render 'localization-form',
+                    show_country: false,
+                    show_language: true,
+                    localization_style: 'drawer',
+                    form_style: form_style,
+                    form_id: block.id
+                  %}
                 </div>
-              </div>
-            </details>
-          {% endif %}
-          {% if data_header_drawer_type == 'mobile-drawer' and show_country or show_language %}
-            {% liquid
-              assign localization_font = '--menu-localization-font: var(--font-[localization_font]--family); ' | replace: '[localization_font]', section.settings.localization_font
-              assign color_shadow = '--color-shadow: rgb(var(--color-foreground-rgb) / var(--opacity-10-25));'
-              assign form_style = localization_font | append: color_shadow
-            %}
-            <div class="menu-drawer__localization menu-drawer__localization--rows">
-              {% if show_language %}
-                <details class="drawer-localization-row">
-                  <summary class="drawer-localization-row__summary focus-inset">
-                    <span class="drawer-localization-row__value">{{ localization.language.endonym_name | capitalize }}</span>
-                    <span class="drawer-localization-row__icon drawer-localization-row__icon--toggle" aria-hidden="true">
-                      {{- 'icon-plus.svg' | inline_asset_content -}}
-                    </span>
-                  </summary>
-                  <div class="details-content-wrapper">
-                    <div class="details-content-inner">
-                      <div class="drawer-localization-row__content">
-                        {% render 'localization-form',
-                          show_country: false,
-                          show_language: true,
-                          localization_style: 'drawer',
-                          form_style: form_style,
-                          form_id: block.id,
-                          back: request.path
-                        %}
-                      </div>
-                    </div>
-                  </div>
-                </details>
-              {% endif %}
-              {% if show_country %}
-                <details class="drawer-localization-row">
-                  <summary class="drawer-localization-row__summary focus-inset">
-                    <span class="drawer-localization-row__value">{{ localization.country.currency.iso_code }}</span>
-                    <span class="drawer-localization-row__icon drawer-localization-row__icon--toggle" aria-hidden="true">
-                      {{- 'icon-plus.svg' | inline_asset_content -}}
-                    </span>
-                  </summary>
-                  <div class="details-content-wrapper">
-                    <div class="details-content-inner">
-                      <div class="drawer-localization-row__content">
-                        {% render 'localization-form',
-                          show_country: true,
-                          show_language: false,
-                          localization_style: 'drawer',
-                          form_style: form_style,
-                          form_id: block.id,
-                          back: request.path
-                        %}
-                      </div>
-                    </div>
-                  </div>
-                </details>
-              {% endif %}
-            </div>
-          {%- endif -%}
-        </drawer-collapsible-accordion>
+              </details>
+            {% endif %}
+            {% if show_country %}
+              <details class="drawer-localization-row">
+                <summary class="drawer-localization-row__summary focus-inset">
+                  <span class="drawer-localization-row__value">{{ localization.country.currency.iso_code }}</span>
+                  <span class="drawer-localization-row__icon drawer-localization-row__icon--plus" aria-hidden="true">
+                    {{- 'icon-plus.svg' | inline_asset_content -}}
+                  </span>
+                  <span class="drawer-localization-row__icon drawer-localization-row__icon--minus" aria-hidden="true">
+                    {{- 'icon-minus.svg' | inline_asset_content -}}
+                  </span>
+                </summary>
+                <div class="drawer-localization-row__content">
+                  {% render 'localization-form',
+                    show_country: true,
+                    show_language: false,
+                    localization_style: 'drawer',
+                    form_style: form_style,
+                    form_id: block.id
+                  %}
+                </div>
+              </details>
+            {% endif %}
+          </div>
+        {%- endif -%}
       </div>
 
     </div>
@@ -735,11 +694,6 @@
     --drawer-slide-ease: cubic-bezier(0.32, 0.72, 0, 1);
   }
 
-  /* في العربي (RTL) الأيقونة بتنعكس عشان الخطوط القصيرة تبقى من اليمين */
-  header-drawer[dir="rtl"] .header-drawer-icon--open svg {
-    transform: scaleX(-1);
-  }
-
   .header__icon--menu {
     position: initial;
   }
@@ -765,14 +719,8 @@
 
   .header__icon--summary .header-drawer-icon {
     margin: auto;
-    width: 2rem;
-    height: 2rem;
-  }
-
-  /* override base.css (.svg-wrapper > svg forces 20px) so the icon fills the button */
-  .header__icon--summary .header-drawer-icon svg {
-    width: 100%;
-    height: 100%;
+    width: var(--icon-size-md);
+    height: var(--icon-size-md);
   }
 
   /* Hamburger → X icon swap animation */
@@ -1287,39 +1235,13 @@
   .menu-drawer__menu-item-inner {
     display: flex;
     align-items: center;
-    gap: var(--gap-2xs);
+    gap: var(--gap-sm);
     min-width: 0;
     flex: 1;
   }
 
   .menu-drawer__menu-item-inner .menu-drawer__menu-item-text {
     flex: 1;
-  }
-
-  .menu-drawer .menu-link-icon {
-    width: 1.25rem;
-    height: 1.25rem;
-    flex-shrink: 0;
-    color: inherit;
-  }
-
-  .menu-drawer .menu-link-icon--wide {
-    width: calc(1.25rem * 1.2);
-    height: 1.25rem;
-  }
-
-  .menu-drawer .menu-link-icon--lg {
-    width: calc(1.25rem * 1.35);
-    height: calc(1.25rem * 1.1);
-  }
-
-  .menu-drawer .menu-link-icon path {
-    fill: currentColor;
-  }
-
-  .menu-drawer .menu-link-icon.menu-link-icon--stroke path {
-    fill: none;
-    stroke: currentColor;
   }
 
   .menu-drawer__icon {
@@ -1464,38 +1386,6 @@
   }
 
   /* Drawer localization rows: language & currency collapsibles */
-  drawer-collapsible-accordion {
-    display: block;
-    width: 100%;
-  }
-
-  .menu-drawer .details-content-wrapper {
-    display: grid;
-    grid-template-rows: 0fr;
-    opacity: 0;
-    transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .menu-drawer details[open] > .details-content-wrapper {
-    grid-template-rows: 1fr;
-    opacity: 1;
-  }
-
-  .menu-drawer .details-content-inner {
-    overflow: hidden;
-  }
-
-  .menu-drawer__policies-toggle,
-  .drawer-localization-row__icon {
-    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  }
-
-  .menu-drawer__policies[open] .menu-drawer__policies-toggle,
-  .drawer-localization-row[open] .drawer-localization-row__icon {
-    transform: rotate(45deg) !important;
-  }
-
   .menu-drawer__localization--rows {
     display: flex;
     flex-direction: column;
@@ -1517,7 +1407,6 @@
     gap: var(--gap-xs);
     margin-inline: calc(var(--drawer-padding) * -1);
     padding: var(--padding-md) var(--drawer-padding);
-    padding-inline-start: calc(var(--drawer-padding) + 1.5rem + var(--gap-2xs));
     font-family: var(--font-body--family);
     font-size: var(--menu-font-md--size);
     font-weight: 400;
@@ -1540,26 +1429,21 @@
     display: flex;
     flex-shrink: 0;
     margin-inline-start: auto;
-    width: 18px;
-    height: 18px;
   }
 
-  .drawer-localization-row__icon svg {
-    width: 18px;
-    height: 18px;
+  .drawer-localization-row__icon--minus {
+    display: none;
   }
 
-  .drawer-localization-row__icon .horizontal {
-    transform-origin: center;
-    transition: transform 0.3s var(--animation-easing);
+  .drawer-localization-row[open] .drawer-localization-row__icon--plus {
+    display: none;
   }
 
-  .drawer-localization-row[open] .drawer-localization-row__icon .horizontal {
-    transform: rotate(90deg);
+  .drawer-localization-row[open] .drawer-localization-row__icon--minus {
+    display: flex;
   }
 
   .drawer-localization-row__content {
-    padding-block-start: var(--padding-2xs);
     padding-block-end: var(--padding-md);
   }
 
@@ -1586,104 +1470,19 @@
 
   .menu-drawer .drawer-localization-row__content .language-option-item {
     min-height: 48px;
-    padding: 12px calc(var(--drawer-padding) + 1.5rem + var(--gap-2xs)) 12px var(--drawer-padding);
+    padding: 12px var(--drawer-padding);
     border-radius: 0;
     border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
   }
 
-  /* Drawer "Terms & Policies" collapsible row (matches footer collapsible rows) */
-  .menu-drawer__policies {
-    display: block;
-    width: 100%;
-    margin-inline: calc(-1 * var(--padding-xl)) 0;
-  }
-
-  .menu-drawer__policies-summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--gap-sm);
-    margin-inline: calc(var(--drawer-padding) * -1);
-    padding: var(--padding-md) var(--drawer-padding);
-    padding-inline-start: calc(var(--drawer-padding) + 1.5rem + var(--gap-2xs));
-    cursor: pointer;
-    min-height: var(--minimum-touch-target);
-    list-style: none;
-    font-family: var(--font-body--family);
-    font-size: var(--menu-font-md--size);
-    font-weight: 600;
-    color: var(--color-foreground);
-    text-transform: none;
-    transition: background-color 0.2s ease;
-
-    &::-webkit-details-marker {
-      display: none;
-    }
-
-    &:hover {
-      background-color: rgb(var(--color-foreground-rgb) / 0.06);
-    }
-  }
-
-  .menu-drawer__policies-toggle {
-    flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-  }
-
-  .menu-drawer__policies-toggle svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .menu-drawer__policies-toggle .horizontal {
-    transform-origin: center;
-    transition: transform 0.3s var(--animation-easing);
-  }
-
-  .menu-drawer__policies[open] .menu-drawer__policies-toggle .horizontal {
-    transform: rotate(90deg);
-  }
-
-  .menu-drawer__policies-content {
-    padding-block-start: var(--padding-2xs);
-    padding-block-end: var(--padding-md);
-  }
-
-  .menu-drawer__policies-list {
-    margin: 0;
-    padding-inline: calc(var(--drawer-padding) + 1.5rem + var(--gap-2xs)) var(--drawer-padding);
-    list-style: none;
-  }
-
-  .menu-drawer__policies-list li + li {
-    margin-block-start: 0.75rem;
-  }
-
-  .menu-drawer__policies-link {
-    display: inline-block;
-    font-size: 0.9rem;
-    color: rgb(var(--color-foreground-rgb) / 0.75);
-    text-decoration: none;
-    transition: color 0.2s ease;
-  }
-
-  .menu-drawer__policies-link:hover {
-    color: var(--color-foreground);
-  }
-
   /* Modern menu item display */
   .menu-drawer__menu > .menu-drawer__list-item {
-    min-height: calc(2 * var(--padding-xs) + 1.5rem);
-  }
-
-  .menu-drawer .menu-drawer__menu-item--mainlist {
-    min-height: calc(2 * var(--padding-xs) + 1.5rem);
+    min-height: calc(2 * var(--padding-lg) + var(--icon-size-md));
   }
 
   .menu-drawer__menu-item--mainlist,
   .menu-drawer__menu-item--parent {
-    padding-block: var(--padding-2xs);
+    padding-block: var(--padding-md);
   }
 
   .menu-drawer__menu-item {
@@ -1714,7 +1513,7 @@
   .menu-drawer .menu-drawer__menu-item--mainlist {
     font-family: var(--font-body--family);
     font-weight: 400;
-    font-size: 0.875rem;
+    font-size: var(--menu-font-md--size);
     text-transform: none;
   }
 
@@ -1745,122 +1544,4 @@
   .menu-drawer .menu-drawer__menu-item:hover {
     background-color: rgb(var(--color-foreground-rgb) / 0.06);
   }
-
-  /* Flat mainlist rows use a single block highlight on the li (below) — avoid double hover */
-  .menu-drawer__menu > .menu-drawer__list-item--flat .menu-drawer__menu-item--mainlist:hover {
-    background-color: transparent;
-  }
-
-  .menu-drawer__menu > .menu-drawer__list-item--flat:has(.menu-drawer__menu-item--mainlist) {
-    transition: background-color 0.2s ease;
-  }
-
-  /* Full-box hover for flat items: the whole li (title + children) lights up */
-  .menu-drawer__menu > .menu-drawer__list-item--flat:has(.menu-drawer__menu-item--mainlist:hover) {
-    background-color: rgb(var(--color-foreground-rgb) / 0.06);
-  }
-
-  /* Child links get the same full-width box as Home */
-  .menu-drawer .menu-drawer__menu-item--child {
-    margin-inline: calc(var(--drawer-padding) * -1);
-    padding-inline: var(--drawer-padding);
-    min-height: calc(2 * var(--padding-xs) + 1.5rem);
-  }
 {% endstylesheet %}
-
-<script>
-  if (!customElements.get('drawer-collapsible-accordion')) {
-    class DrawerCollapsibleAccordion extends HTMLElement {
-      connectedCallback() {
-        const detailsList = Array.from(this.querySelectorAll('details'));
-
-        detailsList.forEach((details) => {
-          const summary = details.querySelector('summary');
-          const wrapper = details.querySelector('.details-content-wrapper');
-
-          if (!summary || !wrapper) return;
-
-          // Initialize open states
-          if (details.open) {
-            wrapper.style.gridTemplateRows = '1fr';
-            wrapper.style.opacity = '1';
-          } else {
-            wrapper.style.gridTemplateRows = '0fr';
-            wrapper.style.opacity = '0';
-          }
-
-          summary.addEventListener('click', (event) => {
-            event.preventDefault();
-
-            if (details.dataset.isAnimating === 'true') return;
-
-            const isOpen = details.open;
-
-            // Close other open details smoothly in drawer
-            if (!isOpen) {
-              detailsList.forEach((other) => {
-                if (other !== details && other.open) {
-                  this.animateClose(other);
-                }
-              });
-              this.animateOpen(details);
-            } else {
-              this.animateClose(details);
-            }
-          });
-        });
-      }
-
-      animateOpen(details) {
-        const wrapper = details.querySelector('.details-content-wrapper');
-        if (!wrapper) return;
-
-        details.dataset.isAnimating = 'true';
-        details.open = true;
-
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            wrapper.style.gridTemplateRows = '1fr';
-            wrapper.style.opacity = '1';
-
-            const onEnd = (e) => {
-              if (e.target === wrapper) {
-                wrapper.removeEventListener('transitionend', onEnd);
-                details.dataset.isAnimating = 'false';
-              }
-            };
-            wrapper.addEventListener('transitionend', onEnd);
-            setTimeout(() => { details.dataset.isAnimating = 'false'; }, 380);
-          });
-        });
-      }
-
-      animateClose(details) {
-        const wrapper = details.querySelector('.details-content-wrapper');
-        if (!wrapper) {
-          details.open = false;
-          return;
-        }
-
-        details.dataset.isAnimating = 'true';
-        wrapper.style.gridTemplateRows = '0fr';
-        wrapper.style.opacity = '0';
-
-        const onEnd = (e) => {
-          if (e.target === wrapper) {
-            wrapper.removeEventListener('transitionend', onEnd);
-            details.open = false;
-            details.dataset.isAnimating = 'false';
-          }
-        };
-        wrapper.addEventListener('transitionend', onEnd);
-        setTimeout(() => {
-          details.open = false;
-          details.dataset.isAnimating = 'false';
-        }, 380);
-      }
-    }
-
-    customElements.define('drawer-collapsible-accordion', DrawerCollapsibleAccordion);
-  }
-</script>
