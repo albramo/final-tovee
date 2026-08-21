@@ -100,6 +100,22 @@ class LocalizationFormComponent extends Component {
   };
 
   /**
+   * Selects a language.
+   *
+   * @param {string} languageCode - The ISO code of the language to select.
+   * @param {Event} event - The event object.
+   */
+  selectLanguage = (languageCode, event) => {
+    event.preventDefault();
+    const { languageInput, form } = this.refs;
+
+    if (!languageInput || !form) return;
+
+    languageInput.value = languageCode;
+    form.submit();
+  };
+
+  /**
    * Changes the language of the localization form.
    *
    * @param {Event} event - The event object.
