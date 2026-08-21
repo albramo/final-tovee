@@ -1029,7 +1029,7 @@
     opacity: 1;
   }
 
-  /* أسهم السلايدر على صورة المنتج: سهم أسود على خلفية بيضاء دائرية */
+  /* أسهم السلايدر: سهم فقط بخلفية شفافة */
   .media-gallery--carousel slideshow-arrows .slideshow-control--shape-circle {
     width: 44px;
     height: 44px;
@@ -1037,15 +1037,18 @@
     min-height: 44px;
     padding: 0;
     border-radius: 50%;
-    background-color: #ffffff;
-    color: #000000;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background-color: transparent;
+    color: #111111;
+    box-shadow: none;
+    border: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.75;
   }
 
   .media-gallery--carousel slideshow-arrows .slideshow-control--shape-circle:hover {
-    transform: scale(1.08);
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.24);
+    transform: scale(1.12);
+    opacity: 1;
+    box-shadow: none;
   }
 
   .media-gallery--carousel slideshow-arrows .slideshow-control--shape-circle .svg-wrapper,
@@ -1084,6 +1087,37 @@
 
   slideshow-slide.product-media-container--tallest {
     content-visibility: visible;
+  }
+
+  /* Reference style: shrink main image and add white space left/right like majesticbiopharma */
+  @media screen and (min-width: 750px) {
+    .product-information__media {
+      padding-inline: 48px;
+    }
+    .media-gallery--carousel .product-media__image {
+      max-width: 70%;
+      margin-inline: auto;
+      display: block;
+    }
+  }
+  /* أسهم السلايدر: صغيرة، على الصورة، بخلفية شفافة */
+  @media screen and (min-width: 750px) {
+    .media-gallery--carousel slideshow-arrows {
+      align-items: center;
+    }
+
+    .media-gallery--carousel slideshow-arrows .slideshow-control--shape-circle {
+      width: 32px;
+      height: 32px;
+      min-width: 32px;
+      min-height: 32px;
+    }
+
+    .media-gallery--carousel slideshow-arrows .slideshow-control--shape-circle .svg-wrapper,
+    .media-gallery--carousel slideshow-arrows .slideshow-control--shape-circle svg {
+      width: 15px;
+      height: 15px;
+    }
   }
 {% endstylesheet %}
 

@@ -1,0 +1,187 @@
+{% doc %}
+  Delivery estimate bar with pulsing cart icon and live countdown.
+  Shows: "Order in the next Xh Ym to get it between [date+4] and [date+5]"
+  Auto-handles ar/en locale, direction, and updates every minute.
+{% enddoc %}
+
+{% liquid
+  assign lang = request.locale.iso_code | default: 'en' | downcase
+  if lang contains 'ar'
+    assign is_ar = true
+  else
+    assign is_ar = false
+  endif
+%}
+
+<div
+  class="tovee-delivery-bar"
+  dir="{% if is_ar %}rtl{% else %}ltr{% endif %}"
+  data-delivery-bar
+  data-lang="{{ lang }}"
+>
+  <span class="tovee-delivery-bar__icon" aria-hidden="true">
+    <span class="svg-wrapper">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M1 7.5H14V16.5H1z"></path>
+        <path d="M14 9.5H18.2L21 13.2V16.5H14"></path>
+        <circle cx="6.2" cy="19.2" r="2.2"></circle>
+        <circle cx="18.2" cy="19.2" r="2.2"></circle>
+      </svg>
+    </span>
+  </span>
+  <p class="tovee-delivery-bar__text" data-delivery-text aria-live="polite"></p>
+</div>
+
+{% stylesheet %}
+  .tovee-delivery-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    padding: 6px 2px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    line-height: 1.45;
+    width: 100%;
+  }
+
+  .tovee-delivery-bar__icon {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    color: #111111;
+  }
+
+  .tovee-delivery-bar__icon .svg-wrapper {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    animation: toveeCartPulse 1.35s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  .tovee-delivery-bar__icon .svg-wrapper > svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  @keyframes toveeCartPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+  }
+
+  .tovee-delivery-bar__text {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: #111111;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .tovee-delivery-bar__text strong {
+    font-weight: 800;
+    color: #111111;
+    white-space: nowrap;
+  }
+
+  .tovee-delivery-bar[dir='rtl'] .tovee-delivery-bar__text {
+    text-align: right;
+  }
+
+  .tovee-delivery-bar[dir='ltr'] .tovee-delivery-bar__text {
+    text-align: left;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tovee-delivery-bar__icon .svg-wrapper { animation: none; }
+  }
+
+  @media screen and (max-width: 749px) {
+    .tovee-delivery-bar { padding: 6px 2px; gap: 8px; }
+    .tovee-delivery-bar__text { font-size: 0.92rem; }
+  }
+{% endstylesheet %}
+
+<script>
+  (() => {
+    const bars = document.querySelectorAll('[data-delivery-bar]');
+    if (!bars.length) return;
+
+    const fmtDate = (date, lang) => {
+      const isAr = lang.startsWith('ar');
+      const locale = isAr ? 'ar-EG' : 'en-GB';
+      try {
+        return new Intl.DateTimeFormat(locale, {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long'
+        }).format(date);
+      } catch (e) {
+        return date.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long' });
+      }
+    };
+
+    const getRemaining = () => {
+      const now = new Date();
+      const end = new Date(now);
+      end.setHours(23, 59, 59, 999);
+      let diff = end - now;
+      if (diff < 0) {
+        end.setDate(end.getDate() + 1);
+        diff = end - now;
+      }
+      const totalMin = Math.max(0, Math.floor(diff / 60000));
+      const h = Math.floor(totalMin / 60);
+      const m = totalMin % 60;
+      return { h, m };
+    };
+
+    const renderBar = (bar) => {
+      const lang = (bar.dataset.lang || 'en').toLowerCase();
+      const isAr = lang.startsWith('ar');
+      const textEl = bar.querySelector('[data-delivery-text]');
+      if (!textEl) return;
+
+      const now = new Date();
+      const start = new Date(now);
+      const end = new Date(now);
+      start.setDate(now.getDate() + 4);
+      end.setDate(now.getDate() + 5);
+      const startStr = fmtDate(start, lang);
+      const endStr = fmtDate(end, lang);
+      const { h, m } = getRemaining();
+
+      let html = '';
+      if (isAr) {
+        const hPart = h > 0 ? `${h} ساعة` : '';
+        const mPart = `${m} دقيقة`;
+        const timeStr = h > 0 ? `${hPart} و ${mPart}` : mPart;
+        html = `اطلب خلال <strong>${timeStr}</strong> ليصلك بين <strong>${startStr}</strong> و <strong>${endStr}</strong>`;
+      } else {
+        const hLabel = h === 1 ? 'hour' : 'hours';
+        const mLabel = m === 1 ? 'minute' : 'minutes';
+        const timeStr = h > 0 ? `${h} ${hLabel} ${m} ${mLabel}` : `${m} ${mLabel}`;
+        html = `Order in the next <strong>${timeStr}</strong> to get it between <strong>${startStr}</strong> and <strong>${endStr}</strong>`;
+      }
+      textEl.innerHTML = html;
+    };
+
+    const renderAll = () => bars.forEach(renderBar);
+    renderAll();
+    // update every minute (align to next minute boundary)
+    const now = new Date();
+    const msToNextMin = (60 - now.getSeconds()) * 1000 - now.getMilliseconds();
+    setTimeout(() => {
+      renderAll();
+      setInterval(renderAll, 60000);
+    }, Math.max(0, msToNextMin));
+  })();
+</script>

@@ -108,21 +108,31 @@
     cursor: pointer;
     list-style: none;
     padding: 0;
-    margin: 0 0 1.25rem 0;
+    margin: 0;
+    min-height: 44px;
   }
 
   .footer-policy-summary::-webkit-details-marker {
     display: none;
   }
 
+  .footer-policy-summary::marker {
+    content: '';
+  }
+
   .footer-policy-summary__icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     color: var(--color-foreground);
     flex-shrink: 0;
+    transition: transform 0.25s ease;
+  }
+
+  .footer-policy-details[open] .footer-policy-summary__icon {
+    transform: rotate(45deg);
   }
 
   .footer-policy-details .icon-minus {
@@ -137,47 +147,81 @@
     display: block;
   }
 
-  @media screen and (max-width: 749px) {
-    .footer-policy-summary {
-      margin-block-end: 0;
-      padding-block: 12px;
-      border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
-    }
-
-    .footer-policy-column__list {
-      padding-block-start: 12px;
-    }
-  }
-
   .footer-policy-column__list {
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
+  .footer-policy-column__list li {
+    border-block-end: none;
+    margin: 0;
+    padding: 0;
+  }
+
   .footer-policy-column__list li + li {
-    margin-block-start: 0.75rem;
+    margin-block-start: 0.5rem;
   }
 
   .footer-policy-column__link {
     display: inline-block;
-    font-size: 0.9rem;
-    color: var(--color-utilities, rgba(var(--color-foreground-rgb), 0.75));
-    text-decoration: none;
+    padding-block: 0;
+    padding-inline: 0;
+    font-size: 0.9rem !important;
+    color: var(--color-utilities, rgba(255, 255, 255, 0.65)) !important;
+    text-decoration: none !important;
     transition: color 0.2s ease, opacity 0.2s ease;
   }
 
   .footer-policy-column__link:hover {
-    color: var(--color-foreground);
+    color: #ffffff !important;
     opacity: 1;
   }
 
-  /* RTL: ensure policy links align to start */
+  @media screen and (max-width: 749px) {
+    .footer-policy-summary {
+      padding-block: 14px;
+      border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
+    }
+
+    .footer-policy-column__list {
+      padding-block-start: 4px;
+    }
+
+    .footer-policy-column__link {
+      padding-block: 0;
+      font-size: 0.9rem !important;
+    }
+  }
+
+  @media screen and (min-width: 750px) {
+    .footer-policy-summary {
+      cursor: default;
+      pointer-events: none;
+      min-height: auto;
+      padding-block: 0;
+      border-block-end: none;
+      margin-block-end: 0.5rem;
+    }
+    .footer-policy-summary__icon {
+      display: none !important;
+    }
+    /* Ensure list always visible on desktop - like normal menu, not collapsible */
+    .footer-policy-details::details-content,
+    .footer-policy-details .footer-policy-column__list {
+      display: block !important;
+      opacity: 1 !important;
+      block-size: auto !important;
+      overflow: visible !important;
+    }
+  }
+
   html[dir='rtl'] .footer-policy-column,
   html[dir='rtl'] .footer-policy-column__heading,
   html[dir='rtl'] .footer-policy-column__list {
     text-align: start;
   }
+
   html[dir='rtl'] .footer-policy-column__link {
     text-align: start;
   }

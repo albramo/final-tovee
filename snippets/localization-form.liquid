@@ -260,9 +260,7 @@
               role="option"
             >
               <button
-                type="submit"
-                name="language_code"
-                value="{{ language.iso_code }}"
+                type="button"
                 class="button-unstyled language-option-item__btn"
                 on:click="/selectLanguage/{{ language.iso_code }}"
                 aria-label="{{ language.endonym_name | default: language.name }}"
