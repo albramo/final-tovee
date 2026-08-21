@@ -151,8 +151,10 @@
   .mobile-bottom-nav__wishlist-count {
     position: absolute;
     top: 1px;
-    inset-inline-end: calc(50% - 19px);
+    inset-inline-end: calc(50% - 22px);
     inset-inline-start: auto;
+    z-index: 5;
+    pointer-events: none;
   }
 
   .mobile-bottom-nav__action .svg-wrapper > svg,
@@ -186,6 +188,10 @@
     overflow: visible;
   }
 
+  .mobile-bottom-nav__cart-icon {
+    display: contents;
+  }
+
   .mobile-bottom-nav__cart .svg-wrapper {
     overflow: visible;
   }
@@ -196,11 +202,13 @@
 
   .mobile-bottom-nav__cart .cart-bubble {
     position: absolute;
-    top: 0px;
-    inset-inline-end: calc(50% - 19px);
+    top: -3px;
+    inset-inline-end: calc(50% - 24px);
     inset-inline-start: auto;
     width: 17px;
     height: 17px;
+    z-index: 1;
+    pointer-events: none;
   }
 
   .mobile-bottom-nav__cart .cart-bubble__background {

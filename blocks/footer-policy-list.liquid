@@ -16,10 +16,15 @@
     "
     {{ block.shopify_attributes }}
   >
-    <div class="footer-policy-column__heading">
-      {{ 'content.terms_and_policies' | t }}
-    </div>
-    <ul class="footer-policy-column__list list-unstyled">
+    <details class="footer-policy-details" open>
+      <summary class="footer-policy-summary">
+        <span class="footer-policy-column__heading">{{ 'content.terms_and_policies' | t }}</span>
+        <span class="footer-policy-summary__icon" aria-hidden="true">
+          <svg class="icon-plus" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <svg class="icon-minus" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </span>
+      </summary>
+      <ul class="footer-policy-column__list list-unstyled">
       {%- for policy in shop.policies -%}
         {%- if policy != blank -%}
           {% liquid
@@ -74,7 +79,8 @@
           </li>
         {%- endif -%}
       {% endif %}
-    </ul>
+      </ul>
+    </details>
   </div>
 {% endif %}
 
@@ -87,7 +93,58 @@
     font-size: 1rem;
     font-weight: 700;
     color: var(--color-foreground);
-    margin-block-end: 1.25rem;
+    margin: 0;
+  }
+
+  .footer-policy-details {
+    width: 100%;
+  }
+
+  .footer-policy-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    min-height: 44px;
+  }
+
+  .footer-policy-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .footer-policy-summary::marker {
+    content: '';
+  }
+
+  .footer-policy-summary__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    color: var(--color-foreground);
+    flex-shrink: 0;
+    transition: transform 0.25s ease;
+  }
+
+  .footer-policy-details[open] .footer-policy-summary__icon {
+    transform: rotate(45deg);
+  }
+
+  .footer-policy-details .icon-minus {
+    display: none;
+  }
+
+  .footer-policy-details[open] .icon-plus {
+    display: none;
+  }
+
+  .footer-policy-details[open] .icon-minus {
+    display: block;
   }
 
   .footer-policy-column__list {
@@ -96,29 +153,51 @@
     list-style: none;
   }
 
-  .footer-policy-column__list li + li {
-    margin-block-start: 0.75rem;
+  .footer-policy-column__list li {
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  .footer-policy-column__list li:last-child {
+    border-block-end: none;
   }
 
   .footer-policy-column__link {
-    display: inline-block;
-    font-size: 0.9rem;
-    color: var(--color-utilities, rgba(var(--color-foreground-rgb), 0.75));
+    display: block;
+    padding-block: 0.65rem;
+    padding-inline: 0;
+    font-size: 0.875rem;
+    color: var(--color-utilities, rgba(var(--color-foreground-rgb), 0.7));
     text-decoration: none;
-    transition: color 0.2s ease, opacity 0.2s ease;
+    transition: color 0.2s ease, padding-inline-start 0.2s ease;
   }
 
   .footer-policy-column__link:hover {
     color: var(--color-foreground);
-    opacity: 1;
+    padding-inline-start: 4px;
   }
 
-  /* RTL: ensure policy links align to start */
+  @media screen and (max-width: 749px) {
+    .footer-policy-summary {
+      padding-block: 14px;
+      border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.1);
+    }
+
+    .footer-policy-column__list {
+      padding-block-start: 4px;
+    }
+
+    .footer-policy-column__link {
+      padding-block: 0.55rem;
+      font-size: 0.85rem;
+    }
+  }
+
   html[dir='rtl'] .footer-policy-column,
   html[dir='rtl'] .footer-policy-column__heading,
   html[dir='rtl'] .footer-policy-column__list {
     text-align: start;
   }
+
   html[dir='rtl'] .footer-policy-column__link {
     text-align: start;
   }

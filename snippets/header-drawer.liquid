@@ -127,6 +127,7 @@
                         class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset"
                       >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: link.title %}</span>
                     </span>
                         <span class="svg-wrapper icon-plus">
@@ -170,6 +171,7 @@
                                 %}
                               {% endif %}
                               <span class="menu-drawer__menu-item-inner">
+                                {% render 'menu-link-icon', link_title: childlink.title %}
                                 <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: childlink.title %}</span>
                               </span>
                             </a>
@@ -195,6 +197,7 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
@@ -234,6 +237,7 @@
                             %}
                           {% endif %}
                           <span class="menu-drawer__menu-item-inner">
+                            {% render 'menu-link-icon', link_title: childlink.title %}
                             <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: childlink.title %}</span>
                           </span>
                         </a>
@@ -253,10 +257,11 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
-                {% endif %}
+                {%- endif -%}
               </li>
             {%- endfor -%}
           {% else %}
@@ -284,6 +289,7 @@
                       on:click="header-drawer/open/submenu"
                     >
                       <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: link.title %}</span>
                       </span>
                       <span class="svg-wrapper icon-caret icon-caret--forward">
@@ -369,6 +375,7 @@
                                     %}
                                   {% endif %}
                                   <span class="menu-drawer__menu-item-inner">
+                                    {% render 'menu-link-icon', link_title: childlink.title %}
                                     <span class="menu-drawer__menu-item-text wrap-text">
                                       {{- childlink.title | escape -}}
                                     </span>
@@ -395,6 +402,7 @@
                                         class="menu-drawer__menu-item menu-drawer__menu-item--parent focus-inset"
                                       >
                                         <span class="menu-drawer__menu-item-inner">
+                                          {% render 'menu-link-icon', link_title: childlink.title %}
                                           <span class="menu-drawer__menu-item-text wrap-text">
                                             {{- childlink.title | escape -}}
                                           </span>
@@ -590,6 +598,7 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
@@ -662,6 +671,59 @@
                     form_style: form_style,
                     form_id: block.id
                   %}
+                </div>
+              </details>
+            {% endif %}
+            {%- comment -%} Terms & Policies collapsible in drawer {%- endcomment -%}
+            {% if shop.policies.size > 0 %}
+              <details class="drawer-localization-row drawer-policies-row">
+                <summary class="drawer-localization-row__summary focus-inset">
+                  <span class="drawer-localization-row__value">{{ 'content.terms_and_policies' | t }}</span>
+                  <span class="drawer-localization-row__icon drawer-localization-row__icon--plus" aria-hidden="true">
+                    {{- 'icon-plus.svg' | inline_asset_content -}}
+                  </span>
+                  <span class="drawer-localization-row__icon drawer-localization-row__icon--minus" aria-hidden="true">
+                    {{- 'icon-minus.svg' | inline_asset_content -}}
+                  </span>
+                </summary>
+                <div class="drawer-localization-row__content">
+                  <ul class="drawer-policies-list list-unstyled">
+                    {%- for policy in shop.policies -%}
+                      {%- if policy != blank -%}
+                        {% liquid
+                          assign display_title = policy.title
+                          if request.locale.iso_code == 'ar'
+                            assign lower_title = policy.title | downcase
+                            if lower_title == 'privacy policy'
+                              assign display_title = 'سياسة الخصوصية'
+                            elsif lower_title == 'terms of service' or lower_title == 'terms and conditions'
+                              assign display_title = 'شروط الخدمة'
+                            elsif lower_title == 'shipping policy'
+                              assign display_title = 'سياسة الشحن'
+                            elsif lower_title == 'refund policy' or lower_title == 'return policy'
+                              assign display_title = 'سياسة الاسترجاع'
+                            elsif lower_title contains 'contact'
+                              assign display_title = 'معلومات الاتصال'
+                            endif
+                          endif
+                        %}
+                        <li><a href="{{ policy.url }}" class="drawer-policies-link">{{ display_title | escape }}</a></li>
+                      {%- endif -%}
+                    {%- endfor -%}
+                    {% liquid
+                      assign has_contact = false
+                      for p in shop.policies
+                        if p.title contains 'Contact' or p.title contains 'contact' or p.title contains 'اتصال'
+                          assign has_contact = true
+                        endif
+                      endfor
+                    %}
+                    {% if has_contact == false %}
+                      {%- if pages['contact'] != blank -%}
+                        <li><a href="{{ pages['contact'].url }}" class="drawer-policies-link">{% if request.locale.iso_code == 'ar' %}معلومات الاتصال{% else %}Contact information{% endif %}</a></li>
+                      {%- endif -%}
+                    {% endif %}
+                  </ul>
                 </div>
               </details>
             {% endif %}
@@ -1455,6 +1517,31 @@
     padding-block-start: var(--padding-xs);
   }
 
+  .drawer-policies-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .drawer-policies-list li + li {
+    border-block-start: 1px solid rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  .drawer-policies-link {
+    display: block;
+    padding: 12px var(--drawer-padding);
+    font-size: 0.9rem;
+    color: rgb(var(--color-foreground-rgb) / 0.75);
+    text-decoration: none;
+    transition: color 0.2s ease, background-color 0.2s ease, padding-inline-start 0.2s ease;
+  }
+
+  .drawer-policies-link:hover {
+    color: var(--color-foreground);
+    background-color: rgb(var(--color-foreground-rgb) / 0.06);
+    padding-inline-start: calc(var(--drawer-padding) + 4px);
+  }
+
   .menu-drawer .drawer-localization-row__content .language-selector {
     width: 100%;
     padding-inline: 0;
@@ -1542,5 +1629,20 @@
 
   .menu-drawer .menu-drawer__menu-item:hover {
     background-color: rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  /* Drawer menu icons (Tovee) */
+  .menu-drawer .menu-link-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--color-foreground);
+    margin-inline-end: 10px;
+  }
+
+  .menu-drawer .menu-drawer__menu-item-inner {
+    display: flex;
+    align-items: center;
+    gap: 0;
   }
 {% endstylesheet %}
