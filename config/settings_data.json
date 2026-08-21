@@ -69,6 +69,7 @@
     "cart_type": "drawer",
     "cart_price_font": "subheading",
     "auto_open_cart_drawer": true,
+    "free_shipping_threshold": 900,
     "show_cart_note": false,
     "show_add_discount_code": true,
     "drawer_background_color": "{{ settings.color_palette.background }}",

@@ -67,21 +67,11 @@
             "collection": "",
             "products_limit": 12
           }
-        },
-        "product_tab_mccEkx": {
-          "type": "product-tab",
-          "settings": {
-            "tab_title": "New Arrivals",
-            "tab_icon": "sparkles",
-            "collection": "",
-            "products_limit": 8
-          }
         }
       },
       "block_order": [
         "product_tab_mbYpGc",
-        "product_tab_V9HpkB",
-        "product_tab_mccEkx"
+        "product_tab_V9HpkB"
       ],
       "name": "Products Tabs",
       "settings": {
