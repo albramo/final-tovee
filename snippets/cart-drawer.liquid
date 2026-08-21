@@ -28,6 +28,111 @@
     fetchpriority="low"
   ></script>
 
+  {% comment %} Complete Your Routine (أكمل روتينك) add-to-cart handler.
+    Bound globally so the routine cards inside the drawer work on every page
+    (previously it lived in buy-buttons.liquid which only renders on product pages). {% endcomment %}
+  <script>
+    (function() {
+      if (window.__routineAddHandler) return;
+      window.__routineAddHandler = function(e) {
+        var btn = e.target.closest('.routine-card__btn[data-add]');
+        if (!btn || btn.disabled) return;
+        e.preventDefault();
+        var variantId = btn.dataset.variantId;
+        if (!variantId) return;
+
+        btn.disabled = true;
+        btn.classList.add('is-loading');
+
+        var formData = new FormData();
+        formData.set('id', variantId);
+        formData.set('quantity', '1');
+
+        var sectionIds = ['cart-drawer-section'];
+        document.querySelectorAll('cart-items-component').forEach(function(el) {
+          if (el.dataset.sectionId && sectionIds.indexOf(el.dataset.sectionId) === -1) {
+            sectionIds.push(el.dataset.sectionId);
+          }
+        });
+        formData.append('sections', sectionIds.join(','));
+
+        var deferredPromise = null;
+        var createPromiseFn = window.ShopifyEvents?.CartLinesUpdateEvent?.createPromise || window.CartLinesUpdateEvent?.createPromise;
+        var EventClass = window.ShopifyEvents?.CartLinesUpdateEvent || window.CartLinesUpdateEvent;
+
+        if (createPromiseFn && EventClass) {
+          deferredPromise = createPromiseFn();
+          document.dispatchEvent(new EventClass({
+            action: 'add',
+            context: 'cart',
+            lines: [{ merchandiseId: variantId, quantity: 1 }],
+            promise: deferredPromise.promise
+          }));
+        }
+
+        fetch('/cart/add.js', {
+          method: 'POST',
+          body: formData,
+          headers: { Accept: 'application/json' }
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          var cartUrl = window.Theme?.routes?.cart_url || '/cart';
+          return fetch(cartUrl + '.json', { headers: { Accept: 'application/json' } })
+            .then(function(res) { return res.json(); })
+            .then(function(cartData) {
+              if (deferredPromise && EventClass && typeof EventClass.createCartFromAjaxResponse === 'function') {
+                deferredPromise.resolve({
+                  cart: EventClass.createCartFromAjaxResponse(cartData),
+                  detail: {
+                    sections: data.sections || {},
+                    items: cartData.items || [],
+                    itemCount: cartData.item_count || 0,
+                    source: 'routine-add',
+                    didError: false
+                  }
+                });
+              }
+
+              btn.classList.remove('is-loading');
+              btn.classList.add('is-added');
+              var label = btn.querySelector('[data-text-label]');
+              var origLabel = label ? label.textContent : '';
+              if (label && btn.dataset.addedText) label.textContent = btn.dataset.addedText;
+
+              setTimeout(function() {
+                btn.classList.remove('is-added');
+                if (label && origLabel) label.textContent = origLabel;
+                btn.disabled = false;
+              }, 1800);
+
+              // Re-render cart-drawer-section if returned sections exist
+              if (data.sections && data.sections['cart-drawer-section']) {
+                var drawerSection = document.getElementById('shopify-section-cart-drawer-section');
+                if (drawerSection) {
+                  var newDoc = new DOMParser().parseFromString(data.sections['cart-drawer-section'], 'text/html');
+                  var newContent = newDoc.getElementById('shopify-section-cart-drawer-section');
+                  if (newContent) drawerSection.innerHTML = newContent.innerHTML;
+                }
+              }
+
+              var drawer = document.querySelector('theme-drawer#cart-drawer');
+              if (drawer && typeof drawer.open === 'function') {
+                drawer.open();
+              }
+            });
+        })
+        .catch(function(err) {
+          console.error('Error adding routine product to cart:', err);
+          if (deferredPromise) deferredPromise.reject(err);
+          btn.classList.remove('is-loading');
+          btn.disabled = false;
+        });
+      };
+      document.addEventListener('click', window.__routineAddHandler);
+    })();
+  </script>
+
   {% capture empty_cart_drawer_content %}
     <div
       class="cart-drawer__content"
@@ -119,6 +224,7 @@
                 aria-label="{{ 'accessibility.cart' | t }}"
                 style="--header-height: 60px;"
               >
+                {% render 'free-shipping-bar' %}
                 <scroll-hint class="cart-drawer__items">
                   {% render 'cart-products', context: 'drawer' %}
 
@@ -128,69 +234,74 @@
                     assign all_products = collections.all.products
                     assign routine_count = 0
                   -%}
-                  <div class="routine-section routine-section--cart">
-                    <div class="routine-section__header">
-                      <h3 class="routine-section__title">
-                        {{ 'products.product.complete_your_routine' | t }}
-                      </h3>
-                    </div>
-                    <div class="routine-section__products">
-                      {% for routine_prod in all_products %}
-                        {% if routine_prod.available and routine_count < 3 %}
-                          {% unless cart_product_ids contains routine_prod.id %}
-                            {% assign routine_count = routine_count | plus: 1 %}
-                            {% assign routine_variant = routine_prod.selected_or_first_available_variant %}
-                            {% assign variant_id = routine_variant.id %}
-                            {% assign routine_img = routine_prod.featured_media.preview_image | default: routine_prod.featured_image %}
-                            <div class="routine-card">
-                              <a href="{{ routine_prod.url }}" class="routine-card__image-link">
-                                {% if routine_img %}
-                                  <img
-                                    src="{{ routine_img | image_url: width: 140 }}"
-                                    alt="{{ routine_prod.title | escape }}"
-                                    loading="lazy"
-                                    width="70"
-                                    height="70"
-                                    class="routine-card__image"
-                                  >
-                                {% else %}
-                                  <div class="routine-card__image-placeholder"></div>
-                                {% endif %}
+                  {%- capture routine_products_html -%}
+                    {%- for routine_prod in all_products -%}
+                      {%- if routine_prod.available and routine_count < 3 -%}
+                        {%- unless cart_product_ids contains routine_prod.id -%}
+                          {%- assign routine_count = routine_count | plus: 1 -%}
+                          {%- assign routine_variant = routine_prod.selected_or_first_available_variant -%}
+                          {%- assign variant_id = routine_variant.id -%}
+                          {%- assign routine_img = routine_prod.featured_media.preview_image | default: routine_prod.featured_image -%}
+                          <div class="routine-card">
+                            <a href="{{ routine_prod.url }}" class="routine-card__image-link">
+                              {%- if routine_img -%}
+                                <img
+                                  src="{{ routine_img | image_url: width: 140 }}"
+                                  alt="{{ routine_prod.title | escape }}"
+                                  loading="lazy"
+                                  width="70"
+                                  height="70"
+                                  class="routine-card__image"
+                                >
+                              {%- else -%}
+                                <div class="routine-card__image-placeholder"></div>
+                              {%- endif -%}
+                            </a>
+                            <div class="routine-card__info">
+                              <a href="{{ routine_prod.url }}" class="routine-card__title">
+                                {{ routine_prod.title }}
                               </a>
-                              <div class="routine-card__info">
-                                <a href="{{ routine_prod.url }}" class="routine-card__title">
-                                  {{ routine_prod.title }}
-                                </a>
-                                <div class="routine-card__price">
-                                  {% if routine_variant.compare_at_price > routine_variant.price %}
-                                    <s class="routine-card__compare-price">{{ routine_variant.compare_at_price | money }}</s>
-                                    <span class="routine-card__sale-price">{{ routine_variant.price | money }}</span>
-                                  {% elsif routine_prod.compare_at_price > routine_prod.price %}
-                                    <s class="routine-card__compare-price">{{ routine_prod.compare_at_price | money }}</s>
-                                    <span class="routine-card__sale-price">{{ routine_prod.price | money }}</span>
-                                  {% else %}
-                                    {{ routine_variant.price | default: routine_prod.price | money }}
-                                  {% endif %}
-                                </div>
+                              <div class="routine-card__price">
+                                {%- if routine_variant.compare_at_price > routine_variant.price -%}
+                                  <s class="routine-card__compare-price">{{ routine_variant.compare_at_price | money }}</s>
+                                  <span class="routine-card__sale-price">{{ routine_variant.price | money }}</span>
+                                {%- elsif routine_prod.compare_at_price > routine_prod.price -%}
+                                  <s class="routine-card__compare-price">{{ routine_prod.compare_at_price | money }}</s>
+                                  <span class="routine-card__sale-price">{{ routine_prod.price | money }}</span>
+                                {%- else -%}
+                                  {{ routine_variant.price | default: routine_prod.price | money }}
+                                {%- endif -%}
                               </div>
-                              <button
-                                type="button"
-                                class="routine-card__btn"
-                                data-add
-                                data-variant-id="{{ variant_id }}"
-                                data-quantity="1"
+                            </div>
+                            <button
+                              type="button"
+                              class="routine-card__btn"
+                              data-add
+                              data-variant-id="{{ variant_id }}"
+                              data-quantity="1"
                 data-add-text="{{ 'products.product.add_btn' | t }}"
                 data-added-text="{{ 'products.product.added_btn' | t }}"
-                              >
-                                <span class="routine-card__spinner" aria-hidden="true"></span>
-                                <span data-text-label>{{ 'products.product.add_btn' | t }}</span>
-                              </button>
-                            </div>
-                          {% endunless %}
-                        {% endif %}
-                      {% endfor %}
+                            >
+                              <span class="routine-card__spinner" aria-hidden="true"></span>
+                              <span data-text-label>{{ 'products.product.add_btn' | t }}</span>
+                            </button>
+                          </div>
+                        {%- endunless -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                  {%- endcapture -%}
+                  {%- if routine_count > 0 -%}
+                    <div class="routine-section routine-section--cart">
+                      <div class="routine-section__header">
+                        <h3 class="routine-section__title">
+                          {{ 'products.product.complete_your_routine' | t }}
+                        </h3>
+                      </div>
+                      <div class="routine-section__products">
+                        {{ routine_products_html }}
+                      </div>
                     </div>
-                  </div>
+                  {%- endif -%}
                 </scroll-hint>
 
                 <div class="cart-drawer__summary">
@@ -334,12 +445,20 @@
   }
 
   .theme-drawer__dialog .cart__checkout-button {
+    background-color: #800020 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
     border-radius: var(--style-border-radius-buttons-primary);
-    transition: transform 0.2s var(--ease-out-cubic), filter 0.2s ease;
+    transition: transform 0.2s var(--ease-out-cubic), filter 0.2s ease, box-shadow 0.2s ease;
 
     &:hover:not(:disabled) {
+      background-color: #6b001b !important;
+      color: #ffffff !important;
       transform: translateY(-1px);
-      filter: brightness(1.04);
+      box-shadow: 0 4px 14px rgba(128, 0, 32, 0.3);
     }
   }
 
@@ -450,6 +569,63 @@
     .cart-drawer__content {
       background: transparent;
     }
+  }
+
+  /* ── Free shipping progress bar ── */
+  .free-shipping-bar {
+    flex-shrink: 0;
+    padding: var(--padding-sm) var(--cart-drawer-padding) var(--padding-sm);
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  .free-shipping-bar__text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-block-end: 0.6rem;
+    font-size: var(--font-size--sm);
+    line-height: 1.45;
+    color: rgb(var(--color-foreground-rgb) / 0.8);
+  }
+
+  [dir="rtl"] .free-shipping-bar__text {
+    flex-direction: row;
+  }
+
+  .free-shipping-bar__icon {
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
+
+  .free-shipping-bar__label strong {
+    color: #800020;
+    font-weight: 600;
+  }
+
+  .free-shipping-bar.is-complete .free-shipping-bar__text {
+    color: rgb(var(--color-foreground-rgb) / 0.9);
+  }
+
+  .free-shipping-bar__track {
+    height: 7px;
+    border-radius: 999px;
+    background-color: rgb(var(--color-foreground-rgb) / 0.08);
+    overflow: hidden;
+  }
+
+  .free-shipping-bar__fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #800020, #c22a4d);
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  [dir="rtl"] .free-shipping-bar__fill {
+    background: linear-gradient(270deg, #800020, #c22a4d);
+  }
+
+  .free-shipping-bar.is-complete .free-shipping-bar__fill {
+    background: linear-gradient(90deg, #1a9e55, #35c97a);
   }
 
   /* ── Complete your cart carousel ── */

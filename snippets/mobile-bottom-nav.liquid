@@ -47,7 +47,9 @@
         {{ 'icon-cart.svg' | inline_asset_content }}
       </span>
       <span class="mobile-bottom-nav__label">{{ 'content.cart_title' | t }}</span>
-      {% render 'cart-bubble', limit: 100 %}
+      <cart-icon class="mobile-bottom-nav__cart-icon">
+        {% render 'cart-bubble', limit: 100 %}
+      </cart-icon>
     </button>
   {% else %}
     <a
@@ -59,7 +61,9 @@
         {{ 'icon-cart.svg' | inline_asset_content }}
       </span>
       <span class="mobile-bottom-nav__label">{{ 'content.cart_title' | t }}</span>
-      {% render 'cart-bubble', limit: 100 %}
+      <cart-icon class="mobile-bottom-nav__cart-icon">
+        {% render 'cart-bubble', limit: 100 %}
+      </cart-icon>
     </a>
   {% endif %}
 
@@ -140,8 +144,8 @@
 
   .mobile-bottom-nav__action .svg-wrapper,
   .mobile-bottom-nav__action-inner .svg-wrapper {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
   }
 
   .mobile-bottom-nav__wishlist-count {
@@ -153,8 +157,20 @@
 
   .mobile-bottom-nav__action .svg-wrapper > svg,
   .mobile-bottom-nav__action-inner .svg-wrapper > svg {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .mobile-bottom-nav__cart .svg-wrapper,
+  search-button.mobile-bottom-nav__action .svg-wrapper {
+    width: 26px;
+    height: 26px;
+  }
+
+  .mobile-bottom-nav__cart .svg-wrapper > svg,
+  search-button.mobile-bottom-nav__action .svg-wrapper > svg {
+    width: 26px;
+    height: 26px;
   }
 
   .mobile-bottom-nav__label {

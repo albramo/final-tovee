@@ -103,7 +103,7 @@
       }
     {% endstyle %}
 
-    {% comment %} FIX: منع المساحة البيضاء في RTL موبايل بسبب left:-99999px و 100vw {% endcomment %}
+    {% comment %} FIX: منع المساحة البيضاء في RTL موبايل بسبب 100vw و left:-99999px {% endcomment %}
     {% style %}
       html, body { overflow-x: clip; max-width: 100%; }
       html[dir='rtl'] { overflow-x: clip; }

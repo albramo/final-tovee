@@ -132,6 +132,7 @@
           {% render 'link-featured-image', link: link, class: 'mega-menu__link-image', sizes: collection_image_sizes %}
         {% endif %}
         <span class="wrap-text mega-menu__link-inner">
+          {% render 'menu-link-icon', link_title: link.title, show_default: false %}
           <span>{% render 'menu-link-title', link_title: link.title %}</span>
         </span>
       </a>
@@ -154,6 +155,7 @@
                 class="mega-menu__link"
               >
                 <span class="wrap-text mega-menu__link-inner">
+                  {% render 'menu-link-icon', link_title: childLink.title, show_default: false %}
                   <span>{% render 'menu-link-title', link_title: childLink.title %}</span>
                 </span>
               </a>

@@ -20,7 +20,7 @@
     --product-discount-badge-radius: {{ settings.badge_radius }}px;
     --product-card-bg: {{ settings.card_background }};
     --product-card-radius: {{ settings.card_radius }}px;
-    --product-card-shadow: {% if settings.card_shadow %}0 6px 16px rgba(0, 0, 0, 0.12){% else %}none{% endif %};
+    --product-card-shadow: {% if settings.card_shadow %}4px 0 10px -6px rgba(0, 0, 0, 0.05), -4px 0 10px -6px rgba(0, 0, 0, 0.05){% else %}none{% endif %};
     --product-card-image-ratio: {{ settings.card_image_ratio }};
     --product-card-actions-bg: {{ settings.actions_bg }};
     --product-card-actions-fg: {{ settings.actions_color }};
@@ -48,6 +48,16 @@
     border-radius: var(--product-card-radius);
     background: var(--product-card-bg);
     box-shadow: var(--product-card-shadow);
+  }
+
+  /* السعر: السعرين (الأصلي والخصم) دايمًا في سطر واحد حتى على الموبايل */
+  [data-product-card-styles] product-price,
+  [data-product-card-styles] product-price [ref='priceContainer'] {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
   }
 
   /* تنسيق أيقونات الكارت — خلفية شبه شفافة مع شكل دائري */
@@ -81,7 +91,6 @@
   [data-product-card-styles] .product-card-actions__quick-view:focus-visible {
     background: color-mix(in srgb, var(--product-card-actions-bg), #000000 8%) !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18) !important;
-    transform: scale(1.1);
   }
 
   /* زرار إغلاق المودال — ثابت على الإطار يمين فوق (الموضع والاستجابة بتيجي من سنيبت الكارت) */
@@ -380,7 +389,6 @@
     [data-product-card-styles] .product-card-actions__quick-view:hover {
       background: rgba(255, 255, 255, 1);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-      transform: scale(1.1);
     }
   }
 
@@ -395,13 +403,14 @@
     padding-block-start: 4px;
   }
 
-  /* السعر في النص — العناصر الداخلية inline فمحتاجين text-align */
+  /* السعر دايماً على اليمين وعريض — مش بيتأثر باتجاه اللغة */
   [data-product-card-styles] product-price {
-    text-align: center;
+    text-align: right !important;
+    font-weight: 700 !important;
   }
 
   [data-product-card-styles] product-price > * {
-    text-align: center;
+    text-align: right !important;
   }
 
   /* حجم عنوان المنتج وسعره — قابل للتعديل من محرر الثيم */
@@ -412,5 +421,13 @@
   [data-product-card-styles] product-price,
   [data-product-card-styles] product-price > * {
     font-size: var(--product-card-price-size) !important;
+  }
+
+  /* على الموبايل نقّص حجم السعر شوية عشان السعرين يقعدوا في سطر واحد */
+  @media (max-width: 749px) {
+    [data-product-card-styles] product-price,
+    [data-product-card-styles] product-price > * {
+      font-size: calc(var(--product-card-price-size) * 0.8) !important;
+    }
   }
 {% endstyle %}
