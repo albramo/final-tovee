@@ -148,6 +148,17 @@
     gap: var(--gap) 0;
   }
 
+  /* PC: tighten space between gallery and details to ~4px, then push details further from gallery */
+  @media screen and (min-width: 750px) {
+    .product-information {
+      --gap: 4px !important;
+    }
+
+    .product-information__grid:not(.product-information--media-none) .product-details {
+      padding-inline-start: 36px !important;
+    }
+  }
+
   .product-breadcrumbs {
     margin-block-start: var(--padding-md);
     padding-block-end: var(--padding-sm);
@@ -249,7 +260,7 @@
     .product-information__grid:not(.product-information--media-none) {
       /* Media on the left side */
       &.product-information--media-left {
-        grid-template-columns: 1fr min(50vw, var(--sidebar-width));
+        grid-template-columns: 0.85fr min(50vw, var(--sidebar-width));
 
         .product-information__media {
           padding-right: calc(var(--gap, 0) / 2);
@@ -266,7 +277,7 @@
 
       /* Media on the right side */
       &.product-information--media-right {
-        grid-template-columns: min(50vw, var(--sidebar-width)) 1fr;
+        grid-template-columns: min(50vw, var(--sidebar-width)) 0.85fr;
 
         .product-information__media {
           padding-left: calc(var(--gap, 0) / 2);
@@ -368,14 +379,14 @@
         .product-information__grid--half,
         .product-information--media-none
       ).product-information--media-left {
-      grid-template-columns: 2fr 1fr;
+      grid-template-columns: 1.25fr 1fr;
     }
 
     .product-information__grid:not(
         .product-information__grid--half,
         .product-information--media-none
       ).product-information--media-right {
-      grid-template-columns: 1fr 2fr;
+      grid-template-columns: 1fr 1.25fr;
     }
   }
 
@@ -388,6 +399,15 @@
     .product-information__grid--limit-details .product-details > .group-block {
       --details-max-width: 32rem;
     }
+  }
+
+  /* Product title styled like hero-slider heading */
+  .product-details h1 {
+    font-size: clamp(1.75rem, 5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-block-end: var(--margin-md);
   }
 
   /* If the header is sticky, make product details content stick underneath the header */
