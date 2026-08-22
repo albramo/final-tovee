@@ -849,6 +849,19 @@
     height: var(--icon-size-md);
   }
 
+  /* تكبير أيقونة القائمة الجانبية على الهاتف */
+  @media screen and (max-width: 749px) {
+    .header__icon--summary .header-drawer-icon {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+
+    .header__icon--summary .header-drawer-icon svg {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+  }
+
   /* Hamburger → X icon swap animation */
   details.menu-open .header__icon--menu .header-drawer-icon--close {
     animation: menu-drawer-icon-in 0.25s var(--ease-out-cubic);
