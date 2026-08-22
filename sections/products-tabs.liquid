@@ -420,6 +420,36 @@
   if (track && prevBtn && nextBtn) {
     var isRTL = getComputedStyle(track).direction === 'rtl';
     var nudgeTimer = null;
+    var showArrowsMobile = {{ section.settings.show_arrows_mobile | json }};
+    var showArrowsDesktop = {{ section.settings.show_arrows_desktop | json }};
+
+    function isMobileView() {
+      return window.innerWidth <= 768;
+    }
+
+    function shouldShowArrowsBySetting() {
+      return isMobileView() ? showArrowsMobile : showArrowsDesktop;
+    }
+
+    function updateArrowsVisibility() {
+      var max = track.scrollWidth - track.clientWidth;
+      var needsScroll = max > 2;
+      var allowed = shouldShowArrowsBySetting();
+      // إخفاء الأسهم لما مفيش سلايدر (كل الأزرار ظاهرة) - المطلوب
+      if (!needsScroll || !allowed) {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+        track.style.paddingLeft = '0';
+        track.style.paddingRight = '0';
+        track.style.justifyContent = 'center';
+      } else {
+        prevBtn.style.display = 'flex';
+        nextBtn.style.display = 'flex';
+        track.style.paddingLeft = '';
+        track.style.paddingRight = '';
+        track.style.justifyContent = '';
+      }
+    }
 
     function nudge(direction) {
       clearTimeout(nudgeTimer);
@@ -442,6 +472,17 @@
 
     prevBtn.addEventListener('click', function() { move(-1); });
     nextBtn.addEventListener('click', function() { move(1); });
+
+    // فحص أولي + عند الريسايز
+    updateArrowsVisibility();
+    window.addEventListener('resize', function() {
+      clearTimeout(window._tabsResizeTimer);
+      window._tabsResizeTimer = setTimeout(updateArrowsVisibility, 100);
+    });
+    // متابعة تغير حجم التراك (لو التابات اتغيرت)
+    if (window.ResizeObserver) {
+      new ResizeObserver(updateArrowsVisibility).observe(track);
+    }
   }
 
   // --- التبديل بين التابات (Delegation: شغال حتى لو العناصر اتحدثت) ---

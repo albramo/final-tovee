@@ -48,6 +48,7 @@
       --color-rgb: {{ block_settings.text_color.rgb }};
     {% endif %}
     --width: {{ block_settings.width }};
+    font-weight: 800 !important;
   "
   {{ block.shopify_attributes }}
 >
@@ -91,6 +92,17 @@
 {% render 'product-live-viewers' %}
 
 {% render 'payment-terms-styles' %}
+
+{% stylesheet %}
+  product-price {
+    font-weight: 800 !important;
+  }
+  product-price [ref='priceContainer'],
+  product-price .price,
+  product-price .product-price__price {
+    font-weight: 800 !important;
+  }
+{% endstylesheet %}
 
 {% schema %}
 {
