@@ -51,11 +51,11 @@ class CartDrawerComponent extends Component {
    * Handles the theme-drawer opening — updates sticky state and wires up the installments CTA.
    */
   #handleDrawerOpen = () => {
-    // Defer the layout reads (getBoundingClientRect) to the next frame instead
-    // of running them synchronously inside the click task — this keeps the
-    // cart icon interaction fast (INP). The drawer is still animating in, so
-    // a one-frame delay is invisible.
-    requestAnimationFrame(() => this.#updateStickyState());
+    // Defer layout calculations until after the slide-in animation completes (~280ms)
+    // so layout thrashing doesn't block frames during drawer opening on mobile.
+    setTimeout(() => {
+      requestAnimationFrame(() => this.#updateStickyState());
+    }, 280);
 
     // Close cart drawer when installments CTA is clicked to avoid overlapping dialogs.
     // Re-queried on every open so it survives cart content re-renders that

@@ -249,6 +249,7 @@
                                   src="{{ routine_img | image_url: width: 140 }}"
                                   alt="{{ routine_prod.title | escape }}"
                                   loading="lazy"
+                                  decoding="async"
                                   width="70"
                                   height="70"
                                   class="routine-card__image"
@@ -279,8 +280,8 @@
                               data-add
                               data-variant-id="{{ variant_id }}"
                               data-quantity="1"
-                data-add-text="{{ 'products.product.add_btn' | t }}"
-                data-added-text="{{ 'products.product.added_btn' | t }}"
+                              data-add-text="{{ 'products.product.add_btn' | t }}"
+                              data-added-text="{{ 'products.product.added_btn' | t }}"
                             >
                               <span class="routine-card__spinner" aria-hidden="true"></span>
                               <span data-text-label>{{ 'products.product.add_btn' | t }}</span>

@@ -20,102 +20,99 @@
 
     z-index: calc(var(--layer-sticky) + var(--drawer-stack-order, 0));
     position: fixed;
-    inset: unset;
     top: 0;
-    right: calc(-1 * var(--theme-drawer-width, var(--sidebar-width)));
+    bottom: 0;
+    inset-block: 0;
+    inset-inline-start: auto;
+    inset-inline-end: 0;
     flex-direction: column;
     width: var(--theme-drawer-width, var(--sidebar-width));
-    max-width: 100%;
+    max-width: 100vw;
     max-height: none;
     height: 100dvh;
     padding: 0;
+    margin: 0;
     border: none;
-    border-left: var(--style-border-drawer);
+    border-inline-start: var(--style-border-drawer);
     background-color: var(--color-background);
     color: var(--color-foreground);
+    box-sizing: border-box;
+    will-change: transform;
+    contain: layout style;
   }
 
   .theme-drawer__dialog[open] {
     display: flex;
-    right: 0;
-  }
-
-  [dir="rtl"] .theme-drawer__dialog {
-    right: auto;
-    left: calc(-1 * var(--theme-drawer-width, var(--sidebar-width)));
-    border-left: none;
-    border-right: var(--style-border-drawer);
-  }
-
-  [dir="rtl"] .theme-drawer__dialog[open] {
-    right: auto;
-    left: 0;
-  }
-
-  /* Promote the drawer to its own compositor layer while animating so the
-     slide-in/out never triggers full-page paint work inside the click task
-     (INP). Released once the animation class is removed. */
-  .theme-drawer__dialog[open] {
-    will-change: auto;
-  }
-
-  .theme-drawer__dialog--opening,
-  .theme-drawer__dialog--opening-inline-start,
-  .theme-drawer__dialog--closing {
-    will-change: transform;
   }
 
   .theme-drawer__dialog--opening {
-    animation: drawer-slide-in 0.3s var(--animation-timing-fade-in);
+    animation: drawer-slide-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .theme-drawer__dialog--opening-inline-start {
-    animation: drawer-slide-in-inline-start 0.3s var(--animation-timing-fade-in);
+    animation: drawer-slide-in-inline-start 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .theme-drawer__dialog--closing {
-    animation: drawer-slide-out 0.25s var(--animation-timing-fade-out) forwards;
+    animation: drawer-slide-out 0.2s cubic-bezier(0.7, 0, 0.84, 0) forwards;
   }
 
   .theme-drawer__dialog-instant {
-    animation: none;
+    animation: none !important;
   }
 
   @keyframes drawer-slide-in {
     from {
-      transform: translateX(100%);
+      transform: translate3d(100%, 0, 0);
+    }
+    to {
+      transform: translate3d(0, 0, 0);
     }
   }
 
   @keyframes drawer-slide-in-inline-start {
     from {
-      transform: translateX(50%);
+      transform: translate3d(50%, 0, 0);
+    }
+    to {
+      transform: translate3d(0, 0, 0);
     }
   }
 
   @keyframes drawer-slide-out {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
     to {
-      transform: translateX(100%);
+      transform: translate3d(100%, 0, 0);
     }
   }
 
-  [dir="rtl"] .theme-drawer__dialog--opening {
-    animation: drawer-slide-in-rtl 0.3s var(--animation-timing-fade-in);
+  [dir="rtl"] .theme-drawer__dialog--opening,
+  html[dir="rtl"] .theme-drawer__dialog--opening {
+    animation: drawer-slide-in-rtl 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
-  [dir="rtl"] .theme-drawer__dialog--closing {
-    animation: drawer-slide-out-rtl 0.25s var(--animation-timing-fade-out) forwards;
+  [dir="rtl"] .theme-drawer__dialog--closing,
+  html[dir="rtl"] .theme-drawer__dialog--closing {
+    animation: drawer-slide-out-rtl 0.2s cubic-bezier(0.7, 0, 0.84, 0) forwards;
   }
 
   @keyframes drawer-slide-in-rtl {
     from {
-      transform: translateX(-100%);
+      transform: translate3d(-100%, 0, 0);
+    }
+    to {
+      transform: translate3d(0, 0, 0);
     }
   }
 
   @keyframes drawer-slide-out-rtl {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
     to {
-      transform: translateX(-100%);
+      transform: translate3d(-100%, 0, 0);
     }
   }
 
