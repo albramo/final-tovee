@@ -51,11 +51,11 @@ class CartDrawerComponent extends Component {
    * Handles the theme-drawer opening — updates sticky state and wires up the installments CTA.
    */
   #handleDrawerOpen = () => {
-    // Defer layout calculations until after the slide-in animation completes (~280ms)
+    // Defer layout calculations until after the slide-in animation completes (~340ms)
     // so layout thrashing doesn't block frames during drawer opening on mobile.
     setTimeout(() => {
       requestAnimationFrame(() => this.#updateStickyState());
-    }, 280);
+    }, 340);
 
     // Close cart drawer when installments CTA is clicked to avoid overlapping dialogs.
     // Re-queried on every open so it survives cart content re-renders that
@@ -81,24 +81,24 @@ class CartDrawerComponent extends Component {
       event.target instanceof Element ? event.target.closest('dialog:modal') : null
     );
 
+    if (shouldAutoOpen) {
+      const openDrawerNow = () => {
+        if (!this.#themeDrawer?.isOpen) {
+          this.#themeDrawer?.open();
+        }
+      };
+
+      if (sourceModal?.open) {
+        sourceModal.addEventListener('close', openDrawerNow, { once: true });
+      } else {
+        openDrawerNow();
+      }
+    }
+
     event.promise
       ?.then(({ detail }) => {
-        const settle = () => requestAnimationFrame(() => this.#updateStickyState());
-
-        if (!shouldAutoOpen || detail?.didError) {
-          settle();
-          return;
-        }
-
-        const openAndSettle = () => {
-          if (!this.#themeDrawer?.isOpen) this.#themeDrawer?.open();
-          settle();
-        };
-
-        if (sourceModal?.open) {
-          sourceModal.addEventListener('close', openAndSettle, { once: true });
-        } else {
-          openAndSettle();
+        if (!detail?.didError) {
+          requestAnimationFrame(() => this.#updateStickyState());
         }
       })
       .catch((error) => {
