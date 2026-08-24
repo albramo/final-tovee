@@ -215,18 +215,18 @@ export class ThemeDrawer extends Component {
 
     const openClass =
       enter === 'inline-start' ? 'theme-drawer__dialog--opening-inline-start' : 'theme-drawer__dialog--opening';
-    panel.classList.add(openClass);
 
     this.#previouslyFocused = /** @type {HTMLElement | null} */ (document.activeElement);
 
     if (this.#useModal) {
-      lockScroll(panel);
       panel.showModal();
+      requestAnimationFrame(() => lockScroll(panel));
     } else {
       panel.show();
       trapFocus(panel);
     }
 
+    panel.classList.add(openClass);
     this.#focusInitialElement();
 
     onAnimationEnd(panel, () => panel.classList.remove(openClass), { subtree: false });
@@ -286,7 +286,7 @@ export class ThemeDrawer extends Component {
     const closeButton = /** @type {HTMLElement | null} */ (
       this.refs.panel.querySelector('.theme-drawer__close-button')
     );
-    closeButton?.focus();
+    closeButton?.focus({ preventScroll: true });
   }
 
   /**

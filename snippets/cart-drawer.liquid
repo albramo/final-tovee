@@ -395,11 +395,15 @@
   /* ── Cart drawer refinements ── */
   theme-drawer#cart-drawer .theme-drawer__dialog {
     --theme-drawer-width: min(28.75rem, 100vw);
+    right: 0 !important;
+    left: auto !important;
   }
 
   theme-drawer#cart-drawer .theme-drawer__dialog[open] {
-    border-start-start-radius: var(--style-border-radius-lg);
-    border-end-start-radius: var(--style-border-radius-lg);
+    border-top-left-radius: var(--style-border-radius-lg);
+    border-bottom-left-radius: var(--style-border-radius-lg);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
   }
 
   theme-drawer#cart-drawer .theme-drawer__dialog::backdrop {
@@ -407,10 +411,10 @@
   }
 
   [dir="rtl"] theme-drawer#cart-drawer .theme-drawer__dialog[open] {
-    border-start-start-radius: 0;
-    border-end-start-radius: 0;
-    border-start-end-radius: var(--style-border-radius-lg);
-    border-end-end-radius: var(--style-border-radius-lg);
+    border-top-left-radius: var(--style-border-radius-lg);
+    border-bottom-left-radius: var(--style-border-radius-lg);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
   }
 
   theme-drawer#cart-drawer .theme-drawer__header {
@@ -494,15 +498,9 @@
     padding: var(--cart-drawer-summary-padding);
     margin-top: auto;
     background-color: var(--color-background);
-    /* stylelint-disable-next-line color-named */
-    mask-image: linear-gradient(to bottom, transparent, black var(--cart-drawer-summary-padding));
-    /* Let clicks pass through the faded top strip to the scrolled items
-       below (e.g. the "complete your cart" add buttons). */
-    pointer-events: none;
-
-    & > * {
-      pointer-events: auto;
-    }
+    border-top: 1px solid rgb(var(--color-foreground-rgb) / 0.08);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.03);
+    pointer-events: auto;
 
     @media screen and (min-width: 750px) {
       --cart-drawer-summary-padding: var(--padding-2xl);
@@ -511,7 +509,8 @@
 
   .theme-drawer__dialog[cart-summary-sticky='false'] .cart-drawer__summary {
     position: static;
-    mask-image: none;
+    border-top: none;
+    box-shadow: none;
   }
 
   .theme-drawer__dialog[cart-summary-sticky='false'] .cart-drawer__items {

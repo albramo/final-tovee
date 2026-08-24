@@ -123,7 +123,10 @@ class CartDrawerComponent extends Component {
     const drawerHeight = dialog.getBoundingClientRect().height;
     const summaryHeight = summary.getBoundingClientRect().height;
     const ratio = summaryHeight / drawerHeight;
-    dialog.setAttribute('cart-summary-sticky', ratio > this.#summaryThreshold ? 'false' : 'true');
+    const isSticky = ratio <= this.#summaryThreshold;
+    requestAnimationFrame(() => {
+      dialog.setAttribute('cart-summary-sticky', isSticky ? 'true' : 'false');
+    });
   }
 }
 
