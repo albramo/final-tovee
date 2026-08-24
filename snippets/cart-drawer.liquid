@@ -808,6 +808,24 @@
     background: #fafafa;
     border: 1px solid #eaeaea;
     border-radius: 12px;
+    content-visibility: auto;
+    contain-intrinsic-size: 0 180px;
+  }
+
+  theme-drawer__dialog[open] .routine-section,
+  .theme-drawer__dialog[open] .routine-section {
+    animation: routine-fade-in 350ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
+  }
+
+  @keyframes routine-fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .routine-section__header {
