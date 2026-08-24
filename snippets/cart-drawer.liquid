@@ -28,10 +28,44 @@
     fetchpriority="low"
   ></script>
 
-  {% comment %} Complete Your Routine (أكمل روتينك) add-to-cart handler.
-    Bound globally so the routine cards inside the drawer work on every page
-    (previously it lived in buy-buttons.liquid which only renders on product pages). {% endcomment %}
+  {% comment %} Complete Your Routine (أكمل روتينك) add-to-cart handler and deferred element component.
+    Bound globally so the routine cards inside the drawer work on every page. {% endcomment %}
   <script>
+    if (!customElements.get('deferred-routine-section')) {
+      customElements.define('deferred-routine-section', class DeferredRoutineSection extends HTMLElement {
+        connectedCallback() {
+          var tmpl = this.querySelector('template');
+          if (!tmpl) return;
+
+          var drawer = this.closest('theme-drawer');
+          var render = function() {
+            if (this.dataset.rendered) return;
+            this.dataset.rendered = 'true';
+            var self = this;
+            // Defer mounting until drawer slide-in animation finishes (~220ms)
+            setTimeout(function() {
+              requestAnimationFrame(function() {
+                var content = tmpl.content.cloneNode(true);
+                self.appendChild(content);
+                tmpl.remove();
+                requestAnimationFrame(function() {
+                  self.classList.add('is-loaded');
+                });
+              });
+            }, (drawer && drawer.isOpen) ? 100 : 220);
+          }.bind(this);
+
+          if (drawer && drawer.isOpen) {
+            render();
+          } else if (drawer) {
+            drawer.addEventListener('theme-drawer:open', render, { once: true });
+          } else {
+            render();
+          }
+        }
+      });
+    }
+
     (function() {
       if (window.__routineAddHandler) return;
       window.__routineAddHandler = function(e) {
@@ -292,16 +326,20 @@
                     {%- endfor -%}
                   {%- endcapture -%}
                   {%- if routine_count > 0 -%}
-                    <div class="routine-section routine-section--cart">
-                      <div class="routine-section__header">
-                        <h3 class="routine-section__title">
-                          {{ 'products.product.complete_your_routine' | t }}
-                        </h3>
-                      </div>
-                      <div class="routine-section__products">
-                        {{ routine_products_html }}
-                      </div>
-                    </div>
+                    <deferred-routine-section class="routine-section routine-section--cart">
+                      <template>
+                        <div class="routine-section__inner">
+                          <div class="routine-section__header">
+                            <h3 class="routine-section__title">
+                              {{ 'products.product.complete_your_routine' | t }}
+                            </h3>
+                          </div>
+                          <div class="routine-section__products">
+                            {{ routine_products_html }}
+                          </div>
+                        </div>
+                      </template>
+                    </deferred-routine-section>
                   {%- endif -%}
                 </scroll-hint>
 
@@ -802,12 +840,32 @@
   }
 
   /* ── Routine (أكمل روتينك) — moved from buy-buttons so it works on homepage/cart drawer everywhere ── */
+  deferred-routine-section {
+    display: block;
+    min-height: 0;
+  }
+
+  deferred-routine-section:not(.is-loaded) {
+    display: none;
+  }
+
   .routine-section {
     margin-top: 20px;
     padding: 16px;
     background: #fafafa;
     border: 1px solid #eaeaea;
     border-radius: 12px;
+  }
+
+  .routine-section__inner {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  deferred-routine-section.is-loaded .routine-section__inner {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .routine-section__header {
