@@ -1,0 +1,45 @@
+{% comment %}
+  شريط التقدم للشحن المجاني في السلة الجانبية.
+  الحد الأدنى للشحن المجاني بيتغير من إعدادات الثيم:
+  Theme Settings > Cart > Free shipping minimum amount (EGP)
+  الشريط بيشتغل بـ Liquid فقط (بدون JavaScript) وبيدعم العربي والإنجليزي.
+{% endcomment %}
+
+{% assign free_shipping_threshold = settings.free_shipping_threshold | default: 600 | times: 100 %}
+{% assign fs_remaining = free_shipping_threshold | minus: cart.total_price %}
+
+{% if fs_remaining <= 0 %}
+  {% assign fs_progress = 100 %}
+{% else %}
+  {% assign fs_progress = cart.total_price | times: 100 | divided_by: free_shipping_threshold %}
+{% endif %}
+
+{% assign is_arabic = false %}
+{% if request.locale.iso_code contains 'ar' %}
+  {% assign is_arabic = true %}
+{% endif %}
+
+{% if settings.show_free_shipping_bar %}
+<div class="free-shipping-bar{% if fs_remaining <= 0 %} is-complete{% endif %}" role="status" aria-live="polite">
+  <div class="free-shipping-bar__text">
+    {% if fs_remaining <= 0 %}
+      <span class="free-shipping-bar__icon">🎉</span>
+      {% if is_arabic %}
+        <span class="free-shipping-bar__label"><strong>مبروك!</strong> حصلت على الشحن المجاني</span>
+      {% else %}
+        <span class="free-shipping-bar__label"><strong>Congratulations!</strong> You've unlocked free shipping</span>
+      {% endif %}
+    {% else %}
+      <span class="free-shipping-bar__icon">🚚</span>
+      {% if is_arabic %}
+        <span class="free-shipping-bar__label">أضف منتجات بقيمة <strong>{{ fs_remaining | money }}</strong> واحصل على <strong>شحن مجاني</strong></span>
+      {% else %}
+        <span class="free-shipping-bar__label">Add <strong>{{ fs_remaining | money }}</strong> more to get <strong>free shipping</strong></span>
+      {% endif %}
+    {% endif %}
+  </div>
+  <div class="free-shipping-bar__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ fs_progress }}">
+    <div class="free-shipping-bar__fill" style="width: {{ fs_progress }}%;"></div>
+  </div>
+</div>
+{% endif %}

@@ -275,18 +275,19 @@
 {% stylesheet %}
   .sticky-add-to-cart__bar {
     position: fixed;
-    bottom: 20px;
+    bottom: 28px;
     left: 50%;
     opacity: 0;
     transform: translateX(-50%) translateY(calc(100% + 40px));
     z-index: calc(var(--layer-sticky) - 1); /* Below sticky header */
     display: block;
-    width: 600px;
+    width: min(680px, calc(100% - 32px));
     border-radius: calc(
       var(--style-border-radius-buttons-primary) + min(var(--padding-sm), var(--style-border-radius-buttons-primary))
     );
     box-shadow: var(--shadow-popover);
-    padding: var(--padding-sm);
+    padding-block: 6px;
+    padding-inline: var(--padding-sm);
     /* Layout styling */
     display: flex;
     align-items: center;
@@ -377,7 +378,7 @@
   }
 
   .sticky-add-to-cart__button {
-    height: 45px;
+    height: 40px;
     position: relative;
     font-size: 0.8125rem;
     padding-inline: var(--padding-md);
@@ -496,13 +497,13 @@
   /* Mobile adjustments */
   @media screen and (max-width: 749px) {
     .sticky-add-to-cart__bar {
-      bottom: calc(60px + env(safe-area-inset-bottom));
+      bottom: calc(66px + env(safe-area-inset-bottom));
       left: 50%;
       width: auto;
-      max-width: calc(100% - 24px);
+      max-width: calc(100% - 10px);
       border-radius: 25px;
-      padding-block: 6px;
-      padding-inline: 10px;
+      padding-block: 3px;
+      padding-inline: 8px;
       gap: 8px;
       transform: translateX(-50%) translateY(calc(100% + 40px));
 
@@ -533,7 +534,7 @@
       flex: 0 0 auto;
       justify-content: space-between;
       min-width: 0;
-      height: 32px;
+      height: 34px;
       padding: 0;
       border-radius: 25px;
       margin-inline-start: 0;
@@ -542,7 +543,7 @@
     }
 
     .sticky-add-to-cart__qty-btn {
-      width: 28px;
+      width: 32px;
       height: 100%;
       border-radius: 0;
     }
@@ -557,24 +558,38 @@
 
     .sticky-add-to-cart__qty-btn .svg-wrapper,
     .sticky-add-to-cart__qty-btn .svg-wrapper > svg {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
     }
 
     .sticky-add-to-cart__qty-value {
-      min-width: 22px;
+      min-width: 30px;
       padding-inline: 4px;
-      font-size: 0.8rem;
+      font-size: 1.05rem;
+      font-weight: 700;
     }
 
     .sticky-add-to-cart__button {
       flex: 0 0 auto;
       width: auto;
-      height: 32px;
-      padding-inline: 10px;
-      font-size: 0.75rem;
+      height: 30px;
+      padding-inline: 16px;
+      font-size: 0.85rem;
       margin-inline-start: 0;
       border-radius: 25px;
+    }
+
+    .sticky-add-to-cart__button .add-to-cart-text,
+    .sticky-add-to-cart__button .add-to-cart-text__content {
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .sticky-add-to-cart__button .svg-wrapper,
+    .sticky-add-to-cart__button .svg-wrapper > svg,
+    .sticky-add-to-cart__button .add-to-cart-icon {
+      width: 16px;
+      height: 16px;
     }
 
     sticky-add-to-cart:not([data-variant-available='true']) .add-to-cart-text__content {

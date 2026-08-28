@@ -20,7 +20,7 @@
     --product-discount-badge-radius: {{ settings.badge_radius }}px;
     --product-card-bg: {{ settings.card_background }};
     --product-card-radius: {{ settings.card_radius }}px;
-    --product-card-shadow: {% if settings.card_shadow %}0 6px 16px rgba(0, 0, 0, 0.12){% else %}none{% endif %};
+    --product-card-shadow: {% if settings.card_shadow %}4px 0 10px -6px rgba(0, 0, 0, 0.05), -4px 0 10px -6px rgba(0, 0, 0, 0.05){% else %}none{% endif %};
     --product-card-image-ratio: {{ settings.card_image_ratio }};
     --product-card-actions-bg: {{ settings.actions_bg }};
     --product-card-actions-fg: {{ settings.actions_color }};
@@ -48,6 +48,16 @@
     border-radius: var(--product-card-radius);
     background: var(--product-card-bg);
     box-shadow: var(--product-card-shadow);
+  }
+
+  /* السعر: السعرين (الأصلي والخصم) دايمًا في سطر واحد حتى على الموبايل */
+  [data-product-card-styles] product-price,
+  [data-product-card-styles] product-price [ref='priceContainer'] {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
   }
 
   /* تنسيق أيقونات الكارت — خلفية شبه شفافة مع شكل دائري */
@@ -81,7 +91,6 @@
   [data-product-card-styles] .product-card-actions__quick-view:focus-visible {
     background: color-mix(in srgb, var(--product-card-actions-bg), #000000 8%) !important;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18) !important;
-    transform: scale(1.1);
   }
 
   /* زرار إغلاق المودال — ثابت على الإطار يمين فوق (الموضع والاستجابة بتيجي من سنيبت الكارت) */
@@ -263,7 +272,13 @@
       height: 38px;
       opacity: 0;
       pointer-events: none;
-      transform: scale(0.85);
+      transform: translateY(-8px) scale(0.85);
+      transition:
+        opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.34s cubic-bezier(0.34, 1.25, 0.64, 1),
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+      will-change: opacity, transform;
     }
 
     [dir="rtl"] [data-product-card-styles] .product-card-actions__wishlist {
@@ -290,9 +305,14 @@
       padding: 0;
       opacity: 0;
       pointer-events: none;
-      transform: scale(0.85);
+      transform: translateY(-8px) scale(0.85);
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease, box-shadow 0.2s ease;
+      transition:
+        opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.34s cubic-bezier(0.34, 1.25, 0.64, 1),
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+      will-change: opacity, transform;
     }
 
     [dir="rtl"] [data-product-card-styles] .product-card-actions__quick-view {
@@ -305,11 +325,15 @@
       bottom: 12px;
       left: 50%;
       right: auto;
-      transform: translateX(-50%) translateY(8px) scale(0.95);
+      transform: translateX(-50%) translateY(10px) scale(0.95);
       width: max-content;
       max-width: 95%;
       opacity: 0;
       pointer-events: none;
+      transition:
+        opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.34s cubic-bezier(0.34, 1.25, 0.64, 1);
+      will-change: opacity, transform;
     }
 
     [data-product-card-styles] .product-card-actions__quantity {
@@ -366,7 +390,12 @@
       display: flex;
       opacity: 1;
       pointer-events: auto;
-      transform: scale(1);
+      transform: translateY(0) scale(1);
+      transition-delay: 0s;
+    }
+
+    [data-product-card-styles] :is(product-card, .product-card, .card-gallery, .resource-list__item, .product-grid__card):is(:hover, :focus-within) .product-card-actions__quick-view {
+      transition-delay: 0.05s;
     }
 
     [data-product-card-styles] :is(product-card, .product-card, .card-gallery, .resource-list__item, .product-grid__card):is(:hover, :focus-within) .product-card-actions__content {
@@ -374,13 +403,13 @@
       opacity: 1;
       pointer-events: auto;
       transform: translateX(-50%) translateY(0) scale(1);
+      transition-delay: 0.08s;
     }
 
     [data-product-card-styles] .product-card-actions__wishlist:hover,
     [data-product-card-styles] .product-card-actions__quick-view:hover {
       background: rgba(255, 255, 255, 1);
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-      transform: scale(1.1);
     }
   }
 
@@ -395,13 +424,14 @@
     padding-block-start: 4px;
   }
 
-  /* السعر في النص — العناصر الداخلية inline فمحتاجين text-align */
+  /* السعر دايماً على اليمين وعريض — مش بيتأثر باتجاه اللغة */
   [data-product-card-styles] product-price {
-    text-align: center;
+    text-align: right !important;
+    font-weight: 700 !important;
   }
 
   [data-product-card-styles] product-price > * {
-    text-align: center;
+    text-align: right !important;
   }
 
   /* حجم عنوان المنتج وسعره — قابل للتعديل من محرر الثيم */
@@ -412,5 +442,21 @@
   [data-product-card-styles] product-price,
   [data-product-card-styles] product-price > * {
     font-size: var(--product-card-price-size) !important;
+  }
+
+  /* على الموبايل نقّص حجم السعر شوية عشان السعرين يقعدوا في سطر واحد + خليه عريض */
+  @media (max-width: 749px) {
+    [data-product-card-styles] product-price,
+    [data-product-card-styles] product-price > * {
+      font-size: calc(var(--product-card-price-size) * 0.8) !important;
+      font-weight: 800 !important;
+    }
+
+    [data-product-card-styles] product-price,
+    [data-product-card-styles] product-price [ref='priceContainer'],
+    [data-product-card-styles] .product-card__price,
+    [data-product-card-styles] product-price .price {
+      font-weight: 800 !important;
+    }
   }
 {% endstyle %}

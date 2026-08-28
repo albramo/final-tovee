@@ -47,7 +47,9 @@
         {{ 'icon-cart.svg' | inline_asset_content }}
       </span>
       <span class="mobile-bottom-nav__label">{{ 'content.cart_title' | t }}</span>
-      {% render 'cart-bubble', limit: 100 %}
+      <cart-icon class="mobile-bottom-nav__cart-icon">
+        {% render 'cart-bubble', limit: 100 %}
+      </cart-icon>
     </button>
   {% else %}
     <a
@@ -59,7 +61,9 @@
         {{ 'icon-cart.svg' | inline_asset_content }}
       </span>
       <span class="mobile-bottom-nav__label">{{ 'content.cart_title' | t }}</span>
-      {% render 'cart-bubble', limit: 100 %}
+      <cart-icon class="mobile-bottom-nav__cart-icon">
+        {% render 'cart-bubble', limit: 100 %}
+      </cart-icon>
     </a>
   {% endif %}
 
@@ -140,20 +144,35 @@
 
   .mobile-bottom-nav__action .svg-wrapper,
   .mobile-bottom-nav__action-inner .svg-wrapper {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
   }
 
   .mobile-bottom-nav__wishlist-count {
     position: absolute;
     top: 1px;
-    right: calc(50% - 19px);
+    inset-inline-end: calc(50% - 22px);
+    inset-inline-start: auto;
+    z-index: 5;
+    pointer-events: none;
   }
 
   .mobile-bottom-nav__action .svg-wrapper > svg,
   .mobile-bottom-nav__action-inner .svg-wrapper > svg {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .mobile-bottom-nav__cart .svg-wrapper,
+  search-button.mobile-bottom-nav__action .svg-wrapper {
+    width: 26px;
+    height: 26px;
+  }
+
+  .mobile-bottom-nav__cart .svg-wrapper > svg,
+  search-button.mobile-bottom-nav__action .svg-wrapper > svg {
+    width: 26px;
+    height: 26px;
   }
 
   .mobile-bottom-nav__label {
@@ -169,6 +188,10 @@
     overflow: visible;
   }
 
+  .mobile-bottom-nav__cart-icon {
+    display: contents;
+  }
+
   .mobile-bottom-nav__cart .svg-wrapper {
     overflow: visible;
   }
@@ -179,10 +202,13 @@
 
   .mobile-bottom-nav__cart .cart-bubble {
     position: absolute;
-    top: 0px;
-    right: calc(50% - 19px);
+    top: -3px;
+    inset-inline-end: calc(50% - 24px);
+    inset-inline-start: auto;
     width: 17px;
     height: 17px;
+    z-index: 1;
+    pointer-events: none;
   }
 
   .mobile-bottom-nav__cart .cart-bubble__background {

@@ -123,6 +123,13 @@
     endunless
   %}
 
+  @font-face {
+    font-family: 'Noto Kufi Arabic';
+    src: url('{{ 'NotoKufiArabic.ttf' | asset_url }}') format('truetype');
+    font-weight: 100 900;
+    font-display: swap;
+  }
+
   :root {
     /* Page Layout */
     --sidebar-width: 25rem;
@@ -679,6 +686,14 @@
     --cart-secondary-font-family: var(--font-{{ settings.cart_price_font }}--family);
     --cart-secondary-font-style: var(--font-{{ settings.cart_price_font }}--style);
     --cart-secondary-font-weight: var(--font-{{ settings.cart_price_font }}--weight);
+  }
+
+  /* Arabic-only font override: apply Noto Kufi Arabic when the page language is Arabic */
+  :root:lang(ar) {
+    --font-body--family: 'Noto Kufi Arabic', {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    --font-subheading--family: 'Noto Kufi Arabic', {{ settings.type_subheading_font.family }}, {{ settings.type_subheading_font.fallback_families }};
+    --font-heading--family: 'Noto Kufi Arabic', {{ settings.type_heading_font.family }}, {{ settings.type_heading_font.fallback_families }};
+    --font-accent--family: 'Noto Kufi Arabic', {{ settings.type_accent_font.family }}, {{ settings.type_accent_font.fallback_families }};
   }
 {% endstyle %}
 

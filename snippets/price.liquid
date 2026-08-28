@@ -98,7 +98,7 @@
           <span class="visually-hidden">{{ 'content.price_regular' | t }}&nbsp;</span>
           {{- compare_at_price -}}
           {% unless is_product_card %}
-            <span class="price-badge">-{{ discount_percentage }}%</span>
+            <span class="price-badge">{% if request.locale.iso_code == 'ar' %}وفر {{ discount_percentage | round }}%{% else %}Save {{ discount_percentage | round }}%{% endif %}</span>
           {% endunless %}
         </span>
       {% else %}
@@ -106,7 +106,7 @@
           <span class="visually-hidden">{{ 'content.price_regular' | t }}&nbsp;</span>
           {{- compare_at_price -}}
           {% unless is_product_card %}
-            <span class="price-badge">-{{ discount_percentage }}%</span>
+            <span class="price-badge">{% if request.locale.iso_code == 'ar' %}وفر {{ discount_percentage | round }}%{% else %}Save {{ discount_percentage | round }}%{% endif %}</span>
           {% endunless %}
         </span>
         <span class="price-item__group price">

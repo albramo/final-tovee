@@ -51,20 +51,22 @@
     transition-property: color, box-shadow, background-color, scale, translate;
     transition-duration: var(--animation-speed);
     transition-timing-function: var(--ease-out-cubic);
-
-    &:active {
-      scale: 0.99;
-      translate: 0 1px;
-    }
   }
 
-  .add-to-cart-button .add-to-cart-text {
+  .add-to-cart-button .add-to-cart-text,
+  .add-to-cart-button .add-to-cart-text__content {
     font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .add-to-cart-button .svg-wrapper svg {
+    stroke: currentColor;
+    stroke-width: 0.8px;
   }
 
   .add-to-cart-button .add-to-cart-icon {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
   }
 
   .add-to-cart-button .svg-wrapper .checkmark-burst {

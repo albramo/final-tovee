@@ -127,6 +127,7 @@
                         class="menu-drawer__menu-item menu-drawer__menu-item--mainlist menu-drawer__animated-element focus-inset"
                       >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: link.title %}</span>
                     </span>
                         <span class="svg-wrapper icon-plus">
@@ -170,6 +171,7 @@
                                 %}
                               {% endif %}
                               <span class="menu-drawer__menu-item-inner">
+                                {% render 'menu-link-icon', link_title: childlink.title %}
                                 <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: childlink.title %}</span>
                               </span>
                             </a>
@@ -195,6 +197,7 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
@@ -234,6 +237,7 @@
                             %}
                           {% endif %}
                           <span class="menu-drawer__menu-item-inner">
+                            {% render 'menu-link-icon', link_title: childlink.title %}
                             <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: childlink.title %}</span>
                           </span>
                         </a>
@@ -253,10 +257,11 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
-                {% endif %}
+                {%- endif -%}
               </li>
             {%- endfor -%}
           {% else %}
@@ -284,6 +289,7 @@
                       on:click="header-drawer/open/submenu"
                     >
                       <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{% render 'menu-link-title', link_title: link.title %}</span>
                       </span>
                       <span class="svg-wrapper icon-caret icon-caret--forward">
@@ -369,6 +375,7 @@
                                     %}
                                   {% endif %}
                                   <span class="menu-drawer__menu-item-inner">
+                                    {% render 'menu-link-icon', link_title: childlink.title %}
                                     <span class="menu-drawer__menu-item-text wrap-text">
                                       {{- childlink.title | escape -}}
                                     </span>
@@ -395,6 +402,7 @@
                                         class="menu-drawer__menu-item menu-drawer__menu-item--parent focus-inset"
                                       >
                                         <span class="menu-drawer__menu-item-inner">
+                                          {% render 'menu-link-icon', link_title: childlink.title %}
                                           <span class="menu-drawer__menu-item-text wrap-text">
                                             {{- childlink.title | escape -}}
                                           </span>
@@ -590,6 +598,7 @@
                     {% endif %}
                   >
                     <span class="menu-drawer__menu-item-inner">
+                      {% render 'menu-link-icon', link_title: link.title %}
                       <span class="menu-drawer__menu-item-text wrap-text">{{ link.title | escape }}</span>
                     </span>
                   </a>
@@ -614,54 +623,111 @@
             assign show_country = false
           endif
         %}
-        {% if data_header_drawer_type == 'mobile-drawer' and show_country or show_language %}
+        {% if data_header_drawer_type == 'mobile-drawer' %}
           {% liquid
-            assign localization_font = '--menu-localization-font: var(--font-[localization_font]--family); ' | replace: '[localization_font]', section.settings.localization_font
-            assign color_shadow = '--color-shadow: rgb(var(--color-foreground-rgb) / var(--opacity-10-25));'
-            assign form_style = localization_font | append: color_shadow
+            assign show_policies_drawer = false
+            if shop.policies.size > 0
+              assign show_policies_drawer = true
+            endif
+
+            if show_policies_drawer or show_country or show_language
+              assign localization_font = '--menu-localization-font: var(--font-[localization_font]--family); ' | replace: '[localization_font]', section.settings.localization_font
+              assign color_shadow = '--color-shadow: rgb(var(--color-foreground-rgb) / var(--opacity-10-25));'
+              assign form_style = localization_font | append: color_shadow
+            endif
           %}
           <div class="menu-drawer__localization menu-drawer__localization--rows">
-            {% if show_language %}
-              <details class="drawer-localization-row">
-                <summary class="drawer-localization-row__summary focus-inset">
-                  <span class="drawer-localization-row__value">{{ localization.language.endonym_name | capitalize }}</span>
-                  <span class="drawer-localization-row__icon drawer-localization-row__icon--plus" aria-hidden="true">
+            {%- comment -%} Terms & Policies collapsible — styled like product page accordion, above language {%- endcomment -%}
+            {% if show_policies_drawer %}
+              <details class="drawer-policies-row" data-policies-details>
+                <summary class="drawer-policies-row__summary focus-inset">
+                  <span class="drawer-policies-row__heading">{{ 'content.terms_and_policies' | t }}</span>
+                  <span class="svg-wrapper icon-plus" aria-hidden="true">
                     {{- 'icon-plus.svg' | inline_asset_content -}}
                   </span>
-                  <span class="drawer-localization-row__icon drawer-localization-row__icon--minus" aria-hidden="true">
-                    {{- 'icon-minus.svg' | inline_asset_content -}}
+                </summary>
+                <div class="drawer-policies-content-wrapper">
+                  <div class="drawer-policies-content-inner">
+                    <ul class="drawer-policies-list list-unstyled">
+                      {%- for policy in shop.policies -%}
+                        {%- if policy != blank -%}
+                          {% liquid
+                            assign display_title = policy.title
+                            if request.locale.iso_code == 'ar'
+                              assign lower_title = policy.title | downcase
+                              if lower_title == 'privacy policy'
+                                assign display_title = 'سياسة الخصوصية'
+                              elsif lower_title == 'terms of service' or lower_title == 'terms and conditions'
+                                assign display_title = 'شروط الخدمة'
+                              elsif lower_title == 'shipping policy'
+                                assign display_title = 'سياسة الشحن'
+                              elsif lower_title == 'refund policy' or lower_title == 'return policy'
+                                assign display_title = 'سياسة الاسترجاع'
+                              elsif lower_title contains 'contact'
+                                assign display_title = 'معلومات الاتصال'
+                              endif
+                            endif
+                          %}
+                          <li><a href="{{ policy.url }}" class="drawer-policies-link">{{ display_title | escape }}</a></li>
+                        {%- endif -%}
+                      {%- endfor -%}
+                      {% liquid
+                        assign has_contact = false
+                        for p in shop.policies
+                          if p.title contains 'Contact' or p.title contains 'contact' or p.title contains 'اتصال'
+                            assign has_contact = true
+                          endif
+                        endfor
+                      %}
+                      {% if has_contact == false %}
+                        {%- if pages['contact'] != blank -%}
+                          <li><a href="{{ pages['contact'].url }}" class="drawer-policies-link">{% if request.locale.iso_code == 'ar' %}معلومات الاتصال{% else %}Contact information{% endif %}</a></li>
+                        {%- endif -%}
+                      {% endif %}
+                    </ul>
+                  </div>
+                </div>
+              </details>
+            {% endif %}
+            {% if show_language %}
+              <details class="drawer-localization-row drawer-policies-row" data-policies-details>
+                <summary class="drawer-policies-row__summary focus-inset">
+                  <span class="drawer-policies-row__heading">{{ localization.language.endonym_name | capitalize }}</span>
+                  <span class="svg-wrapper icon-plus" aria-hidden="true">
+                    {{- 'icon-plus.svg' | inline_asset_content -}}
                   </span>
                 </summary>
-                <div class="drawer-localization-row__content">
-                  {% render 'localization-form',
-                    show_country: false,
-                    show_language: true,
-                    localization_style: 'drawer',
-                    form_style: form_style,
-                    form_id: block.id
-                  %}
+                <div class="drawer-policies-content-wrapper">
+                  <div class="drawer-policies-content-inner">
+                    {% render 'localization-form',
+                      show_country: false,
+                      show_language: true,
+                      localization_style: 'drawer',
+                      form_style: form_style,
+                      form_id: block.id
+                    %}
+                  </div>
                 </div>
               </details>
             {% endif %}
             {% if show_country %}
-              <details class="drawer-localization-row">
-                <summary class="drawer-localization-row__summary focus-inset">
-                  <span class="drawer-localization-row__value">{{ localization.country.currency.iso_code }}</span>
-                  <span class="drawer-localization-row__icon drawer-localization-row__icon--plus" aria-hidden="true">
+              <details class="drawer-localization-row drawer-policies-row" data-policies-details>
+                <summary class="drawer-policies-row__summary focus-inset">
+                  <span class="drawer-policies-row__heading">{{ localization.country.currency.iso_code }}</span>
+                  <span class="svg-wrapper icon-plus" aria-hidden="true">
                     {{- 'icon-plus.svg' | inline_asset_content -}}
                   </span>
-                  <span class="drawer-localization-row__icon drawer-localization-row__icon--minus" aria-hidden="true">
-                    {{- 'icon-minus.svg' | inline_asset_content -}}
-                  </span>
                 </summary>
-                <div class="drawer-localization-row__content">
-                  {% render 'localization-form',
-                    show_country: true,
-                    show_language: false,
-                    localization_style: 'drawer',
-                    form_style: form_style,
-                    form_id: block.id
-                  %}
+                <div class="drawer-policies-content-wrapper">
+                  <div class="drawer-policies-content-inner">
+                    {% render 'localization-form',
+                      show_country: true,
+                      show_language: false,
+                      localization_style: 'drawer',
+                      form_style: form_style,
+                      form_id: block.id
+                    %}
+                  </div>
                 </div>
               </details>
             {% endif %}
@@ -686,6 +752,66 @@
     ></div>
   </details>
 </header-drawer>
+
+<script>
+  (function () {
+    function bindPoliciesAccordion(root) {
+      root.querySelectorAll('.drawer-policies-row[data-policies-details]').forEach(function (details) {
+        if (details.dataset.policiesBound) return;
+        details.dataset.policiesBound = 'true';
+
+        var summary = details.querySelector('.drawer-policies-row__summary');
+        var wrapper = details.querySelector('.drawer-policies-content-wrapper');
+        if (!summary || !wrapper) return;
+
+        summary.addEventListener('click', function (e) {
+          e.preventDefault();
+
+          if (details.hasAttribute('data-open')) {
+            closeAccordion(details);
+          } else {
+            root.querySelectorAll('.drawer-policies-row[data-policies-details][data-open]').forEach(function (other) {
+              if (other !== details) closeAccordion(other);
+            });
+            openAccordion(details);
+          }
+        });
+
+        function openAccordion(d) {
+          var w = d.querySelector('.drawer-policies-content-wrapper');
+          d.setAttribute('open', '');
+          d.setAttribute('data-open', 'true');
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              w.style.gridTemplateRows = '1fr';
+              w.style.opacity = '1';
+            });
+          });
+        }
+
+        function closeAccordion(d) {
+          var w = d.querySelector('.drawer-policies-content-wrapper');
+          if (!w) {
+            d.removeAttribute('data-open');
+            d.removeAttribute('open');
+            return;
+          }
+          w.style.gridTemplateRows = '0fr';
+          w.style.opacity = '0';
+          d.removeAttribute('data-open');
+          setTimeout(function () {
+            if (!d.hasAttribute('data-open')) d.removeAttribute('open');
+          }, 460);
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      bindPoliciesAccordion(document);
+    });
+    if (document.readyState !== 'loading') bindPoliciesAccordion(document);
+  })();
+</script>
 
 {% stylesheet %}
   /* Menu button + icon */
@@ -721,6 +847,19 @@
     margin: auto;
     width: var(--icon-size-md);
     height: var(--icon-size-md);
+  }
+
+  /* تكبير أيقونة القائمة الجانبية على الهاتف */
+  @media screen and (max-width: 749px) {
+    .header__icon--summary .header-drawer-icon {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+
+    .header__icon--summary .header-drawer-icon svg {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
   }
 
   /* Hamburger → X icon swap animation */
@@ -830,10 +969,9 @@
 
   .menu-drawer__backdrop {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100dvh;
+    inset: 0;
+    width: auto;
+    height: auto;
     backdrop-filter: brightness(0.55) blur(2px);
     -webkit-backdrop-filter: brightness(0.55) blur(2px);
     z-index: var(--layer-overlay);
@@ -1137,36 +1275,51 @@
     }
   }
 
-  /* Floating close button: sits on the drawer's right edge (half on the drawer,
-     half outside), above the backdrop. Visible only while the drawer is open. */
+  /* Floating close button: برا القائمة خالص زي الصورة - فوق على الحافة - برغندي */
   .menu-drawer__close-button--fixed {
-    position: fixed;
-    top: calc(var(--padding-sm) + 4px);
-    left: min(var(--drawer-width), var(--drawer-max-width), 25rem);
-    translate: -50% 0;
-    z-index: calc(var(--layer-menu-drawer) + 2);
+    position: fixed !important;
+    top: 0 !important;
+    left: min(var(--drawer-width), var(--drawer-max-width), 25rem) !important;
+    translate: 0 0 !important;
+    z-index: calc(var(--layer-menu-drawer) + 2) !important;
     display: none;
-    border-radius: 0;
-    border: none;
-    background-color: #000000;
-    color: #ffffff;
-    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.35), 0 2px 8px rgb(0 0 0 / 0.3);
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 0 !important;
+    border: 2px solid #000000 !important;
+    background-color: #000000 !important;
+    background: #000000 !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
 
     .menu-open & {
-      display: flex;
+      display: flex !important;
       animation: menu-drawer-icon-in 0.25s var(--ease-out-cubic);
     }
 
     &:hover {
-      background-color: #333333;
-      transform: rotate(90deg);
+      background-color: #222222 !important;
+      background: #222222 !important;
+      border-color: #222222 !important;
+      transform: none !important;
+    }
+
+    & .header-drawer-icon--close,
+    & svg {
+      width: 26px !important;
+      height: 26px !important;
+      color: #ffffff !important;
+      stroke: #ffffff !important;
+      fill: #ffffff !important;
     }
   }
 
-  [dir="rtl"] .menu-drawer__close-button--fixed {
-    left: auto;
-    right: min(var(--drawer-width), var(--drawer-max-width), 25rem);
-    translate: 50% 0;
+  [dir="rtl"] .menu-drawer__close-button--fixed,
+  html[dir="rtl"] .menu-drawer__close-button--fixed,
+  header-drawer[dir="rtl"] .menu-drawer__close-button--fixed {
+    left: auto !important;
+    right: min(var(--drawer-width), var(--drawer-max-width), 25rem) !important;
+    translate: 0 0 !important;
   }
 
   .menu-drawer__header {
@@ -1456,6 +1609,115 @@
     padding-block-start: var(--padding-xs);
   }
 
+  /* ===== Drawer policies accordion — matches product page collapsible rows ===== */
+  .drawer-policies-row {
+    border: none;
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
+    margin-block: var(--padding-sm);
+    overflow: hidden;
+    padding-block-end: var(--padding-sm);
+  }
+
+  /* Single divider between stacked accordion rows (no doubled lines) */
+  .menu-drawer__localization--rows .drawer-localization-row + .drawer-localization-row {
+    border-block-start: none;
+    border-block-end: none;
+  }
+
+  .drawer-localization-row {
+    border-block-end: none;
+  }
+
+  .drawer-policies-row__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap-sm);
+    padding-block: var(--padding-md);
+    padding-inline: var(--drawer-padding);
+    cursor: pointer;
+    min-height: var(--minimum-touch-target);
+    list-style: none;
+    font-family: var(--font-body--family);
+    transition: background-color 0.2s ease;
+  }
+
+  .drawer-policies-row__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .drawer-policies-row__summary:hover {
+    background-color: rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  .drawer-policies-row__heading {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-foreground);
+  }
+
+  .drawer-policies-row .icon-plus {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    color: var(--color-foreground);
+    transition: transform 0.45s cubic-bezier(0.34, 1.3, 0.64, 1);
+  }
+
+  .drawer-policies-row[data-open='true'] .icon-plus {
+    transform: rotate(135deg);
+  }
+
+  .drawer-policies-row[data-open='true'] .drawer-policies-content-wrapper {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .drawer-policies-content-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition:
+      grid-template-rows 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.45s cubic-bezier(0.34, 1.2, 0.64, 1);
+  }
+
+  .drawer-policies-row[data-open='true'] .drawer-policies-content-wrapper {
+    transform: translateY(0);
+  }
+
+  .drawer-policies-content-inner {
+    overflow: hidden;
+  }
+
+  .drawer-policies-list {
+    margin: 0;
+    padding: 0 var(--drawer-padding) var(--padding-sm);
+    list-style: none;
+  }
+
+  .drawer-policies-list li + li {
+    border-block-start: 1px solid rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  .drawer-policies-link {
+    display: block;
+    padding: 11px 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: rgb(var(--color-foreground-rgb) / 0.78);
+    text-decoration: none;
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .drawer-policies-link:hover {
+    color: var(--color-foreground);
+    background-color: rgb(var(--color-foreground-rgb) / 0.05);
+  }
+
   .menu-drawer .drawer-localization-row__content .language-selector {
     width: 100%;
     padding-inline: 0;
@@ -1543,5 +1805,70 @@
 
   .menu-drawer .menu-drawer__menu-item:hover {
     background-color: rgb(var(--color-foreground-rgb) / 0.06);
+  }
+
+  /* Fix hover - يغطي المربع كامل بدون فراغات - كل الصفوف زي Home */
+  .menu-drawer__menu {
+    padding-inline: 0 !important;
+  }
+
+  .menu-drawer__menu > .menu-drawer__list-item {
+    min-height: unset !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-block-end: 1px solid rgb(var(--color-foreground-rgb) / 0.15) !important;
+  }
+
+  .menu-drawer__menu > .menu-drawer__list-item:last-child {
+    border-block-end: none !important;
+  }
+
+  .menu-drawer .menu-drawer__menu-item--mainlist,
+  .menu-drawer .menu-drawer__menu-item--parent,
+  .menu-drawer__menu > .menu-drawer__list-item .menu-drawer__menu-item {
+    min-height: 44px !important;
+    height: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    margin-inline: 0 !important;
+    padding-block: 8px !important;
+    padding-inline: var(--drawer-padding) !important;
+    box-sizing: border-box !important;
+    border-radius: 0 !important;
+  }
+
+  .menu-drawer__menu > .menu-drawer__list-item:hover,
+  .menu-drawer__menu > .menu-drawer__list-item .menu-drawer__menu-item:hover {
+    background-color: rgb(var(--color-foreground-rgb) / 0.08) !important;
+  }
+
+  .menu-drawer__menu > .menu-drawer__list-item:hover .menu-drawer__menu-item {
+    background-color: transparent !important;
+  }
+
+  /* ضمان كل الصفوف نفس الارتفاع - shop/Contact/Blogs زي Home */
+  .menu-drawer .menu-drawer__menu-item,
+  .menu-drawer .menu-drawer__menu-item--mainlist,
+  .menu-drawer .menu-drawer__menu-item--parent,
+  .menu-drawer .menu-drawer__menu-item--child,
+  .menu-drawer__menu .menu-drawer__menu-item {
+    min-height: 44px !important;
+    padding-block: 8px !important;
+  }
+
+  /* Drawer menu icons (Tovee) */
+  .menu-drawer .menu-link-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--color-foreground);
+    margin-inline-end: 10px;
+  }
+
+  .menu-drawer .menu-drawer__menu-item-inner {
+    display: flex;
+    align-items: center;
+    gap: 0;
   }
 {% endstylesheet %}

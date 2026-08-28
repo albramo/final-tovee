@@ -258,13 +258,18 @@
               {% endif %}
               data-value="{{ language.iso_code }}"
               role="option"
-              tabindex="0"
-              on:click="/selectLanguage/{{ language.iso_code }}"
             >
-              <span class="svg-wrapper icon-checkmark">
-                {{- 'icon-checkmark.svg' | inline_asset_content -}}
-              </span>
-              <span class="language-name">{{ language.endonym_name | default: language.name | capitalize }}</span>
+              <button
+                type="button"
+                class="button-unstyled language-option-item__btn"
+                on:click="/selectLanguage/{{ language.iso_code }}"
+                aria-label="{{ language.endonym_name | default: language.name }}"
+              >
+                <span class="svg-wrapper icon-checkmark">
+                  {{- 'icon-checkmark.svg' | inline_asset_content -}}
+                </span>
+                <span class="language-name">{{ language.endonym_name | default: language.name | capitalize }}</span>
+              </button>
             </li>
           {%- endfor -%}
         </ul>
@@ -339,8 +344,8 @@
   }
 
   localization-form-component .country-filter__search-icon {
-    left: 8px;
-    right: auto;
+    inset-inline-start: 8px;
+    inset-inline-end: auto;
     color: var(--color-foreground-muted);
     pointer-events: none;
   }
@@ -503,20 +508,17 @@
   }
 
   .localization-form__list--language .language-option-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
+    display: block;
+    padding: 0;
     border-radius: 8px;
     font-size: 0.9rem;
     font-weight: 500;
     color: var(--color-foreground);
-    cursor: pointer;
     transition: background-color var(--animation-speed) var(--animation-easing), color var(--animation-speed) var(--animation-easing);
   }
 
   .localization-form__list--language .language-option-item:hover,
-  .localization-form__list--language .language-option-item:focus {
+  .localization-form__list--language .language-option-item:focus-within {
     background-color: rgb(var(--color-foreground-rgb) / 0.06);
   }
 
@@ -540,6 +542,25 @@
   .localization-form__list--language .language-option-item[aria-current='true'] .svg-wrapper.icon-checkmark,
   .localization-form__list--language .language-option-item.is-active .svg-wrapper.icon-checkmark {
     visibility: visible;
+  }
+
+  .language-option-item__btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: start;
+  }
+
+  [dir="rtl"] .language-option-item__btn {
+    direction: rtl;
   }
 
   .language-selector--collapse-space {
@@ -584,7 +605,7 @@
 
   .country-filter .field__label {
     font-size: var(--font-size-lg);
-    left: var(--margin-2xl);
+    inset-inline-start: var(--margin-2xl);
     top: var(--margin-xl);
     pointer-events: none;
     position: absolute;
@@ -602,7 +623,7 @@
     height: fit-content;
     position: absolute;
     padding: 0;
-    right: 8px;
+    inset-inline-end: 8px;
     top: 50%;
     transform: translateY(-50%);
     align-items: center;

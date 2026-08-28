@@ -1531,6 +1531,23 @@
       },
       {
         "type": "checkbox",
+        "id": "show_free_shipping_bar",
+        "label": "Show free shipping progress bar / إظهار شريط الشحن المجاني",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "free_shipping_threshold",
+        "label": "Free shipping minimum amount (EGP) / الحد الأدنى للشحن المجاني (جنيه)",
+        "info": "The amount the customer needs to spend for free shipping / المبلغ اللي لازم العميل يطلبه عشان ياخد شحن مجاني",
+        "min": 100,
+        "max": 5000,
+        "step": 50,
+        "unit": "EG",
+        "default": 600
+      },
+      {
+        "type": "checkbox",
         "id": "show_cart_note",
         "label": "t:settings.seller_note",
         "default": false

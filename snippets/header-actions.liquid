@@ -63,80 +63,51 @@
   {% endif %}
   {{- block.shopify_attributes -}}
 >
-  {% comment %} Mobile Order: 1. Cart  2. Search  3. Language {% endcomment %}
-
-  {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
-    <button
-      class="header-actions__action button-unstyled{% if display_style == 'text' %} header-actions__text-style{% endif %}"
-      on:click="#cart-drawer/toggle"
-      aria-haspopup="dialog"
-      aria-expanded="false"
-      aria-controls="cart-drawer"
-      aria-label="{{ 'accessibility.cart' | t }}"
-      aria-describedby="cart-bubble-text"
-      data-testid="cart-drawer-trigger"
-    >
-      {{ cart_icon }}
-    </button>
-  {% else %}
-    <a
-      href="{{ routes.cart_url }}"
-      class="header-actions__action action__cart{% if display_style == 'text' %} header-actions__text-style{% endif %}"
-      aria-label="{{ 'accessibility.cart' | t }}"
-      aria-describedby="cart-bubble-text"
-    >
-      {{ cart_icon }}
-    </a>
-  {% endif %}
-
-  {% assign show_mobile_search = section.settings.show_search %}
-  {% if show_mobile_search == nil %}
-    {% assign show_mobile_search = true %}
-  {% endif %}
-  {% if show_mobile_search %}
-    <search-button class="header-actions__mobile-search search-action desktop:hidden">
-      <button
-        on:click="#search-modal/showDialog"
-        class="button-unstyled header-actions__action"
-        aria-label="{{ 'content.search_input_label' | t }}"
-        aria-haspopup="dialog"
-      >
-        <span class="svg-wrapper">
-          {{ 'icon-search.svg' | inline_asset_content }}
-        </span>
-      </button>
-    </search-button>
-  {% endif %}
+  {% comment %} Reversed Order (Cart at outer edge): 1. Account  2. Language  3. Search  4. Wishlist  5. Cart {% endcomment %}
 
   {%- if localization.available_languages.size > 1 -%}
     <div class="header-actions__lang-wrapper">
-      <localization-form-component>
-        {%- form 'localization', id: 'HeaderMobileLanguageForm', class: 'header-actions__lang-form' -%}
-          <div class="header-actions__lang-select-container">
-            <select
-              name="locale_code"
-              class="header-actions__lang-select"
-              onchange="this.form.submit()"
-              aria-label="{{ 'accessibility.localization_region_and_language' | t }}"
-            >
-              {%- for language in localization.available_languages -%}
-                <option
-                  value="{{ language.iso_code }}"
-                  {% if language.iso_code == localization.language.iso_code %}selected{% endif %}
-                >
-                  {{ language.endonym_name | default: language.name | capitalize }}
-                </option>
-              {%- endfor -%}
-            </select>
-            <span class="header-actions__lang-badge">
-              {% if localization.language.iso_code contains 'ar' %}AR{% else %}EN{% endif %}
-            </span>
-            <span class="svg-wrapper header-actions__lang-caret" aria-hidden="true">
-              {{- 'icon-caret.svg' | inline_asset_content -}}
-            </span>
-          </div>
-        {%- endform -%}
-      </localization-form-component>
+      <dropdown-localization-component>
+        <button
+          type="button"
+          class="button-unstyled header-actions__lang-select-container"
+          aria-expanded="false"
+          aria-haspopup="true"
+          ref="button"
+          on:click="/toggleSelector"
+        >
+          <span class="svg-wrapper header-actions__lang-globe" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+          </span>
+          <span class="header-actions__lang-badge desktop:hidden">
+            {% if localization.language.iso_code contains 'ar' %}AR{% else %}EN{% endif %}
+          </span>
+          <span class="header-actions__lang-name mobile:hidden">
+            {{ localization.language.endonym_name | default: localization.language.name | capitalize }}
+          </span>
+          <span class="svg-wrapper header-actions__lang-caret" aria-hidden="true">
+            {{- 'icon-caret.svg' | inline_asset_content -}}
+          </span>
+        </button>
+
+        <div
+          class="localization-wrapper header-actions__lang-popover color-custom-popover"
+          hidden
+          ref="panel"
+        >
+          {% render 'localization-form',
+            show_country: false,
+            show_language: true,
+            localization_style: 'dropdown',
+            form_id: 'HeaderActionsLang',
+            back: request.path
+          %}
+        </div>
+      </dropdown-localization-component>
     </div>
   {%- endif -%}
 
@@ -190,8 +161,27 @@
     </div>
   {% endif %}
 
+  {% assign show_mobile_search = section.settings.show_search %}
+  {% if show_mobile_search == nil %}
+    {% assign show_mobile_search = true %}
+  {% endif %}
+  {% if show_mobile_search %}
+    <search-button class="header-actions__mobile-search search-action">
+      <button
+        on:click="#search-modal/showDialog"
+        class="button-unstyled header-actions__action"
+        aria-label="{{ 'content.search_input_label' | t }}"
+        aria-haspopup="dialog"
+      >
+        <span class="svg-wrapper">
+          {{ 'icon-search.svg' | inline_asset_content }}
+        </span>
+      </button>
+    </search-button>
+  {% endif %}
+
   <button
-    class="header-actions__action button-unstyled header-actions__wishlist-btn"
+    class="header-actions__action button-unstyled header-actions__wishlist-btn mobile:hidden"
     onclick="window.wishlistDrawer && window.wishlistDrawer.open()"
     aria-label="Wishlist"
   >
@@ -202,6 +192,30 @@
     </span>
     <span class="wishlist-count-badge header-actions__wishlist-count" data-wishlist-count hidden></span>
   </button>
+
+  {% if settings.cart_type == 'drawer' and template.name != 'cart' %}
+    <button
+      class="header-actions__action button-unstyled{% if display_style == 'text' %} header-actions__text-style{% endif %}"
+      on:click="#cart-drawer/toggle"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+      aria-controls="cart-drawer"
+      aria-label="{{ 'accessibility.cart' | t }}"
+      aria-describedby="cart-bubble-text"
+      data-testid="cart-drawer-trigger"
+    >
+      {{ cart_icon }}
+    </button>
+  {% else %}
+    <a
+      href="{{ routes.cart_url }}"
+      class="header-actions__action action__cart{% if display_style == 'text' %} header-actions__text-style{% endif %}"
+      aria-label="{{ 'accessibility.cart' | t }}"
+      aria-describedby="cart-bubble-text"
+    >
+      {{ cart_icon }}
+    </a>
+  {% endif %}
 
   <span
     ref="liveRegion"
@@ -286,10 +300,12 @@
 
   header-actions {
     display: flex;
+    align-items: center;
+    gap: 1.25rem;
 
     @media screen and (max-width: 749px) {
       justify-self: flex-end;
-      gap: var(--gap-xs);
+      gap: 0.15rem;
     }
   }
 
@@ -345,50 +361,57 @@
   }
 
   .header-actions__cart-icon {
-    --cart-bubble-size: 20px;
-    --cart-bubble-top: 4.5px;
-    --cart-bubble-right: 2.5px;
-
     position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
   }
 
   .header-actions__cart-icon .svg-wrapper {
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 100%;
+    height: 100%;
+    flex-shrink: 0;
 
     & > svg {
-      width: 1.5rem;
-      height: 1.5rem;
+      width: 1.75rem;
+      height: 1.75rem;
     }
   }
 
   .header-actions__cart-icon .cart-bubble {
     position: absolute;
-    width: var(--cart-bubble-size, 20px);
-    top: var(--cart-bubble-top);
-    right: var(--cart-bubble-right);
+    width: 17px;
+    height: 17px;
+    top: -5px;
+    inset-inline-end: -8px;
+    inset-inline-start: auto;
+    transform: none;
+    z-index: 5;
+    pointer-events: none;
   }
 
-  @media screen and (min-width: 750px) {
-    .header-actions__cart-icon--text.header-actions__cart-icon .cart-bubble {
-      position: relative;
-      top: 0;
-    }
+  /* Never clip the cart bubble poking out of the icon corner */
+  header-actions,
+  header-actions .header-actions__action,
+  .header-actions__cart-icon {
+    overflow: visible !important;
   }
 
   .header-actions__cart-icon .cart-bubble__text {
+    font-size: 0.5625rem;
     font-family: var(--font-paragraph--family);
     font-weight: var(--font-paragraph--weight);
   }
 
+  .header-actions__cart-icon .cart-bubble__background {
+    border-radius: 50%;
+  }
+
   .header-actions__cart-icon.header-actions__cart-icon--has-cart svg {
-    /* Create donut mask where the cart bubble sits */
-    mask: radial-gradient(
-      calc(var(--cart-bubble-size) + 2px) at calc(100% - var(--cart-bubble-right)) var(--cart-bubble-top),
-      transparent 45.45%,
-      #fff 45.45%,
-      #fff 100%
-    );
+    mask: none !important;
+    -webkit-mask: none !important;
   }
 
   .cart-bubble.cart-bubble--animating .cart-bubble__background {
@@ -405,89 +428,196 @@
   }
 
   cart-icon:has(.cart-bubble__text-count:empty) {
-    --cart-bubble-size: 10px;
-    --cart-bubble-top: 9px;
-    --cart-bubble-right: 9px;
-
-    .svg-wrapper {
-      --cart-bubble-top: 4px;
-      --cart-bubble-right: 4px;
-    }
-  }
-
-  @media screen and (min-width: 750px) {
-    cart-icon.header-actions__cart-icon--text:has(.cart-bubble__text-count:empty) {
-      --cart-bubble-right: 2.5px;
+    .cart-bubble {
+      width: 10px;
+      height: 10px;
+      top: -2px;
+      inset-inline-end: -4px;
+      inset-inline-start: auto;
+      transform: none;
     }
   }
 
   .header-actions__lang-wrapper {
     display: flex;
     align-items: center;
-    margin-inline-end: 6px;
-    margin-inline-start: 2px;
+  }
 
-    @media screen and (min-width: 750px) {
-      display: none !important;
-    }
+  dropdown-localization-component {
+    position: relative;
+    display: flex;
+    align-items: center;
   }
 
   .header-actions__lang-select-container {
     position: relative;
     display: inline-flex;
     align-items: center;
-    background-color: rgb(var(--color-foreground-rgb) / 0.06);
-    border: none;
-    border-radius: 6px;
-    padding: 5px 20px 5px 8px;
+    justify-content: center;
+    gap: 6px;
+    background-color: rgb(var(--color-foreground-rgb) / 0.05);
+    border: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
+    border-radius: 20px;
+    padding: 5px 12px;
+    height: 34px;
     cursor: pointer;
-    transition: background-color var(--animation-speed) var(--animation-easing);
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    .header-actions__lang-select-container {
+      padding: 3px 8px;
+      height: 30px;
+      gap: 4px;
+    }
   }
 
   .header-actions__lang-select-container:hover {
     background-color: rgb(var(--color-foreground-rgb) / 0.1);
+    border-color: rgb(var(--color-foreground-rgb) / 0.3);
   }
 
-  .header-actions__lang-select {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-    z-index: 2;
-    appearance: none;
-    -webkit-appearance: none;
-  }
-
-  .header-actions__lang-badge {
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: var(--color-foreground);
-    line-height: 1;
-    pointer-events: none;
-    letter-spacing: 0.03em;
-  }
-
-  .header-actions__lang-caret {
-    position: absolute;
-    right: 5px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 8px;
-    height: 8px;
-    color: var(--color-foreground);
-    pointer-events: none;
+  .header-actions__lang-globe {
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.5;
+    width: 14px;
+    height: 14px;
+    color: var(--color-foreground);
+    opacity: 0.8;
+  }
+
+  .header-actions__lang-globe svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .header-actions__lang-badge,
+  .header-actions__lang-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-foreground);
+    line-height: 1;
+    letter-spacing: 0.03em;
+  }
+
+  .header-actions__lang-badge {
+    text-transform: uppercase;
+  }
+
+  .header-actions__lang-caret {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 8px;
+    height: 8px;
+    color: var(--color-foreground);
+    opacity: 0.6;
+    transition: transform 0.2s ease;
   }
 
   .header-actions__lang-caret svg {
     width: 8px;
     height: 8px;
+  }
+
+  .header-actions__lang-select-container[aria-expanded='true'] .header-actions__lang-caret {
+    transform: rotate(180deg);
+  }
+
+  .header-actions__lang-popover {
+    position: absolute;
+    top: calc(100% + 6px);
+    inset-inline-start: 0;
+    min-width: 140px;
+    background-color: #ffffff !important;
+    color: #222222;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    z-index: 100;
+    overflow: hidden;
+    padding: 6px 4px;
+    text-align: start;
+  }
+
+  [dir="rtl"] .header-actions__lang-popover,
+  html[dir="rtl"] .header-actions__lang-popover {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+    text-align: right;
+  }
+
+  .header-actions__lang-popover .language-selector {
+    padding: 0 !important;
+  }
+
+  .header-actions__lang-popover .localization-form__list--language {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .header-actions__lang-popover .language-option-item {
+    display: block;
+    padding: 0;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+    background: transparent !important;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #333333;
+    transition: color 0.2s ease;
+  }
+
+  .header-actions__lang-popover .language-option-item__btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    text-align: start;
+    justify-content: flex-start;
+  }
+
+  [dir="rtl"] .header-actions__lang-popover .language-option-item {
+    direction: rtl;
+    text-align: right;
+  }
+
+  .header-actions__lang-popover .language-option-item:hover,
+  .header-actions__lang-popover .language-option-item:focus-within,
+  .header-actions__lang-popover .language-option-item__btn:hover,
+  .header-actions__lang-popover .language-option-item__btn:focus {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: #800020 !important;
+  }
+
+  .header-actions__lang-popover .language-option-item.is-active,
+  .header-actions__lang-popover .language-option-item[aria-current='true'] {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: #800020 !important;
+    font-weight: 700;
+  }
+
+  .header-actions__lang-popover .language-option-item .svg-wrapper.icon-checkmark,
+  .header-actions__lang-popover .language-option-item .icon-checkmark {
+    width: 14px;
+    height: 14px;
+    color: #800020 !important;
+    fill: #800020 !important;
   }
 
   .header-actions__text {
@@ -504,6 +634,39 @@
 
     .header__column--right .header-actions--text {
       margin-inline-start: 0;
+    }
+  }
+
+  /* Mobile: push cart icon away from edge & enlarge cart + search icons */
+  @media screen and (max-width: 749px) {
+    header-actions {
+      /* 3px gap + 8px bubble overhang keeps the badge fully visible off the screen edge */
+      padding-inline-end: 11px;
+    }
+
+    .header-actions__cart-icon {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .header-actions__cart-icon .svg-wrapper {
+      width: 2rem;
+      height: 2rem;
+
+      & > svg {
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+
+    .header-actions__mobile-search .svg-wrapper {
+      width: 2rem;
+      height: 2rem;
+
+      & > svg {
+        width: 2rem;
+        height: 2rem;
+      }
     }
   }
 {% endstylesheet %}

@@ -1,0 +1,164 @@
+{%- doc -%}
+  Renders an SVG icon for a menu link, picked from the theme icon library
+  based on keywords in the link title (English + Arabic).
+  The 'home' keyword renders a custom house icon (24x24).
+  @param {string} link_title - The title of the menu link
+  @param {boolean} [show_default] - Whether to render the default arrow icon when no keyword matches (default true)
+{%- enddoc -%}
+
+{%- liquid
+  assign title = link_title | default: '' | downcase | strip
+
+  if show_default == nil
+    assign show_default = true
+  endif
+
+  if title contains '[' and title contains ']'
+    assign title_parts = title | split: '['
+    assign title = ''
+    for part in title_parts
+      assign clean_part = part | split: ']' | last
+      assign title = title | append: clean_part
+    endfor
+    assign title = title | strip | replace: '  ', ' '
+  endif
+
+  assign icon_name = 'arrow'
+-%}
+
+{%- if title contains 'home' or title contains 'الرئيسية' or title contains 'الرئيسيه' -%}
+  {%- assign icon_name = 'home' -%}
+{%- elsif title contains 'sale' or title contains 'offer' or title contains 'deal' or title contains 'discount' or title contains 'تخفيضات' or title contains 'عروض' or title contains 'خصومات' or title contains 'اوفر' -%}
+  {%- assign icon_name = 'price_tag' -%}
+{%- elsif title contains 'wishlist' or title contains 'favorite' or title contains 'favourite' or title contains 'مفضلة' or title contains 'المفضلة' or title contains 'مفضلتي' or title contains 'هدية' or title contains 'هدايا' -%}
+  {%- assign icon_name = 'heart' -%}
+{%- elsif title contains 'best' or title contains 'top' or title contains 'hot' or title contains 'الأكثر مبيعا' or title contains 'الأكثر مبيعاً' -%}
+  {%- assign icon_name = 'fire' -%}
+{%- elsif title contains 'new' or title contains 'arrival' or title contains 'جديد' or title contains 'وصل حديثا' or title contains 'وصل حديثاً' -%}
+  {%- assign icon_name = 'star' -%}
+{%- elsif title contains 'skin' or title contains 'care' or title contains 'body' or title contains 'health' or title contains 'بشرة' or title contains 'عناية' or title contains 'صحة' -%}
+  {%- assign icon_name = 'leaf' -%}
+{%- elsif title contains 'perfume' or title contains 'عطر' or title contains 'عطور' -%}
+  {%- assign icon_name = 'perfume' -%}
+{%- elsif title contains 'shop' or title contains 'store' or title contains 'product' or title contains 'catalog' or title contains 'تسوق' or title contains 'متجر' or title contains 'منتجات' or title contains 'المنتجات' -%}
+  {%- assign icon_name = 'shop' -%}
+{%- elsif title contains 'collection' or title contains 'category' or title contains 'مجموعات' or title contains 'التصنيفات' or title contains 'الفئات' or title contains 'أقسام' or title contains 'اقسام' -%}
+  {%- assign icon_name = 'box' -%}
+{%- elsif title contains 'wholesale' or title contains 'bulk' or title contains 'جملة' or title contains 'بالجملة' -%}
+  {%- assign icon_name = 'box' -%}
+{%- elsif title contains 'about' or title contains 'story' or title contains 'من نحن' or title contains 'قصتنا' or title contains 'حول' -%}
+  {%- assign icon_name = 'silhouette' -%}
+{%- elsif title contains 'account' or title contains 'login' or title contains 'sign in' or title contains 'حسابي' or title contains 'حساب' or title contains 'تسجيل الدخول' -%}
+  {%- assign icon_name = 'silhouette' -%}
+{%- elsif title contains 'contact' or title contains 'تواصل' or title contains 'اتصل' -%}
+  {%- assign icon_name = 'contact' -%}
+{%- elsif title contains 'blog' or title contains 'news' or title contains 'journal' or title contains 'مدونة' or title contains 'أخبار' -%}
+  {%- assign icon_name = 'blog' -%}
+{%- elsif title contains 'ship' or title contains 'deliver' or title contains 'track' or title contains 'شحن' or title contains 'توصيل' or title contains 'تتبع' -%}
+  {%- assign icon_name = 'truck' -%}
+{%- elsif title contains 'return' or title contains 'refund' or title contains 'إرجاع' or title contains 'استرجاع' or title contains 'مرتجعات' -%}
+  {%- assign icon_name = 'return' -%}
+{%- elsif title contains 'help' or title contains 'faq' or title contains 'support' or title contains 'question' or title contains 'مساعدة' or title contains 'أسئلة' or title contains 'الدعم' -%}
+  {%- assign icon_name = 'question_mark' -%}
+{%- endif -%}
+
+{%- if icon_name == 'arrow' and show_default == false -%}
+  {%- assign icon_name = 'none' -%}
+{%- endif -%}
+
+{%- unless icon_name == 'none' -%}
+  {%- if icon_name == 'home' -%}
+    <svg
+      class="menu-link-icon menu-link-icon--wide menu-link-icon--lg"
+      aria-hidden="true"
+      focusable="false"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M21.4498 10.275L11.9998 3.1875L2.5498 10.275L2.9998 11.625H3.7498V20.25H20.2498V11.625H20.9998L21.4498 10.275ZM5.2498 18.75V10.125L11.9998 5.0625L18.7498 10.125V18.75H14.9999V14.3333L14.2499 13.5833H9.74988L8.99988 14.3333V18.75H5.2498ZM10.4999 18.75H13.4999V15.0833H10.4999V18.75Z"
+        fill="currentColor"
+      ></path>
+    </svg>
+  {%- elsif icon_name == 'shop' -%}
+    <svg
+      class="menu-link-icon menu-link-icon--wide"
+      aria-hidden="true"
+      focusable="false"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+    >
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M8 1C9.65685 1 11 2.34315 11 4V8C11 9.65685 9.65685 11 8 11H4C2.34315 11 1 9.65685 1 8V4C1 2.34315 2.34315 1 4 1H8ZM8 3C8.55228 3 9 3.44772 9 4V8C9 8.55228 8.55228 9 8 9H4C3.44772 9 3 8.55228 3 8V4C3 3.44772 3.44772 3 4 3H8Z"
+        fill="currentColor"
+      ></path>
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M8 13C9.65685 13 11 14.3431 11 16V20C11 21.6569 9.65685 23 8 23H4C2.34315 23 1 21.6569 1 20V16C1 14.3431 2.34315 13 4 13H8ZM8 15C8.55228 15 9 15.4477 9 16V20C9 20.5523 8.55228 21 8 21H4C3.44772 21 3 20.5523 3 20V16C3 15.4477 3.44772 15 4 15H8Z"
+        fill="currentColor"
+      ></path>
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M23 4C23 2.34315 21.6569 1 20 1H16C14.3431 1 13 2.34315 13 4V8C13 9.65685 14.3431 11 16 11H20C21.6569 11 23 9.65685 23 8V4ZM21 4C21 3.44772 20.5523 3 20 3H16C15.4477 3 15 3.44772 15 4V8C15 8.55228 15.4477 9 16 9H20C20.5523 9 21 8.55228 21 8V4Z"
+        fill="currentColor"
+      ></path>
+      <path
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+        d="M20 13C21.6569 13 23 14.3431 23 16V20C23 21.6569 21.6569 23 20 23H16C14.3431 23 13 21.6569 13 20V16C13 14.3431 14.3431 13 16 13H20ZM20 15C20.5523 15 21 15.4477 21 16V20C21 20.5523 20.5523 21 20 21H16C15.4477 21 15 20.5523 15 20V16C15 15.4477 15.4477 15 16 15H20Z"
+        fill="currentColor"
+      ></path>
+    </svg>
+  {%- elsif icon_name == 'contact' -%}
+    <svg
+      class="menu-link-icon menu-link-icon--wide menu-link-icon--stroke"
+      aria-hidden="true"
+      focusable="false"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M18 9V7.2C18 6.0799 18 5.51984 17.782 5.09202C17.5903 4.71569 17.2843 4.40973 16.908 4.21799C16.4802 4 15.9201 4 14.8 4H7.2C6.0799 4 5.51984 4 5.09202 4.21799C4.71569 4.40973 4.40973 4.71569 4.21799 5.09202C4 5.51984 4 6.0799 4 7.2V18L8 16M20 20L17.8062 18.5374C17.5065 18.3377 17.3567 18.2378 17.1946 18.167C17.0507 18.1042 16.9 18.0586 16.7454 18.031C16.5713 18 16.3912 18 16.0311 18H11.2C10.0799 18 9.51984 18 9.09202 17.782C8.71569 17.5903 8.40973 17.2843 8.21799 16.908C8 16.4802 8 15.9201 8 14.8V12.2C8 11.0799 8 10.5198 8.21799 10.092C8.40973 9.71569 8.71569 9.40973 9.09202 9.21799C9.51984 9 10.0799 9 11.2 9H16.8C17.9201 9 18.4802 9 18.908 9.21799C19.2843 9.40973 19.5903 9.71569 19.782 10.092C20 10.5198 20 11.0799 20 12.2V20Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+    </svg>
+  {%- elsif icon_name == 'blog' -%}
+    <svg
+      class="menu-link-icon menu-link-icon--wide menu-link-icon--stroke"
+      aria-hidden="true"
+      focusable="false"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M18.3282 8.32837L15.8939 5.89405C14.7058 4.706 14.1118 4.11198 13.4268 3.88941C12.8243 3.69364 12.1752 3.69364 11.5727 3.88941C10.8877 4.11198 10.2937 4.706 9.10564 5.89405L7.49975 7.49994M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+    </svg>
+  {%- else -%}
+    <svg
+      class="menu-link-icon"
+      aria-hidden="true"
+      focusable="false"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      {%- render 'icon', icon: icon_name -%}
+    </svg>
+  {%- endif -%}
+{%- endunless -%}
