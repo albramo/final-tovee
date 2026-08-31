@@ -9,202 +9,140 @@
  */
 {
   "sections": {
-    "hero_slider_main": {
-      "type": "hero-slider",
+    "slideshow": {
+      "type": "slideshow",
       "blocks": {
-        "slide_1": {
-          "type": "slide",
-          "settings": {
-            "description": "",
-            "button_label": "Shop Now",
-            "button_link": "shopify://collections/all"
-          }
-        },
-        "slide_2": {
-          "type": "slide",
-          "settings": {
-            "description": "",
-            "button_label": "Shop Now",
-            "button_link": "shopify://collections/all"
-          }
-        }
-      },
-      "block_order": [
-        "slide_1",
-        "slide_2"
-      ],
-      "settings": {
-        "autoplay": true,
-        "autoplay_speed": 5
-      }
-    },
-    "shop_by_category_main": {
-      "type": "shop-by-category",
-      "settings": {
-        "title": "Shop by Category",
-        "section_width": "page-width",
-        "padding_top": 40,
-        "padding_bottom": 40
-      }
-    },
-    "products_tabs_bULwiN": {
-      "type": "products-tabs",
-      "blocks": {
-        "product_tab_mbYpGc": {
-          "type": "product-tab",
-          "settings": {
-            "tab_title": "Best Sellers",
-            "tab_icon": "star",
-            "collection": "best-sellers",
-            "products_limit": 8
-          }
-        },
-        "product_tab_V9HpkB": {
-          "type": "product-tab",
-          "settings": {
-            "tab_title": "All Products",
-            "tab_icon": "grid",
-            "collection": "",
-            "products_limit": 12
-          }
-        },
-        "product_tab_mccEkx": {
-          "type": "product-tab",
-          "settings": {
-            "tab_title": "New Arrivals",
-            "tab_icon": "sparkles",
-            "collection": "",
-            "products_limit": 8
-          }
-        }
-      },
-      "block_order": [
-        "product_tab_mbYpGc",
-        "product_tab_V9HpkB",
-        "product_tab_mccEkx"
-      ],
-      "name": "Products Tabs",
-      "settings": {
-        "section_title": "Our Products",
-        "tabs_alignment": "center",
-        "tab_gap": 4,
-        "tab_font_size": 14,
-        "tab_padding_x": 12,
-        "tab_padding_y": 9,
-        "tab_radius": 25,
-        "tab_color": "#555555",
-        "tab_border_color": "#dddddd",
-        "tab_hover_color": "#333333",
-        "tab_active_bg": "#333333",
-        "tab_active_fg": "#ffffff",
-        "show_arrows_mobile": true,
-        "show_arrows_desktop": false,
-        "arrow_size": 28,
-        "arrow_offset_x": 0,
-        "arrow_tab_gap": 2,
-        "arrow_radius": 50,
-        "arrow_bg": "#333333",
-        "arrow_hover_bg": "#111111",
-        "arrow_fg": "#ffffff",
-        "card_columns": "auto"
-      }
-    },
-    "trust_usps_main": {
-      "type": "trust-usps",
-      "blocks": {
-        "usp_shipping": {
-          "type": "usp",
-          "settings": {
-            "icon": "truck",
-            "label": "Free Shipping",
-            "description": "Free shipping on all orders"
-          }
-        },
-        "usp_checkout": {
-          "type": "usp",
-          "settings": {
-            "icon": "lock",
-            "label": "Secure Checkout",
-            "description": "100% secure payment"
-          }
-        },
-        "usp_returns": {
-          "type": "usp",
-          "settings": {
-            "icon": "return",
-            "label": "Easy Returns",
-            "description": "30-day return policy"
-          }
-        },
-        "usp_support": {
-          "type": "usp",
-          "settings": {
-            "icon": "chat_bubble",
-            "label": "24/7 Support",
-            "description": "We're here to help"
-          }
-        }
-      },
-      "block_order": [
-        "usp_shipping",
-        "usp_checkout",
-        "usp_returns",
-        "usp_support"
-      ],
-      "settings": {
-        "title": "",
-        "subtitle": "",
-        "section_width": "page-width",
-        "background_color": "#f5f5f5",
-        "items_per_row": "4",
-        "padding_top": 20,
-        "padding_bottom": 40
-      }
-    },
-    "image_gallery_main": {
-      "type": "image-gallery",
-      "blocks": {
-        "image_1": {
+        "image-1": {
           "type": "image",
           "settings": {
-            "heading": "",
-            "text": "",
-            "link": "shopify://products/plain-short-sleeve-t-shirt"
+            "heading": "Image slide",
+            "heading_size": "title-lg tracking-heading",
+            "heading_tag": "h2",
+            "button_label": "",
+            "button_link": "",
+            "button_style": "primary",
+            "button_external": false,
+            "button_icon": false
+          }
+        },
+        "image-2": {
+          "type": "image",
+          "settings": {
+            "heading": "Image slide",
+            "heading_size": "title-lg tracking-heading",
+            "heading_tag": "h2",
+            "button_label": "",
+            "button_link": "",
+            "button_style": "primary",
+            "button_external": false,
+            "button_icon": false
+          }
+        },
+        "image-3": {
+          "type": "image",
+          "settings": {
+            "heading": "Image slide",
+            "heading_size": "title-lg tracking-heading",
+            "heading_tag": "h2",
+            "button_label": "",
+            "button_link": "",
+            "button_style": "primary",
+            "button_external": false,
+            "button_icon": false
           }
         }
       },
-      "block_order": [
-        "image_1"
-      ],
-      "disabled": true,
+      "block_order": ["image-1", "image-2", "image-3"],
       "settings": {
-        "title": "",
-        "subtitle": "",
-        "section_width": "page-width",
-        "padding_top": 40,
-        "padding_bottom": 40
+        "autoplay": false,
+        "autoplay_speed": 5,
+        "show_navigation": true,
+        "image_height": "650px",
+        "content_width": "small",
+        "image_height_mobile": "auto",
+        "color_text": "#ffffff",
+        "color_background": "#ffffff",
+        "gradient_background": "",
+        "color_button_text": "#171717",
+        "color_button_background": "#ffffff",
+        "color_button_gradient": "",
+        "color_overlay": "#171717",
+        "overlay_opacity": 20,
+        "padding_top": 0,
+        "padding_bottom": 0,
+        "divider": false,
+        "full_width": true,
+        "rounded": false,
+        "enable_parallax": false,
+        "parallax_direction": "vertical"
       }
     },
-    "wall_of_love_main": {
-      "type": "wall-of-love",
+    "featured_collections_pVKMqF": {
+      "type": "featured-collections",
+      "blocks": {
+        "collection_FVX6e7": {
+          "type": "collection",
+          "settings": {
+            "collection": "automated-collection",
+            "products": [],
+            "title": "Best sellers"
+          }
+        },
+        "collection_rhjFFh": {
+          "type": "collection",
+          "settings": {
+            "collection": "hydrogen",
+            "products": [],
+            "title": "New arrivals"
+          }
+        },
+        "collection_BaPAxw": {
+          "type": "collection",
+          "settings": {
+            "collection": "automated-collection",
+            "products": [],
+            "title": "Trending"
+          }
+        }
+      },
+      "block_order": ["collection_FVX6e7", "collection_rhjFFh", "collection_BaPAxw"],
+      "name": "t:sections.featured-collections.presets.name",
       "settings": {
-        "title": "Reviews",
-        "subtitle": "",
-        "section_width": "page-width",
-        "background_color": "#ffffff",
-        "autoplay": true,
-        "autoplay_speed": 5,
-        "padding_top": 40,
-        "padding_bottom": 40
+        "product_limit": 8,
+        "columns": 4,
+        "card_gap": 24,
+        "carousel_on_desktop": true,
+        "show_view_all": true,
+        "tabs_style": "pills",
+        "columns_mobile": "1",
+        "card_gap_mobile": 16,
+        "swipe_on_mobile": true,
+        "heading": "Featured collections",
+        "heading_size": 56,
+        "heading_size_mobile": 38,
+        "heading_alignment": "left",
+        "heading_tag": "h2",
+        "subheading": "Shop by edit",
+        "description": "",
+        "highlighted_text": "none",
+        "highlighted_scribble": "circle",
+        "color_text": "#1C1C1C",
+        "color_background": "#FFFFFF",
+        "gradient_background": "",
+        "color_highlight": "#D7FF64",
+        "gradient_highlight": "",
+        "color_button_text": "",
+        "color_button_background": "",
+        "color_button_gradient": "",
+        "content_width": "page",
+        "custom_content_width": 90,
+        "padding_top": 72,
+        "padding_bottom": 72,
+        "divider": false,
+        "rounded": false,
+        "section_radius": 0
       }
     }
   },
-  "order": [
-    "hero_slider_main",
-    "shop_by_category_main",
-    "products_tabs_bULwiN",
-    "trust_usps_main",
-    "image_gallery_main",
-    "wall_of_love_main"
-  ]
+  "order": ["slideshow", "featured_collections_pVKMqF"]
 }
