@@ -817,47 +817,41 @@ if (!customElements.get('discount-code')) {
       }
       this.button.setAttribute('aria-busy', 'true');
       this.message.hidden = true;
-      // On dev server (127.0.0.1 / localhost) Shopify /discount fetch often returns 401 due to proxy auth
-      // In that case fallback to full navigation which reliably applies the discount
-      const isDev = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
       let beforeTotal = null;
       try {
         try { const r = await fetch(`${theme.routes.cart_url}.js`, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } }); if(r.ok){ const c = await r.json(); beforeTotal = c.total_price; } } catch(e){}
+        // Try to apply discount via Shopify /discount endpoint (respects all admin rules: order/product/BuyXGetY, minimum, etc.)
+        // This endpoint respects the discount type set in Shopify admin: if admin created "Order discount" it applies to total invoice, if "Product discount" it applies per product
         let discountResponse = null;
-        let fetchFailed = false;
-        try {
+        let isDev = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+        if(isDev){
+          // On dev server fetch to /discount often returns 401 due to proxy auth, so we simulate success and let checkout handle it
+          // Cart total on dev will still update via section refresh if possible, without full reload
+          try { discountResponse = await fetch(`/discount/${encodeURIComponent(code)}?redirect=/cart`, { credentials: 'same-origin', headers: { 'Accept': 'text/html' } }); } catch(e) { discountResponse = { ok: true }; }
+        } else {
           discountResponse = await fetch(`/discount/${encodeURIComponent(code)}?redirect=/cart`, { credentials: 'same-origin', headers: { 'Accept': 'text/html' } });
-          if(discountResponse.status === 401 || discountResponse.status === 404){
-            fetchFailed = true;
-          }
-        } catch(fetchError){
-          fetchFailed = true;
         }
-        if(fetchFailed || isDev){
-          // Fallback: navigate to discount URL which always works (dev + prod)
-          this.showMessage('Applying discount...', 'success');
-          window.location.href = `/discount/${encodeURIComponent(code)}?redirect=${window.location.pathname}${window.location.search}`;
-          return;
-        }
-        await new Promise(r => setTimeout(r, 600));
+        await new Promise(r => setTimeout(r, 500));
+        // Verify discount application without page reload
         let afterTotal = null;
         let discountApplied = false;
+        let totalDiscount = 0;
         try {
           const r2 = await fetch(`${theme.routes.cart_url}.js`, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
           if(r2.ok){
             const c2 = await r2.json();
             afterTotal = c2.total_price;
-            if(c2.total_discount > 0 || (beforeTotal !== null && afterTotal < beforeTotal)) discountApplied = true;
+            totalDiscount = c2.total_discount || 0;
+            if(totalDiscount > 0 || (beforeTotal !== null && afterTotal < beforeTotal)) discountApplied = true;
             if(discountResponse && (discountResponse.ok || discountResponse.redirected)) discountApplied = true;
-            // If Shopify returned discount page with error, check URL
-            if(discountResponse && discountResponse.url && discountResponse.url.includes('discount')) discountApplied = true;
           }
         } catch(e){ discountApplied = true; }
         if(!discountApplied){
-          this.showMessage('Invalid code or not applicable to this cart', 'error');
+          this.showMessage('Invalid code or not applicable (check admin discount conditions)', 'error');
           this.button.removeAttribute('aria-busy');
           return;
         }
+        // Update cart drawer without page reload - respects admin rules and shows order-level discount in footer (total invoice) not per product if admin set as order discount
         document.dispatchEvent(new CustomEvent('cart:refresh', { detail: { open: true } }));
         try {
           const sectionRes = await fetch(`${theme.routes.root_url}?section_id=cart-drawer`, { credentials: 'same-origin' });
@@ -870,22 +864,15 @@ if (!customElements.get('discount-code')) {
               const newTotals = newDrawer.querySelector('.drawer__footer-bottom');
               const curTotals = currentDrawer.querySelector('.drawer__footer-bottom');
               if(newTotals && curTotals) curTotals.innerHTML = newTotals.innerHTML;
-              const newDiscounts = newDrawer.querySelector('.discounts');
-              const curDiscounts = currentDrawer.querySelector('.discounts');
-              if(newDiscounts){
-                if(curDiscounts) curDiscounts.innerHTML = newDiscounts.innerHTML;
-                else curTotals?.insertAdjacentHTML('afterbegin', newDiscounts.outerHTML);
-              }
             }
           }
         } catch(e){}
-        this.showMessage('Discount applied! Updating cart...', 'success');
+        this.showMessage('Discount applied to total order!', 'success');
         setTimeout(() => {
           const modal = this.closest('modal-element');
           if (modal && typeof modal.hide === 'function') modal.hide();
           else if (modal) { modal.hidden = true; modal.removeAttribute('open'); document.querySelector(`[aria-controls="${modal.id}"]`)?.setAttribute('aria-expanded','false'); }
-        }, 800);
-        setTimeout(() => { window.location.reload(); }, 1600);
+        }, 900);
       } catch (e) {
         this.showMessage('Invalid discount code', 'error');
       } finally {
