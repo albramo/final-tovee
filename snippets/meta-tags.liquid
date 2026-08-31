@@ -1,22 +1,18 @@
 {% doc %}
-  Renders all meta tags for the page including Open Graph, Twitter Cards, and SEO tags.
+  Outputs document, SEO, social sharing, favicon, and browser theme metadata.
 
-  @param {object} [product] - The product object, available on product pages for price meta tags.
+  @example
+  {% render 'meta-tags' %}
 {% enddoc %}
 
 <meta charset="utf-8">
-<meta
-  http-equiv="X-UA-Compatible"
-  content="IE=edge"
->
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1"
->
-<meta
-  name="theme-color"
-  content=""
->
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="{{ settings.color_button_background }}">
+
+{% if settings.favicon != blank %}
+  <link rel="icon" href="{{ settings.favicon | image_url: width: 32, height: 32 }}" type="image/png">
+{% endif %}
 
 {%- liquid
   assign og_title = page_title | default: shop.name
@@ -74,6 +70,10 @@
 {%- endif -%}
 
 {%- if request.page_type == 'product' -%}
+  <script type="application/ld+json">
+    {{ product | structured_data }}
+  </script>
+
   <meta
     property="og:price:amount"
     content="{{ product.price | money_without_currency | strip_html }}"
@@ -84,12 +84,6 @@
   >
 {%- endif -%}
 
-{%- if settings.social_twitter_link != blank -%}
-  <meta
-    name="twitter:site"
-    content="{{ settings.social_twitter_link | split: 'twitter.com/' | last | prepend: '@' }}"
-  >
-{%- endif -%}
 <meta
   name="twitter:card"
   content="summary_large_image"

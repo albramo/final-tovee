@@ -1,45 +1,38 @@
-{% comment %}
-  شريط التقدم للشحن المجاني في السلة الجانبية.
-  الحد الأدنى للشحن المجاني بيتغير من إعدادات الثيم:
-  Theme Settings > Cart > Free shipping minimum amount (EGP)
-  الشريط بيشتغل بـ Liquid فقط (بدون JavaScript) وبيدعم العربي والإنجليزي.
-{% endcomment %}
+{%- comment -%}
+  Renders free shipping message
 
-{% assign free_shipping_threshold = settings.free_shipping_threshold | default: 600 | times: 100 %}
-{% assign fs_remaining = free_shipping_threshold | minus: cart.total_price %}
+  Accepts:
+  - minimum_amount: {Number} Free shipping minimum amount
 
-{% if fs_remaining <= 0 %}
-  {% assign fs_progress = 100 %}
-{% else %}
-  {% assign fs_progress = cart.total_price | times: 100 | divided_by: free_shipping_threshold %}
-{% endif %}
+  Usage:
+  {% render 'free-shipping-bar', minimum_amount: minimum_amount %}
+{%- endcomment -%}
 
-{% assign is_arabic = false %}
-{% if request.locale.iso_code contains 'ar' %}
-  {% assign is_arabic = true %}
-{% endif %}
+{%- liquid
+  assign minimum_amount_in_cents = minimum_amount | times: 100
+  assign total_price = cart.total_price
 
-{% if settings.show_free_shipping_bar %}
-<div class="free-shipping-bar{% if fs_remaining <= 0 %} is-complete{% endif %}" role="status" aria-live="polite">
-  <div class="free-shipping-bar__text">
-    {% if fs_remaining <= 0 %}
-      <span class="free-shipping-bar__icon">🎉</span>
-      {% if is_arabic %}
-        <span class="free-shipping-bar__label"><strong>مبروك!</strong> حصلت على الشحن المجاني</span>
-      {% else %}
-        <span class="free-shipping-bar__label"><strong>Congratulations!</strong> You've unlocked free shipping</span>
-      {% endif %}
-    {% else %}
-      <span class="free-shipping-bar__icon">🚚</span>
-      {% if is_arabic %}
-        <span class="free-shipping-bar__label">أضف منتجات بقيمة <strong>{{ fs_remaining | money }}</strong> واحصل على <strong>شحن مجاني</strong></span>
-      {% else %}
-        <span class="free-shipping-bar__label">Add <strong>{{ fs_remaining | money }}</strong> more to get <strong>free shipping</strong></span>
-      {% endif %}
-    {% endif %}
-  </div>
-  <div class="free-shipping-bar__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ fs_progress }}">
-    <div class="free-shipping-bar__fill" style="width: {{ fs_progress }}%;"></div>
-  </div>
+  if linklists.gift-wrapping.links != blank and linklists.gift-wrapping.links.first.type == 'product_link'
+    assign gift_wrapping = linklists.gift-wrapping.links.first
+    
+    assign gift_wrap_id = gift_wrapping.object.variants.first.id
+    assign gift_wraps_in_cart = 0
+    for item in cart.items
+      if item.id == gift_wrap_id
+        assign gift_wraps_in_cart = item.price
+        break
+      endif
+    endfor
+    assign total_price = total_price | minus: gift_wraps_in_cart
+  endif
+-%}
+<div class="free-shipping-bar grid gap-3 w-full">
+  {%- if total_price >= minimum_amount_in_cents -%}
+    <span class="text-sm leading-tight">{{ 'general.cart.free_shipping.congratulations_html' | t }}</span>
+    <progress-bar class="overflow-hidden rounded-full" style="--progress: 100%;"></progress-bar>
+  {%- else -%}
+    {%- capture remaining_amount -%}<span class="font-bold">{{ total_price | minus: minimum_amount_in_cents | abs | money }}</span>{%- endcapture -%}
+    <span class="text-sm leading-tight">{{ 'general.cart.free_shipping.remaining_html' | t: remaining_amount: remaining_amount }}</span>
+    <progress-bar class="overflow-hidden rounded-full" style="--progress: {{ total_price | times: 1.0 | divided_by: minimum_amount_in_cents | at_most: 1 | times: 100 | round }}%;"></progress-bar>
+  {%- endif -%}
 </div>
-{% endif %}

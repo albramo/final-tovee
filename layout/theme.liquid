@@ -1,231 +1,101 @@
+{%- capture direction -%}{% render 'direction' %}{%- endcapture -%}
 <!doctype html>
-<html
-  {% if request.design_mode %}
-    class="shopify-design-mode"
-  {% endif %}
-  lang="{{ request.locale.iso_code }}"
-  dir="{% if request.locale.iso_code == 'ar' or request.locale.iso_code == 'he' or request.locale.iso_code == 'fa' or request.locale.iso_code == 'ur' %}rtl{% else %}ltr{% endif %}"
->
-  <head>
-    <script>
-      // VibeWeb branding — the only console output on this site.
-      // Prints the branding message first, then silences everything else.
-      (function () {
-        var styles =
-          'background:#111;color:#ECE2CF;padding:6px 12px;border-radius:4px;font-weight:700;font-size:13px;font-family:system-ui,sans-serif;';
-        var facebookUrl = 'https://www.facebook.com/profile.php?id=61593002010778';
-        var brandedLog = function () {
-          console.log('%cDesigned & developed by VibeWeb', styles);
-          console.log('Facebook: ' + facebookUrl);
-        };
+<html class="no-js" lang="{{ request.locale.iso_code }}" dir="{{ direction }}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="{{ settings.color_button_background }}">
+  <link rel="canonical" href="{{ canonical_url }}">
+  <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+  {% # theme-check-disable RemoteAsset %}
+  <link rel="dns-prefetch" href="https://ajax.googleapis.com">
+  <link rel="dns-prefetch" href="https://maps.googleapis.com">
+  <link rel="dns-prefetch" href="https://maps.gstatic.com">
+  {% # theme-check-enable RemoteAsset %}
 
-        brandedLog();
+  {%- if settings.favicon != blank -%}
+    <link rel="shortcut icon" href="{{ settings.favicon | image_url: width: 32, height: 32 }}" type="image/png" />
+  {%- endif -%}
 
-        var originalClear = console.clear.bind(console);
-        var noop = function () {};
-        ['log', 'info', 'warn', 'error', 'debug', 'trace', 'table', 'dir', 'dirxml', 'group', 'groupCollapsed', 'groupEnd', 'assert', 'count', 'countReset', 'time', 'timeEnd', 'timeLog', 'profile', 'profileEnd'].forEach(function (key) {
-          try { console[key] = noop; } catch (e) {}
-        });
-
-        // Keep the branding visible even if the console is cleared.
-        try {
-          console.clear = function () {
-            originalClear();
-            brandedLog();
-          };
-        } catch (e) {}
-      })();
-    </script>
-
-    {%- if settings.favicon != blank -%}
-      <link
-        rel="icon"
-        type="image/png"
-        href="{{ settings.favicon | image_url: width: 32, height: 32 }}"
-      >
+  <title>
+    {{- page_title -}}
+    {%- if current_tags -%}
+      {%- assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags -}}
     {%- endif -%}
+    {%- if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif -%}
+    {%- if request.page_type == 'password' -%}
+      {{- shop.name -}}
+    {%- else -%}
+      {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+    {%- endif -%}
+  </title>
 
-    {% comment %}
-      Opt into cross-document (MPA) view transitions and hold first paint until #MainContent
-      parses, so the transition runs consistently.
-      Both are gated on the same settings as the view-transitions.js opt-out switch (see snippets/scripts.liquid).
-    {% endcomment %}
-    {% if settings.transition_to_main_product or settings.page_transition_enabled %}
-      {% style %}
-        @media (prefers-reduced-motion: no-preference) {
-          @view-transition {
-            navigation: auto;
-          }
-        }
-      {% endstyle %}
-      <link
-        rel="expect"
-        href="#MainContent"
-        blocking="render"
-        id="view-transition-render-blocker"
-      >
-    {% endif %}
+  {%- if page_description -%}
+    <meta name="description" content="{{ page_description | escape }}">
+  {%- endif -%}
 
-    {%- render 'meta-tags' -%}
-    {%- render 'stylesheets' -%}
-    {%- render 'fonts' -%}
-    {%- render 'scripts' -%}
-    {%- render 'theme-styles-variables' -%}
-    {%- render 'color-palette' -%}
+  {%- liquid
+    render 'social-meta-tags'
+    
+    render 'css-variables'
+    echo 'theme.css' | asset_url | stylesheet_tag: preload: true
+    
+    if direction == 'rtl'
+      echo 'rtl.css' | asset_url | stylesheet_tag: preload: true
+    endif
+  -%}
 
-    {% comment %}
-      Critical mobile-bottom-nav styles inlined in head so the fixed bar and
-      body bottom padding apply at first paint (prevents the late-appearance
-      layout shift). Keep in sync with the @media rules in
-      snippets/mobile-bottom-nav.liquid.
-    {% endcomment %}
-    {% style %}
-      @media screen and (max-width: 749px) {
-        body:has(mobile-bottom-nav) {
-          padding-block-end: calc(56px + env(safe-area-inset-bottom));
-        }
-      }
-    {% endstyle %}
+  <link rel="stylesheet" href="{{ 'apps.css' | asset_url }}" media="print" fetchpriority="low" onload="this.media='all'">
 
-    {% comment %}
-      Brand override: keeps the primary/secondary button hover at the brand's
-      milky beige (لبني) instead of the auto-computed shift from theme settings.
-      Rendered after color-palette so it wins the cascade.
-    {% endcomment %}
-    {% style %}
-      :root {
-        --color-primary-button-hover-background: #ECE2CF;
-        --color-primary-button-hover-text: #000000;
-        --color-primary-button-hover-border: #ECE2CF;
-        --color-secondary-button-hover-background: #ECE2CF;
-        --color-secondary-button-hover-text: #000000;
-        --color-secondary-button-hover-border: #ECE2CF;
-      }
-    {% endstyle %}
+  {{ content_for_header }}
 
-    {% comment %} FIX: منع المساحة البيضاء في RTL موبايل بسبب 100vw و left:-99999px {% endcomment %}
-    {% style %}
-      html, body { overflow-x: clip; max-width: 100%; }
-      html[dir='rtl'] { overflow-x: clip; }
-      @media screen and (max-width: 749px) {
-        html[dir='rtl'], html[dir='rtl'] body, html[dir='rtl'] .page-wrapper {
-          overflow-x: clip;
-          max-width: 100%;
-        }
-      }
-    {% endstyle %}
+  <script src="{{ 'vendor.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
 
-    {% if request.design_mode %}
-      {%- render 'theme-editor' -%}
-    {% endif %}
+  {%- if settings.enable_tab_attention -%}
+    <script src="{{ 'tab-attention.js' | asset_url }}" defer="defer"></script>
+  {%- endif -%}
 
-    {{ content_for_header }}
-  </head>
+  {%- if request.page_type contains 'customers/' -%}
+    <script src="{{ 'shopify_common.js' | shopify_asset_url }}" defer="defer"></script>
+  {%- endif -%}
 
-  <body class="page-width-{{ settings.page_width }} card-hover-effect-{{ settings.card_hover_effect }}">
-    {% render 'skip-to-content-link', href: '#MainContent', text: 'accessibility.skip_to_text' %}
+  {%- render 'js-variables' -%}
+</head>
 
-    {% render 'chat-drawer' %}
+<body class="template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }}{% if request.path == '/challenge' %} template-challange{% endif %}{% if request.design_mode %} shopify-design-mode{% endif %}" data-rounded-button="{{ settings.rounded_button }}" data-rounded-input="{{ settings.rounded_input }}" data-rounded-block="{{ settings.rounded_block }}" data-rounded-card="{{ settings.rounded_card }}" data-button-hover="{{ settings.buttons_hover }}"{% if settings.enable_lazy_image %} data-lazy-image{% endif %} data-title-animation data-page-rendering>
+  <a class="sr-only skip-link" href="#MainContent">{{ 'general.accessibility.skip_to_content' | t }}</a>
 
-    <div class="page-wrapper">
-      <div id="header-group">
-        {% sections 'header-group' %}
-      </div>
+  {%- liquid
+    if settings.enable_page_transition
+      render 'loading-bar'
+    endif
+    
+    render 'mouse-cursor'
 
-      <script>
-        // Inline header height and menu style calculations to prevent layout shift
-        // Note: Updates in calculateHeaderGroupHeight(), updateTransparentHeaderOffset() and setHeaderMenuStyle() utilities.js should be kept in sync with this function
-        (function setHeaderHeighCustomProperties() {
-          /*
-           * Header calculation functions for maintaining CSS variables
-           * Mimic calculateHeaderGroupHeight() in utilities.js
-           */
-          const header = document.querySelector('header-component');
-          const headerGroup = document.querySelector('#header-group');
-          const hasHeaderSection = headerGroup?.querySelector('.header-section');
+    sections 'header-group'
+    sections 'overlay-group'
+  -%}
 
-          if (!header || !headerGroup) return;
+  <div class="page-container" id="PageContainer">
+    <main class="main-content relative" id="MainContent" role="main">
+      {{ content_for_layout }}
+    </main>
 
-          const headerTopRow = header.querySelector('.header__row--top');
-          const headerHeight = header.offsetHeight;
+    <footer-group class="footer-group block w-full">
+      {%- sections 'footer-group' -%}
+    </footer-group>
+  </div>
 
-          // Calculate the total height of the header group
-          let headerGroupHeight = 0;
-          const children = headerGroup.children;
-          for (let i = 0; i < children.length; i++) {
-            const element = children[i];
-            if (element === header || !(element instanceof HTMLElement)) continue;
-            headerGroupHeight += element.offsetHeight;
-          }
+  <ul hidden>
+    <li id="a11y-refresh-page-message">{{ 'general.accessibility.refresh_page' | t }}</li>
+    <li id="a11y-new-window-message">{{ 'general.accessibility.link_messages.new_window' | t }}</li>
+  </ul>
 
-          // Check for transparent header special case
-          if (header.hasAttribute('transparent') && header.parentElement?.nextElementSibling) {
-            headerGroupHeight += headerHeight;
-          }
-
-          // Set CSS variables
-          document.body.style.setProperty('--header-height', `${headerHeight}px`);
-          document.body.style.setProperty('--header-group-height', `${headerGroupHeight}px`);
-
-          if (headerTopRow) {
-            window.requestAnimationFrame(function () {
-              document.body.style.setProperty('--top-row-height', `${headerTopRow.offsetHeight}px`);
-            });
-          }
-
-          /**
-           * Updates CSS custom properties for transparent header offset calculation
-           * Mimic updateTransparentHeaderOffset() in utilities.js
-           */
-
-          if (!hasHeaderSection || !header?.hasAttribute('transparent')) {
-            document.body.style.setProperty('--transparent-header-offset-boolean', '0');
-            return;
-          }
-
-          const hasImmediateSection = hasHeaderSection.nextElementSibling?.classList.contains('shopify-section');
-
-          const shouldApplyOffset = !hasImmediateSection ? '1' : '0';
-          document.body.style.setProperty('--transparent-header-offset-boolean', shouldApplyOffset);
-        })();
-
-        (function setHeaderMenuStyle() {
-          const headerComponent = document.querySelector('#header-component');
-          if (headerComponent) {
-            const isTouchDevice = 'ontouchstart' in window && navigator.maxTouchPoints > 0;
-            const overflowList = headerComponent?.querySelector('overflow-list');
-            const hasReachedMinimum = overflowList && overflowList.hasAttribute('minimum-reached');
-            headerComponent.dataset.menuStyle = isTouchDevice || hasReachedMinimum ? 'drawer' : 'menu';
-          }
-        })();
-      </script>
-
-      <main
-        id="MainContent"
-        class="content-for-layout"
-        role="main"
-        data-page-transition-enabled="{{ settings.page_transition_enabled }}"
-        data-product-transition="{{ settings.transition_to_main_product }}"
-        data-template="{{ template }}"
-      >
-        {{ content_for_layout }}
-      </main>
-
-      <footer>
-        {% sections 'footer-group' %}
-      </footer>
-    </div>
-
-    {% render 'cart-drawer', render_wrapper: true %}
-    {% render 'wishlist-drawer' %}
-    {% render 'theme-drawer' %}
-
-    {% render 'search-modal' %}
-
-    {% if settings.quick_add or settings.mobile_quick_add %}
-      {% render 'quick-add-modal' %}
-    {% endif %}
-
-    {% render 'mobile-bottom-nav' %}
-  </body>
+  {%- if request.design_mode == false and settings.preload_links -%}
+    <script src="{{ 'instant-page.js' | asset_url }}" type="module" fetchpriority="low" defer="defer"></script>
+  {%- endif -%}
+</body>
 </html>
