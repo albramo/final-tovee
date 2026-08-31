@@ -52,7 +52,11 @@
           }
         }
       },
-      "block_order": ["image-1", "image-2", "image-3"],
+      "block_order": [
+        "image-1",
+        "image-2",
+        "image-3"
+      ],
       "settings": {
         "autoplay": false,
         "autoplay_speed": 5,
@@ -83,7 +87,7 @@
         "collection_FVX6e7": {
           "type": "collection",
           "settings": {
-            "collection": "automated-collection",
+            "collection": "",
             "products": [],
             "title": "Best sellers"
           }
@@ -105,7 +109,11 @@
           }
         }
       },
-      "block_order": ["collection_FVX6e7", "collection_rhjFFh", "collection_BaPAxw"],
+      "block_order": [
+        "collection_FVX6e7",
+        "collection_rhjFFh",
+        "collection_BaPAxw"
+      ],
       "name": "t:sections.featured-collections.presets.name",
       "settings": {
         "product_limit": 8,
@@ -126,10 +134,10 @@
         "description": "",
         "highlighted_text": "none",
         "highlighted_scribble": "circle",
-        "color_text": "#1C1C1C",
-        "color_background": "#FFFFFF",
+        "color_text": "#1c1c1c",
+        "color_background": "#ffffff",
         "gradient_background": "",
-        "color_highlight": "#D7FF64",
+        "color_highlight": "#d7ff64",
         "gradient_highlight": "",
         "color_button_text": "",
         "color_button_background": "",
@@ -144,5 +152,8 @@
       }
     }
   },
-  "order": ["slideshow", "featured_collections_pVKMqF"]
+  "order": [
+    "slideshow",
+    "featured_collections_pVKMqF"
+  ]
 }
