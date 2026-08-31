@@ -91,22 +91,25 @@ if (!customElements.get('cart-drawer')) {
 
       onCartUpdate(event) {
         if (event.cart.errors) return;
-        // If cart has items but drawer still shows empty (race after delete+add), force refresh
         const miniCart = document.getElementById(`MiniCart-${this.sectionId}`);
         if (!miniCart) return;
         const hasItems = event.cart.item_count > 0;
-        // Check if drawer actually has product items visible
         const drawerHasItems = miniCart.querySelector('cart-items .horizontal-products li');
+        const wasEmpty = !drawerHasItems;
         if (hasItems && !drawerHasItems) {
-          // Delay slightly to let cart-items try first, then force section refresh
           setTimeout(() => {
             const stillEmpty = !miniCart.querySelector('cart-items .horizontal-products li');
-            if (stillEmpty) this.onCartRefresh({ detail: { open: this.open } });
+            if (stillEmpty) this.onCartRefresh({ detail: { open: true } });
           }, 350);
         }
-        // Also if cart is empty but drawer shows items, refresh to show empty state
         if (!hasItems && drawerHasItems) {
           setTimeout(() => this.onCartRefresh({ detail: { open: false } }), 350);
+        }
+        // If a product was added (item_count increased) ensure drawer opens automatically like before
+        if (hasItems && wasEmpty) {
+          setTimeout(() => {
+            if (!this.open) this.show();
+          }, 400);
         }
       }
 
