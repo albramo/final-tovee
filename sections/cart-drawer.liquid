@@ -886,6 +886,53 @@ if (!customElements.get('discount-code')) {
     }
   });
 }
+// Auto-clear discount on every add and on remove/re-add - per user request
+(function(){
+  let lastCount = null;
+  let lastDiscount = 0;
+  let initialized = false;
+  function clearDiscount(){
+    document.cookie = 'discount_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = '_shopify_discount=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'cart_discount_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    fetch('/discount/clear?redirect=/cart', {credentials:'same-origin', headers:{'Accept':'text/html'}}).catch(()=>{});
+    fetch('/checkout?discount=', {credentials:'same-origin'}).catch(()=>{});
+    const input = document.querySelector('discount-code input[name="discount"]');
+    if(input) input.value = '';
+    const msg = document.querySelector('[data-discount-message]');
+    if(msg){ msg.textContent = 'Discount removed - please re-enter code'; msg.className='alert alert--info grid gap-3 text-sm'; msg.hidden=false; setTimeout(()=>{msg.hidden=true;},3000); }
+    setTimeout(()=> document.dispatchEvent(new CustomEvent('cart:refresh', {detail:{open:true}})), 600);
+  }
+  // Init from current cart
+  fetch(`${theme.routes.cart_url}.js`, {credentials:'same-origin', headers:{'Accept':'application/json'}}).then(r=>r.json()).then(c=>{ lastCount=c.item_count; lastDiscount=c.total_discount||0; initialized=true; }).catch(()=>{ initialized=true; });
+  theme.pubsub.subscribe(theme.pubsub.PUB_SUB_EVENTS.cartUpdate, (event) => {
+    if(!initialized || !event.cart || event.cart.errors) return;
+    const curCount = event.cart.item_count;
+    const curDiscount = event.cart.total_discount || 0;
+    const isDiscountApply = curDiscount > lastDiscount && curCount === lastCount;
+    if(isDiscountApply){
+      lastCount = curCount;
+      lastDiscount = curDiscount;
+      return;
+    }
+    // Product added (count increased) while discount was active -> clear
+    if(lastCount !== null && curCount > lastCount && lastDiscount > 0){
+      clearDiscount();
+      lastCount = curCount;
+      lastDiscount = 0;
+      return;
+    }
+    // Product removed (count decreased) while discount was active -> clear (covers remove and re-add)
+    if(lastCount !== null && curCount < lastCount && lastDiscount > 0){
+      clearDiscount();
+      lastCount = curCount;
+      lastDiscount = 0;
+      return;
+    }
+    lastCount = curCount;
+    lastDiscount = curDiscount;
+  });
+})();
 </script>
 
 {% schema %}
