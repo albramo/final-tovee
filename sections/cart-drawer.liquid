@@ -890,47 +890,117 @@ if (!customElements.get('discount-code')) {
 (function(){
   let lastCount = null;
   let lastDiscount = 0;
+  let lastLineDiscount = 0;
   let initialized = false;
-  function clearDiscount(){
-    document.cookie = 'discount_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = '_shopify_discount=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = 'cart_discount_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    fetch('/discount/clear?redirect=/cart', {credentials:'same-origin', headers:{'Accept':'text/html'}}).catch(()=>{});
-    fetch('/checkout?discount=', {credentials:'same-origin'}).catch(()=>{});
+  function getCartDiscount(cart){
+    // Check both cart-level and line-level discounts
+    let total = cart.total_discount || 0;
+    let lineTotal = 0;
+    if(cart.items){
+      for(const item of cart.items){
+        if(item.discount_allocations) lineTotal += item.discount_allocations.reduce((s,d)=>s+(d.amount||0),0);
+        if(item.line_level_discount_allocations) lineTotal += item.line_level_discount_allocations.reduce((s,d)=>s+(d.amount||0),0);
+      }
+    }
+    return Math.max(total, lineTotal);
+  }
+  async function clearDiscountServer(){
+    // Try multiple Shopify endpoints to clear discount code server-side (works for order and product discounts, respects admin rules)
+    const attempts = [
+      fetch('/discount/clear?redirect=/cart', {credentials:'same-origin', headers:{'Accept':'text/html'}}),
+      fetch('/checkout?discount=', {credentials:'same-origin', headers:{'Accept':'text/html'}}),
+      fetch('/cart/update.js', {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json', 'Accept':'application/json'}, body: JSON.stringify({discount: ''})}),
+      fetch('/cart', {method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: 'discount=&_method=post'}),
+    ];
+    // Use iframe fallback for /discount which is most reliable for persistent code
+    const iframeClear = new Promise(resolve=>{
+      try{
+        const iframe=document.createElement('iframe');
+        iframe.style.display='none';
+        iframe.src='/discount/clear?redirect=/cart';
+        iframe.onload=()=> setTimeout(()=>{iframe.remove(); resolve();},400);
+        document.body.appendChild(iframe);
+        setTimeout(()=>{ try{iframe.remove();}catch(e){}; resolve(); },1500);
+      }catch(e){ resolve(); }
+    });
+    try{ await Promise.race([Promise.allSettled(attempts), iframeClear]); }catch(e){}
+    // Clear cookies client-side
+    const past = 'expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = `discount_code=; ${past}`;
+    document.cookie = `_shopify_discount=; ${past}`;
+    document.cookie = `cart_discount_code=; ${past}`;
+    document.cookie = `_shopify_discount_code=; ${past}`;
+    localStorage.removeItem('discount_code');
+    sessionStorage.removeItem('discount_code');
+  }
+  async function clearDiscount(){
+    await clearDiscountServer();
     const input = document.querySelector('discount-code input[name="discount"]');
     if(input) input.value = '';
     const msg = document.querySelector('[data-discount-message]');
-    if(msg){ msg.textContent = 'Discount removed - please re-enter code'; msg.className='alert alert--info grid gap-3 text-sm'; msg.hidden=false; setTimeout(()=>{msg.hidden=true;},3000); }
-    setTimeout(()=> document.dispatchEvent(new CustomEvent('cart:refresh', {detail:{open:true}})), 600);
+    if(msg){ msg.textContent = 'Discount removed - please re-enter code'; msg.className='alert alert--info grid gap-3 text-sm'; msg.hidden=false; setTimeout(()=>{msg.hidden=true;},2800); }
+    // Verify cleared, then refresh cart without page reload
+    setTimeout(async()=>{
+      try{
+        const r=await fetch(`${theme.routes.cart_url}.js`, {credentials:'same-origin', headers:{'Accept':'application/json'}});
+        if(r.ok){
+          const c=await r.json();
+          // If still has discount after clear attempts, force again via cart refresh
+          if(getCartDiscount(c) > 0){
+            await clearDiscountServer();
+          }
+        }
+      }catch(e){}
+      document.dispatchEvent(new CustomEvent('cart:refresh', {detail:{open:true}}));
+      // Also force section refresh to update totals (order-level discount)
+      try{
+        const sec=await fetch(`${theme.routes.root_url}?section_id=cart-drawer&t=${Date.now()}`, {credentials:'same-origin'});
+        if(sec.ok){
+          const html=await sec.text();
+          const doc=new DOMParser().parseFromString(html,'text/html');
+          const nd=doc.querySelector('#CartDrawer');
+          const cd=document.querySelector('#CartDrawer');
+          if(nd&&cd){
+            const nt=nd.querySelector('.drawer__footer-bottom');
+            const ct=cd.querySelector('.drawer__footer-bottom');
+            if(nt&&ct) ct.innerHTML=nt.innerHTML;
+          }
+        }
+      }catch(e){}
+    }, 650);
   }
   // Init from current cart
-  fetch(`${theme.routes.cart_url}.js`, {credentials:'same-origin', headers:{'Accept':'application/json'}}).then(r=>r.json()).then(c=>{ lastCount=c.item_count; lastDiscount=c.total_discount||0; initialized=true; }).catch(()=>{ initialized=true; });
+  fetch(`${theme.routes.cart_url}.js`, {credentials:'same-origin', headers:{'Accept':'application/json'}}).then(r=>r.json()).then(c=>{ lastCount=c.item_count; lastDiscount=getCartDiscount(c); lastLineDiscount=lastDiscount; initialized=true; }).catch(()=>{ initialized=true; });
   theme.pubsub.subscribe(theme.pubsub.PUB_SUB_EVENTS.cartUpdate, (event) => {
     if(!initialized || !event.cart || event.cart.errors) return;
     const curCount = event.cart.item_count;
-    const curDiscount = event.cart.total_discount || 0;
+    const curDiscount = getCartDiscount(event.cart);
     const isDiscountApply = curDiscount > lastDiscount && curCount === lastCount;
     if(isDiscountApply){
       lastCount = curCount;
       lastDiscount = curDiscount;
+      lastLineDiscount = curDiscount;
       return;
     }
-    // Product added (count increased) while discount was active -> clear
     if(lastCount !== null && curCount > lastCount && lastDiscount > 0){
+      // Product added while discount was active -> clear so new product doesn't get auto discount
       clearDiscount();
       lastCount = curCount;
       lastDiscount = 0;
+      lastLineDiscount = 0;
       return;
     }
-    // Product removed (count decreased) while discount was active -> clear (covers remove and re-add)
     if(lastCount !== null && curCount < lastCount && lastDiscount > 0){
+      // Product removed (covers remove and re-add) -> clear
       clearDiscount();
       lastCount = curCount;
       lastDiscount = 0;
+      lastLineDiscount = 0;
       return;
     }
     lastCount = curCount;
     lastDiscount = curDiscount;
+    lastLineDiscount = curDiscount;
   });
 })();
 </script>
