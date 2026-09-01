@@ -94,11 +94,11 @@
             "max_days": 5,
             "text_color": "#1c1c1c",
             "bg_color": "#800020",
-            "border_color": "#112C60",
-            "icon_bg": "#02080B",
+            "border_color": "#112c60",
+            "icon_bg": "#02080b",
             "icon_color": "#0284c7",
             "countdown_bg": "#800020",
-            "countdown_text_color": "#FFFFFF"
+            "countdown_text_color": "#ffffff"
           },
           "blocks": {}
         },
@@ -163,20 +163,16 @@
           },
           "blocks": {}
         },
-        "product_bundle_gmbm8P": {
-          "type": "product-bundle",
-          "name": "Product bundle",
+        "product_complementary_tmi6Tn": {
+          "type": "product-complementary",
+          "name": "Complementary products",
           "settings": {
             "heading": "Complete your routine",
-            "icon": "bag",
-            "icon_width": 38,
-            "products": [
-              "tovee-barrier-repair-moisturizer-50ml",
-              "tovee-gentle-cleanser-150ml"
-            ],
-            "metafield": "",
-            "opened": true,
-            "clickable": true
+            "product_limit": 6,
+            "show_vendor": true,
+            "show_price": true,
+            "image_ratio": "square",
+            "image_fill": false
           },
           "blocks": {}
         },
@@ -313,7 +309,7 @@
         "variants",
         "quantity",
         "buy_buttons",
-        "product_bundle_gmbm8P",
+        "product_complementary_tmi6Tn",
         "pickup",
         "share",
         "details",
