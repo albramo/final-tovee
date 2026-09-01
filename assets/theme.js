@@ -2614,9 +2614,8 @@ class ProductRecommendations extends HTMLElement {
           if (!isFallback) {
             return tryFallback();
           } else {
-            // No products found even with fallback -> hide as requested
-            this.setAttribute('hidden', '');
-            this.closest('.recommendations-section')?.remove();
+            // No products found even with fallback -> keep visible
+            this.removeAttribute('hidden');
             this.dispatchEvent(new CustomEvent('is-empty'));
           }
         })

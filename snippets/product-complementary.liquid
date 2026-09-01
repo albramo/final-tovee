@@ -46,7 +46,31 @@
           assign recommendations_products = fallback_products
         endif
       else
+        assign fallback_enabled = true
+        assign fallback_products = blank
+        if product.collections.size > 0
+          for coll in product.collections
+            if coll.all_products_count > 1
+              assign fallback_products = coll.products
+              break
+            endif
+          endfor
+        endif
+        if fallback_products == blank
+          assign fallback_products = collections.all.products
+        endif
         assign products_count = 0
+        for prod in fallback_products
+          unless prod.id == product_id
+            assign products_count = products_count | plus: 1
+            if products_count >= limit
+              break
+            endif
+          endunless
+        endfor
+        if products_count > 0
+          assign recommendations_products = fallback_products
+        endif
       endif
     endif
   endif
@@ -76,8 +100,11 @@
       {%- liquid
         assign rendered_count = 0
         for recommendation in recommendations_products
+          if recommendation.id == product_id
+            continue
+          endif
           if fallback_enabled
-            if cart_ids contains recommendation.id
+            if cart_ids != blank and cart_ids contains recommendation.id
               continue
             endif
             if rendered_count >= limit
