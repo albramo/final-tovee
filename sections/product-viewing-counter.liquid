@@ -1,0 +1,131 @@
+{% comment %} Standalone section for viewing counter - can be added anywhere {% endcomment %}
+{%- liquid
+  assign product_item = product | default: section.settings.product
+  if product_item == blank and request.page_type != 'product'
+    assign product_item = closest.product | default: product
+  endif
+  assign product_id = product_item.id | default: section.id
+-%}
+
+{%- if product_item != blank -%}
+<div class="product-viewing-counter-section w-full" style="--viewing-bg: {{ section.settings.background | default: 'transparent' }}; padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <div class="page-container">
+    <div class="viewing-counter flex items-center gap-2.5" data-viewing-counter="{{ section.id }}-{{ product_id }}" style="color: {{ section.settings.text_color }};">
+      <span class="viewing-counter__eye relative flex items-center justify-center w-8 h-8 rounded-full shrink-0" style="background: {{ section.settings.eye_bg }}; color: {{ section.settings.eye_color }};">
+        <span class="viewing-counter__ping absolute inset-0 rounded-full opacity-60" style="background: {{ section.settings.eye_bg }};"></span>
+        {%- render 'icon', icon: 'eye', size: 'sm', class: 'relative z-1' -%}
+      </span>
+      <span class="viewing-counter__text font-medium leading-none" style="font-size: {{ section.settings.text_size }}px;" data-viewing-text>{{ 'products.product.viewing_people' | t: count: 1 }}</span>
+    </div>
+  </div>
+</div>
+<style>
+  .viewing-counter__ping { animation: viewing-ping 1.5s cubic-bezier(0,0,0.2,1) infinite; }
+  @keyframes viewing-ping { 75%, 100% { transform: scale(1.8); opacity: 0; } }
+  .viewing-counter__eye { overflow: visible; }
+</style>
+<script>
+(() => {
+  const id = "{{ section.id }}-{{ product_id }}";
+  const el = document.querySelector('[data-viewing-counter="'+id+'"] [data-viewing-text]');
+  if(!el || el.dataset.viewingInit) return;
+  el.dataset.viewingInit = "1";
+  const template = {{ 'products.product.viewing_people' | t: count: '__COUNT__' | json }};
+  const setCount = (n) => { el.textContent = template.replace('__COUNT__', String(n)); };
+  let current = 1;
+  setCount(current);
+  setTimeout(() => { current = 3; setCount(current); }, 3000);
+  const rand = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+  const schedule = () => {
+    const delay = rand(4000, 8000);
+    setTimeout(() => {
+      let next; do { next = rand(1,6); } while(next === current);
+      current = next; setCount(current); schedule();
+    }, delay);
+  };
+  setTimeout(schedule, 3500);
+})();
+</script>
+{%- else -%}
+<div class="product-viewing-counter-section w-full" style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
+  <div class="page-container">
+    <div class="viewing-counter flex items-center gap-2.5 opacity-50">
+      <span class="viewing-counter__eye relative flex items-center justify-center w-8 h-8 rounded-full" style="background: {{ section.settings.eye_bg }}; color: {{ section.settings.eye_color }};">
+        {%- render 'icon', icon: 'eye', size: 'sm' -%}
+      </span>
+      <span style="font-size: {{ section.settings.text_size }}px;">{{ 'products.product.viewing_people' | t: count: 3 }}</span>
+    </div>
+  </div>
+</div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Viewing counter",
+  "settings": [
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product (optional - uses current product if blank)"
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#1C1C1C"
+    },
+    {
+      "type": "color",
+      "id": "eye_bg",
+      "label": "Eye background",
+      "default": "#DCFCE7"
+    },
+    {
+      "type": "color",
+      "id": "eye_color",
+      "label": "Eye icon color",
+      "default": "#16A34A"
+    },
+    {
+      "type": "color",
+      "id": "background",
+      "label": "Section background",
+      "default": "transparent"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 40,
+      "step": 4,
+      "unit": "px",
+      "default": 12
+    }
+  ],
+  "presets": [{ "name": "Viewing counter" }],
+  "enabled_on": {
+    "templates": ["product"]
+  }
+}
+{% endschema %}

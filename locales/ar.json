@@ -73,6 +73,7 @@
   },
   "products": {
     "product": {
+      "viewing_people": "{{ count }} شخص يشاهد هذا المنتج الآن",
       "add_to_cart": "أضف إلى السلة",
       "sold_out": "نفد المخزون",
       "unavailable": "غير متوفر"

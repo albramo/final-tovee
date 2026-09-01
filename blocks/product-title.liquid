@@ -139,9 +139,9 @@
         {%- if show_embedded_price -%}
           <div id="Price-{{ section.id }}-{{ product_id }}" class="ekko-product-title__price product__price">
             {%- if product_item == blank -%}
-              {%- render 'product-price', product: product_item, placeholder: true, use_variant: true, class: 'flex flex-wrap items-baseline gap-2' -%}
+              {%- render 'product-price', product: product_item, placeholder: true, use_variant: true, show_discount_badge: true, class: 'flex flex-wrap items-baseline gap-2' -%}
             {%- else -%}
-              {%- render 'product-price', product: product_item, use_variant: true, class: 'flex flex-wrap items-baseline gap-2' -%}
+              {%- render 'product-price', product: product_item, use_variant: true, show_discount_badge: true, class: 'flex flex-wrap items-baseline gap-2' -%}
             {%- endif -%}
           </div>
         {%- endif -%}

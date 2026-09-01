@@ -303,6 +303,18 @@
         "padding_bottom": 80
       }
     },
+    "viewing_counter": {
+      "type": "product-viewing-counter",
+      "settings": {
+        "text_size": 15,
+        "text_color": "#1c1c1c",
+        "eye_bg": "#DCFCE7",
+        "eye_color": "#16A34A",
+        "background": "transparent",
+        "padding_top": 12,
+        "padding_bottom": 12
+      }
+    },
     "product_details": {
       "type": "product-details",
       "blocks": {
@@ -484,6 +496,7 @@
   },
   "order": [
     "main",
+    "viewing_counter",
     "product_details"
   ]
 }

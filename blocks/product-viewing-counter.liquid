@@ -1,0 +1,90 @@
+{% doc %}
+  Viewing counter - fake live viewers below price
+{% enddoc %}
+
+{%- liquid
+  assign product_item = product | default: section.settings.product
+  assign product_id = product_item.id | default: section.id
+  assign placeholder = false
+  if product_item == blank
+    assign placeholder = true
+  endif
+-%}
+
+{%- unless placeholder -%}
+<div class="ekko-product-block product__viewing-counter flex items-center gap-2.5 py-1" data-viewing-counter="{{ section.id }}-{{ product_id }}" style="color: {{ block.settings.text_color | default: '#1C1C1C' }};">
+  <span class="viewing-counter__eye relative flex items-center justify-center w-8 h-8 rounded-full shrink-0" style="background: {{ block.settings.eye_bg | default: '#DCFCE7' }}; color: {{ block.settings.eye_color | default: '#16A34A' }};">
+    <span class="viewing-counter__ping absolute inset-0 rounded-full opacity-60" style="background: {{ block.settings.eye_bg | default: '#DCFCE7' }};"></span>
+    {%- render 'icon', icon: 'eye', size: 'sm', class: 'relative z-1' -%}
+  </span>
+  <span class="viewing-counter__text font-medium leading-none" style="font-size: {{ block.settings.text_size | default: 15 }}px;" data-viewing-text>{{ 'products.product.viewing_people' | t: count: 1 }}</span>
+</div>
+<style>
+  .viewing-counter__ping { animation: viewing-ping 1.5s cubic-bezier(0,0,0.2,1) infinite; }
+  @keyframes viewing-ping { 75%, 100% { transform: scale(1.8); opacity: 0; } }
+  .viewing-counter__eye { overflow: visible; }
+</style>
+<script>
+(() => {
+  const id = "{{ section.id }}-{{ product_id }}";
+  const el = document.querySelector('[data-viewing-counter="'+id+'"] [data-viewing-text]');
+  if(!el) return;
+  if(el.dataset.viewingInit) return;
+  el.dataset.viewingInit = "1";
+  const template = {{ 'products.product.viewing_people' | t: count: '__COUNT__' | json }};
+  const setCount = (n) => { el.textContent = template.replace('__COUNT__', String(n)); };
+  let current = 1;
+  setCount(current);
+  setTimeout(() => { current = 3; setCount(current); }, 3000);
+  const rand = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+  const schedule = () => {
+    const delay = rand(4000, 8000);
+    setTimeout(() => {
+      let next;
+      do { next = rand(1,6); } while(next === current);
+      current = next;
+      setCount(current);
+      schedule();
+    }, delay);
+  };
+  setTimeout(schedule, 3500);
+})();
+</script>
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "Viewing counter",
+  "settings": [
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 15
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#1C1C1C"
+    },
+    {
+      "type": "color",
+      "id": "eye_bg",
+      "label": "Eye background",
+      "default": "#DCFCE7"
+    },
+    {
+      "type": "color",
+      "id": "eye_color",
+      "label": "Eye icon color",
+      "default": "#16A34A"
+    }
+  ],
+  "presets": [{ "name": "Viewing counter" }]
+}
+{% endschema %}

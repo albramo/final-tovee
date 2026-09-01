@@ -488,6 +488,7 @@
       "show_more": "Show more"
     },
     "product": {
+      "viewing_people": "{{ count }} people are viewing this now",
       "product_variants": "Product variants",
       "sold_out": "Sold Out",
       "unavailable": "Unavailable",
