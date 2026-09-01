@@ -5325,7 +5325,7 @@ class ProductForm extends HTMLFormElement {
   }
 
   get bundles() {
-    return Array.from(document.querySelectorAll(`[form="${this.getAttribute('id')}"] input[name="bundles"]:checked`));
+    return Array.from(document.querySelectorAll(`input[form="${this.getAttribute('id')}"][name="bundles"]:checked`));
   }
 
   prepareFormData(formData) {
