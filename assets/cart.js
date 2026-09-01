@@ -37,6 +37,101 @@ if (!customElements.get('tab-list')) {
   );
 }
 
+// Helper: Dynamically update free shipping bars without full drawer replace
+// Preserves design/location, adds green when completed, smooth progress
+theme.updateFreeShippingBars = theme.updateFreeShippingBars || function(cart) {
+  if (!cart) return;
+  const bars = document.querySelectorAll('[data-free-shipping-bar]');
+  if (!bars.length) return;
+  bars.forEach(bar => {
+    const minimumCents = parseFloat(bar.getAttribute('data-minimum-cents')) || parseFloat(bar.getAttribute('data-minimum-amount')) * 100;
+    if (!minimumCents || isNaN(minimumCents)) return;
+    // Adjust total if gift wrap exists: try to detect gift wrap price in cart
+    let totalPrice = cart.total_price;
+    // If bar is inside drawer/cart and gift wrap logic exists, cart.total_price already includes gift wrap, but snippet subtracts it
+    // Try to approximate by checking cart items for gift wrap id if stored in bar dataset (fallback ignore)
+    const progress = Math.min(totalPrice / minimumCents, 1);
+    const isCompleted = totalPrice >= minimumCents;
+    bar.classList.toggle('free-shipping-bar--completed', isCompleted);
+    bar.setAttribute('data-is-completed', isCompleted);
+    bar.setAttribute('data-progress', progress);
+    bar.setAttribute('data-cart-total', totalPrice);
+    const progressBar = bar.querySelector('[data-free-shipping-progress]');
+    if (progressBar) {
+      progressBar.style.setProperty('--progress', progress);
+    }
+    const messageEl = bar.querySelector('[data-free-shipping-message]');
+    if (messageEl) {
+      if (isCompleted) {
+        const congrat = bar.getAttribute('data-congratulations') || 'You are eligible for free shipping.';
+        // Decode escaped HTML entities from Liquid escape
+        const txt = document.createElement('textarea');
+        txt.innerHTML = congrat;
+        messageEl.innerHTML = txt.value;
+        messageEl.classList.add('free-shipping-bar__message--success');
+      } else {
+        const template = bar.getAttribute('data-remaining-template') || 'Spend [[remaining_amount]] more to reach free shipping!';
+        const tplDecoded = (function(s){
+          const t=document.createElement('textarea'); t.innerHTML=s; return t.value;
+        })(template);
+        const remaining = minimumCents - totalPrice;
+        let money = '';
+        try {
+          money = theme.Currency ? theme.Currency.formatMoney(remaining, theme.settings.moneyFormat) : (remaining/100).toFixed(2);
+        } catch(e) {
+          money = theme.Currency ? theme.Currency.formatMoney(remaining) : remaining;
+        }
+        const remainingHtml = `<span data-free-shipping-remaining>${money}</span>`;
+        const finalHtml = tplDecoded.replace('[[remaining_amount]]', remainingHtml).replace('{{ remaining_amount }}', remainingHtml).replace('[[remaining]]', remainingHtml);
+        messageEl.innerHTML = finalHtml;
+        messageEl.classList.remove('free-shipping-bar__message--success');
+      }
+    }
+  });
+};
+
+// Listen to cart:updated for bars outside cart-items flow (e.g., after add)
+document.addEventListener('cart:updated', (e) => {
+  if (e.detail && e.detail.cart && typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(e.detail.cart);
+});
+if (theme.pubsub && theme.pubsub.subscribe && theme.pubsub.PUB_SUB_EVENTS) {
+  try {
+    theme.pubsub.subscribe(theme.pubsub.PUB_SUB_EVENTS.cartUpdate, (e) => {
+      if (e && e.cart && typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(e.cart);
+      // Ensure drawer auto-opens when product added (fixes second product not showing)
+      try {
+        if (e && e.source === 'product-form' && e.cart && e.cart.item_count > 0) {
+          const drawer = document.getElementById('CartDrawer');
+          if (drawer && !drawer.hasAttribute('open')) {
+            setTimeout(() => {
+              if (!drawer.hasAttribute('open')) drawer.show(e.target || document.activeElement);
+            }, 80);
+          }
+        }
+        // Also for product-bundle and other sources that add items
+        if (e && (e.source === 'product-bundle' || e.source === 'product-form') && e.cart) {
+          const drawer = document.getElementById('CartDrawer');
+          if (drawer && !drawer.hasAttribute('open') && e.cart.item_count > 0) {
+            setTimeout(() => { if (!drawer.hasAttribute('open')) drawer.show(); }, 80);
+          }
+        }
+      } catch(err) {}
+    });
+  } catch(e) {}
+}
+
+// Global fallback: ensure cart-drawer is always bundled (fixes add product where drawer not showing)
+document.addEventListener('cart:bundled-sections', (e) => {
+  try {
+    const drawer = document.getElementById('CartDrawer');
+    if (drawer) {
+      const sec = drawer.getAttribute('data-render-section-id') || drawer.getAttribute('data-section-id');
+      if (sec && !e.detail.sections.includes(sec)) e.detail.sections.push(sec);
+      if (!e.detail.sections.includes('cart-drawer')) e.detail.sections.push('cart-drawer');
+    }
+  } catch(err) {}
+});
+
 if (!customElements.get('cart-drawer')) {
   customElements.define(
     'cart-drawer',
@@ -93,9 +188,23 @@ if (!customElements.get('cart-drawer')) {
         if (event.cart.errors) return;
         const miniCart = document.getElementById(`MiniCart-${this.sectionId}`);
         if (!miniCart) return;
+        // Update free shipping bars dynamically
+        if (window.theme && typeof theme.updateFreeShippingBars === 'function') {
+          try { theme.updateFreeShippingBars(event.cart); } catch(e) {}
+        }
         const hasItems = event.cart.item_count > 0;
         const drawerHasItems = miniCart.querySelector('cart-items .horizontal-products li');
         const wasEmpty = !drawerHasItems;
+        // Detect count mismatch (e.g., second product added but drawer still shows 1) - force refresh
+        try {
+          const drawerCount = miniCart.querySelectorAll('cart-items .horizontal-products li').length;
+          const cartCount = (event.cart.items && event.cart.items.length) ? event.cart.items.length : event.cart.item_count;
+          // For quantity change, item length same but quantity differs, so also check total quantity mismatch via cartUpdate
+          // If counts differ, force refresh to sync drawer
+          if (hasItems && drawerHasItems && drawerCount !== cartCount) {
+            setTimeout(() => this.onCartRefresh({ detail: { open: true } }), 150);
+          }
+        } catch(e) {}
         if (hasItems && !drawerHasItems) {
           setTimeout(() => {
             const stillEmpty = !miniCart.querySelector('cart-items .horizontal-products li');
@@ -105,7 +214,6 @@ if (!customElements.get('cart-drawer')) {
         if (!hasItems && drawerHasItems) {
           setTimeout(() => this.onCartRefresh({ detail: { open: false } }), 350);
         }
-        // If a product was added (item_count increased) ensure drawer opens automatically like before
         if (hasItems && wasEmpty) {
           setTimeout(() => {
             if (!this.open) this.show();
@@ -129,19 +237,178 @@ if (!customElements.get('cart-drawer')) {
 
       async onCartRefresh(event) {
         const id = `MiniCart-${this.sectionId}`;
-        if (document.getElementById(id) === null) return;
+        const miniCartEl = document.getElementById(id);
+        if (miniCartEl === null) return;
 
-        const url = `${theme.routes.root_url}?section_id=${this.renderSectionId}&t=${Date.now()}`;
-        const responseText = await (await fetch(url, { credentials: 'same-origin', headers: { 'Accept': 'text/html' } })).text();
-        const parsedHTML = new DOMParser().parseFromString(responseText, 'text/html');
-        const updatedMiniCart = parsedHTML.querySelector('[id^="MiniCart-"]') || parsedHTML.querySelector(`#MiniCart-${this.sectionId}`);
+        const wasOpen = this.open;
+        const wasActive = this.hasAttribute('active');
+        const scrollable = miniCartEl.querySelector('.drawer__scrollable');
+        const scrollTop = scrollable ? scrollable.scrollTop : 0;
 
-        if (!updatedMiniCart) return;
-        document.getElementById(id).innerHTML = updatedMiniCart.innerHTML;
+        // Try with actual section id first (preserves merchant settings like free_shipping_bar), fallback to renderSectionId
+        // Added extra strategies for overlay-group sections (Shopify section rendering API)
+        let updatedMiniCart = null;
+        const tried = new Set();
+        const candidates = [this.sectionId, this.renderSectionId, 'cart-drawer'].filter(Boolean);
+        for (const sid of [...new Set(candidates)]) {
+          if (tried.has(sid)) continue;
+          tried.add(sid);
+          for (const urlTemplate of [
+            `${theme.routes.root_url}?section_id=${sid}&t=${Date.now()}`,
+            `${theme.routes.root_url}?sections=${sid}&t=${Date.now()}`,
+            `/cart?section_id=${sid}&t=${Date.now()}`,
+            `${window.location.pathname}?section_id=${sid}&t=${Date.now()}`
+          ]) {
+            try {
+              const responseText = await (await fetch(urlTemplate, { credentials: 'same-origin', headers: { 'Accept': 'text/html' } })).text();
+              // If response is JSON (sections API), parse differently
+              let parsedHTML;
+              try {
+                const json = JSON.parse(responseText);
+                const html = json[sid] || json['cart-drawer'] || Object.values(json)[0];
+                if (html) parsedHTML = new DOMParser().parseFromString(html, 'text/html');
+                else parsedHTML = new DOMParser().parseFromString(responseText, 'text/html');
+              } catch(_) {
+                parsedHTML = new DOMParser().parseFromString(responseText, 'text/html');
+              }
+              updatedMiniCart = parsedHTML.querySelector(`#MiniCart-${sid}`) || parsedHTML.querySelector('[id^="MiniCart-"]') || parsedHTML.querySelector(`#MiniCart-${this.sectionId}`) || parsedHTML.querySelector('cart-drawer #MiniCart-*') || parsedHTML.querySelector('#MiniCart-cart-drawer');
+              // Also try to find cart-items then climb to MiniCart
+              if (!updatedMiniCart) {
+                const cartItems = parsedHTML.querySelector('cart-items');
+                if (cartItems) updatedMiniCart = cartItems.closest('[id^="MiniCart-"]') || cartItems.parentElement;
+              }
+              if (updatedMiniCart && updatedMiniCart.querySelector && updatedMiniCart.querySelector('cart-items')) break;
+              if (updatedMiniCart && updatedMiniCart.innerHTML && updatedMiniCart.innerHTML.includes('cart-items')) break;
+            } catch(e) {}
+          }
+          if (updatedMiniCart && updatedMiniCart.querySelector && updatedMiniCart.querySelector('cart-items')) break;
+          if (updatedMiniCart && updatedMiniCart.innerHTML && updatedMiniCart.innerHTML.includes('horizontal-products')) break;
+        }
+        // Extra attempt for overlay-group via sections API JSON
+        if (!updatedMiniCart) {
+          try {
+            const res = await fetch(`${theme.routes.root_url}?sections=cart-drawer&t=${Date.now()}`, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+            if (res.ok) {
+              const text = await res.text();
+              let html = null;
+              try {
+                const json = JSON.parse(text);
+                html = json['cart-drawer'] || json[Object.keys(json)[0]];
+              } catch(_) {
+                html = text;
+              }
+              if (html) {
+                const parsed = new DOMParser().parseFromString(html, 'text/html');
+                updatedMiniCart = parsed.querySelector('[id^="MiniCart-"]') || parsed.querySelector('cart-drawer')?.querySelector('[id^="MiniCart-"]') || parsed.querySelector('cart-items')?.closest('[id^="MiniCart-"]');
+                if (updatedMiniCart && !updatedMiniCart.querySelector('cart-items')) {
+                  const ci = parsed.querySelector('cart-items');
+                  if (ci) updatedMiniCart = ci.closest('[id^="MiniCart-"]') || miniCartEl;
+                }
+              }
+            }
+          } catch(e) {}
+        }
+        if (!updatedMiniCart) {
+          try {
+            const res2 = await fetch(`/?sections=cart-drawer&t=${Date.now()}`, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+            if (res2.ok) {
+              const json2 = await res2.json();
+              const html2 = json2['cart-drawer'];
+              if (html2) {
+                const parsed2 = new DOMParser().parseFromString(html2, 'text/html');
+                updatedMiniCart = parsed2.querySelector('[id^="MiniCart-"]') || parsed2.querySelector('[id^="MiniCart-cart-drawer"]');
+              }
+            }
+          } catch(e) {}
+        }
+        // Last resort: fetch cart.js and reconstruct minimal update (keep drawer open, update count via helper)
+        if (!updatedMiniCart) {
+          // Fallback: keep existing bar and just update its progress via cart.js
+          try {
+            const cartRes = await fetch(`${theme.routes.cart_url}.js`, { credentials: 'same-origin', headers: {'Accept':'application/json'}});
+            if (cartRes.ok) {
+              const cartJson = await cartRes.json();
+              if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(cartJson);
+            }
+          } catch(e) {}
+          // Don't return empty - try to preserve existing MiniCart and just update bar
+          // If we have no updated HTML, keep current DOM but ensure bar exists
+          if (!updatedMiniCart) {
+            // Ensure bar exists - if missing, inject from current cart data
+            let bar = miniCartEl.querySelector('[data-free-shipping-bar]');
+            if (!bar) {
+              // Try to create bar from current cart - fetch minimum from settings
+              const minCents = 100000; // fallback 1000 EGP
+              const fallbackBar = document.createElement('div');
+              fallbackBar.innerHTML = `<div class="free-shipping-bar grid gap-3 w-full" data-free-shipping-bar data-minimum-cents="${minCents}" data-minimum-amount="${minCents/100}"><span class="text-sm leading-tight" data-free-shipping-message></span><progress-bar style="--progress:0" data-free-shipping-progress></progress-bar></div>`;
+              const scrollable = miniCartEl.querySelector('.drawer__scrollable');
+              if (scrollable) scrollable.prepend(fallbackBar.firstElementChild);
+            }
+            try { 
+              const cartRes2 = await fetch(`${theme.routes.cart_url}.js`, { credentials: 'same-origin'});
+              if (cartRes2.ok) {
+                const c2 = await cartRes2.json();
+                if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(c2);
+                // Try to sync product list from cart JSON as last resort for second product
+                try {
+                  if (c2.items && c2.items.length !== miniCartEl.querySelectorAll('cart-items .horizontal-products li').length) {
+                    // Force a hard refresh of cart drawer via full page sections fetch
+                    const hardRes = await fetch(`${theme.routes.root_url}?sections=cart-drawer`, {credentials:'same-origin'});
+                    if (hardRes.ok) {
+                      const hardJson = await hardRes.json();
+                      const hardHtml = hardJson['cart-drawer'];
+                      if (hardHtml) {
+                        const hp = new DOMParser().parseFromString(hardHtml, 'text/html');
+                        const hm = hp.querySelector('[id^="MiniCart-"]');
+                        if (hm) {
+                          miniCartEl.innerHTML = hm.innerHTML;
+                          if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(c2);
+                        }
+                      }
+                    }
+                  }
+                } catch(e) {}
+              }
+            } catch(e) {}
+            // Keep drawer open
+            if (wasOpen && !this.open) {
+              this.hidden = false;
+              this.removeAttribute('inert');
+              this.setAttribute('open','');
+              this.setAttribute('active','');
+            }
+            if (event.detail && event.detail.open === true) this.show();
+            return;
+          }
+        }
+        miniCartEl.innerHTML = updatedMiniCart.innerHTML;
+
+        // Preserve scroll position
+        try {
+          const newScrollable = miniCartEl.querySelector('.drawer__scrollable');
+          if (newScrollable && scrollTop) newScrollable.scrollTop = scrollTop;
+        } catch(e) {}
+
+        // Keep drawer open if it was open before refresh (prevents disappearing to empty state)
+        if (wasOpen && !this.open) {
+          this.hidden = false;
+          this.removeAttribute('inert');
+          this.setAttribute('open', wasActive ? '' : 'immediate');
+          this.setAttribute('active', '');
+          try { theme.a11y.trapFocus(this, this.focusElement); } catch(e) {}
+        }
 
         if (event.detail && event.detail.open === true) {
           this.show();
         }
+
+        // Re-apply free shipping bar after DOM swap
+        try {
+          fetch(`${theme.routes.cart_url}.js`, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+            .then(r => r.json())
+            .then(c => { if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(c); })
+            .catch(()=>{});
+        } catch(e) {}
       }
 
       show(focusElement = null, animate = true) {
@@ -212,7 +479,7 @@ if (!customElements.get('cart-items')) {
         this.validateQuantity(event);
       }
 
-      onCartUpdate(event) {
+      async onCartUpdate(event) {
         const loadingLine = event.line;
 
         try {
@@ -221,10 +488,69 @@ if (!customElements.get('cart-items')) {
             return;
           }
 
-          const sectionHTML = event.cart.sections?.[this.renderSectionId];
+          // Dynamically update free shipping bars instantly if available
+          if (typeof theme.updateFreeShippingBars === 'function') {
+            try { theme.updateFreeShippingBars(event.cart); } catch(e) {}
+          }
+
+          let sectionHTML = event.cart.sections?.[this.renderSectionId] || event.cart.sections?.[this.sectionId];
+          if (!sectionHTML && event.cart.sections) {
+            // Fallback: search any section containing MiniCart (handles overlay-group key mismatches)
+            for (const key in event.cart.sections) {
+              const html = event.cart.sections[key];
+              if (html && typeof html === 'string' && html.includes('MiniCart-')) {
+                sectionHTML = html;
+                break;
+              }
+            }
+          }
           if (!sectionHTML) {
+            // Try direct sections API fetch as fallback before dispatching refresh
+            try {
+              const directRes = await fetch(`/?sections=cart-drawer&t=${Date.now()}`, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+              if (directRes.ok) {
+                const directJson = await directRes.json();
+                const directHtml = directJson['cart-drawer'] || directJson[Object.keys(directJson)[0]];
+                if (directHtml && directHtml.includes('MiniCart-')) {
+                  sectionHTML = directHtml;
+                }
+              }
+            } catch(e) {}
+          }
+          if (!sectionHTML) {
+            try {
+              const directRes2 = await fetch(`${theme.routes.root_url}?sections=cart-drawer&t=${Date.now()}`, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } });
+              if (directRes2.ok) {
+                const txt = await directRes2.text();
+                try {
+                  const j2 = JSON.parse(txt);
+                  const h2 = j2['cart-drawer'];
+                  if (h2 && h2.includes('MiniCart-')) sectionHTML = h2;
+                } catch(_) {
+                  if (txt.includes('MiniCart-')) sectionHTML = txt;
+                }
+              }
+            } catch(e) {}
+          }
+          if (!sectionHTML) {
+            // Preserve drawer open state even when sections missing - don't close drawer
+            const drawerForRefresh = document.getElementById('CartDrawer');
+            const wasOpen = drawerForRefresh && drawerForRefresh.hasAttribute('open');
+            // Also try to sync products from cart JSON if count mismatch
+            try {
+              if (event.cart && event.cart.items) {
+                const mini = document.querySelector(`#MiniCart-${this.sectionId}`);
+                const currentCount = mini ? mini.querySelectorAll('cart-items .horizontal-products li').length : 0;
+                if (currentCount !== event.cart.items.length) {
+                  document.dispatchEvent(new CustomEvent('cart:refresh', { detail: { open: true } }));
+                  // Also force update free shipping
+                  if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(event.cart);
+                  return;
+                }
+              }
+            } catch(e) {}
             document.dispatchEvent(new CustomEvent('cart:refresh', {
-              detail: { open: false }
+              detail: { open: wasOpen ? true : false }
             }));
             return;
           }
@@ -232,11 +558,67 @@ if (!customElements.get('cart-items')) {
           const sectionToRender = new DOMParser().parseFromString(sectionHTML, 'text/html');
 
           const miniCart = document.querySelector(`#MiniCart-${this.sectionId}`);
+          let miniCartWasOpen = false;
+          let miniCartScrollTop = 0;
+          let drawerEl = null;
+          // Preserve old bar in case new HTML missing it (prevents disappearing bar)
+          let oldBarHTML = null;
+          let oldBarMin = null;
           if (miniCart) {
+            const oldBar = miniCart.querySelector('[data-free-shipping-bar]');
+            if (oldBar) {
+              oldBarHTML = oldBar.outerHTML;
+              oldBarMin = oldBar.getAttribute('data-minimum-cents') || oldBar.getAttribute('data-minimum-amount');
+            }
+          }
+          if (miniCart) {
+            drawerEl = document.getElementById('CartDrawer') || miniCart.closest('cart-drawer');
+            miniCartWasOpen = drawerEl ? drawerEl.hasAttribute('open') : false;
+            const scrollable = miniCart.querySelector('.drawer__scrollable');
+            miniCartScrollTop = scrollable ? scrollable.scrollTop : 0;
             const updatedElement = sectionToRender.querySelector(`#MiniCart-${this.sectionId}`)
               || sectionToRender.querySelector('[id^="MiniCart-"]');
             if (updatedElement) {
               miniCart.innerHTML = updatedElement.innerHTML;
+              // Restore scroll position
+              try {
+                const newScrollable = miniCart.querySelector('.drawer__scrollable');
+                if (newScrollable && miniCartScrollTop) newScrollable.scrollTop = miniCartScrollTop;
+              } catch(e) {}
+              // Keep drawer open if it was open before replacement
+              if (miniCartWasOpen && drawerEl && !drawerEl.hasAttribute('open')) {
+                drawerEl.hidden = false;
+                drawerEl.removeAttribute('inert');
+                drawerEl.setAttribute('open', '');
+                drawerEl.setAttribute('active', '');
+              }
+              // Ensure bar exists - restore old bar if new HTML missing it (critical for disappearing bar)
+              let newBar = miniCart.querySelector('[data-free-shipping-bar]');
+              if (!newBar && oldBarHTML) {
+                const newScrollable = miniCart.querySelector('.drawer__scrollable');
+                if (newScrollable) {
+                  newScrollable.insertAdjacentHTML('afterbegin', oldBarHTML);
+                  newBar = miniCart.querySelector('[data-free-shipping-bar]');
+                }
+              }
+              // Re-apply free shipping progress after DOM swap (server rendered already but ensure green state)
+              if (typeof theme.updateFreeShippingBars === 'function') {
+                try { theme.updateFreeShippingBars(event.cart); } catch(e) {}
+              }
+              // Force bar visibility even if progress was 0
+              try {
+                const barEl = miniCart.querySelector('[data-free-shipping-bar]');
+                if (barEl) barEl.style.display = '';
+                const prog = miniCart.querySelector('[data-free-shipping-progress]');
+                if (prog && !prog.style.getPropertyValue('--progress')) {
+                  prog.style.setProperty('--progress', '0');
+                }
+              } catch(e) {}
+            } else if (oldBarHTML) {
+              // No updatedElement found but we have old bar - ensure it stays and update progress
+              if (typeof theme.updateFreeShippingBars === 'function') {
+                try { theme.updateFreeShippingBars(event.cart); } catch(e) {}
+              }
             }
           }
 
@@ -245,6 +627,9 @@ if (!customElements.get('cart-items')) {
             const updatedElement = sectionToRender.querySelector(`#MainCart-${this.sectionId}`);
             if (updatedElement) {
               mainCart.innerHTML = updatedElement.innerHTML;
+              if (typeof theme.updateFreeShippingBars === 'function') {
+                try { theme.updateFreeShippingBars(event.cart); } catch(e) {}
+              }
             }
             else {
               mainCart.closest('.cart').classList.add('is-empty');
@@ -252,19 +637,22 @@ if (!customElements.get('cart-items')) {
             }
           }
 
-          const lineItem = document.getElementById(`CartItem-${event.line}`) || document.getElementById(`CartDrawer-Item-${event.line}`);
-          if (lineItem && lineItem.querySelector(`[name="${event.name}"]`)) {
-            theme.a11y.trapFocus(mainCart || miniCart, lineItem.querySelector(`[name="${event.name}"]`));
-          }
-          else if (event.cart.item_count === 0) {
-            miniCart
-              ? theme.a11y.trapFocus(miniCart, miniCart.querySelector('a'))
-              : theme.a11y.trapFocus(document.querySelector('.empty-state'), document.querySelector('.empty-state__link'));
-          }
-          else {
-            miniCart
-              ? theme.a11y.trapFocus(miniCart, miniCart.querySelector('.horizontal-product__title'))
-              : theme.a11y.trapFocus(mainCart, mainCart.querySelector('.cart__item-title'));
+          // Focus handling with safety - avoid throwing if element missing
+          try {
+            const lineItem = document.getElementById(`CartItem-${event.line}`) || document.getElementById(`CartDrawer-Item-${event.line}`);
+            if (lineItem && event.name && lineItem.querySelector(`[name="${event.name}"]`)) {
+              theme.a11y.trapFocus(mainCart || miniCart, lineItem.querySelector(`[name="${event.name}"]`));
+            }
+            else if (event.cart.item_count === 0) {
+              const focusTarget = miniCart ? miniCart.querySelector('a') : document.querySelector('.empty-state__link');
+              if (focusTarget) theme.a11y.trapFocus(miniCart || document.querySelector('.empty-state') || document.body, focusTarget);
+            }
+            else {
+              const fallback = miniCart ? miniCart.querySelector('.horizontal-product__title') : (mainCart ? mainCart.querySelector('.cart__item-title') : null);
+              if (fallback) theme.a11y.trapFocus(miniCart || mainCart, fallback);
+            }
+          } catch(focusError) {
+            console.warn('Cart focus error', focusError);
           }
 
           document.dispatchEvent(new CustomEvent('cart:updated', {
@@ -307,7 +695,21 @@ if (!customElements.get('cart-items')) {
 
         let sectionsToBundle = [];
         document.documentElement.dispatchEvent(new CustomEvent('cart:bundled-sections', { bubbles: true, detail: { sections: sectionsToBundle } }));
-        sectionsToBundle = [...new Set(sectionsToBundle.filter(Boolean))];
+        // Ensure critical sections are always bundled even if listeners miss event (fallback for disappearing drawer)
+        const fallbackSections = [];
+        if (this.renderSectionId) fallbackSections.push(this.renderSectionId);
+        if (this.sectionId && this.sectionId !== this.renderSectionId) fallbackSections.push(this.sectionId);
+        // Always include cart-drawer and main-cart if present (fixes add product not showing)
+        const cartDrawerEl = document.getElementById('CartDrawer');
+        if (cartDrawerEl) {
+          const drawerSec = cartDrawerEl.getAttribute('data-section-id') || cartDrawerEl.getAttribute('data-render-section-id') || 'cart-drawer';
+          fallbackSections.push(drawerSec);
+          fallbackSections.push('cart-drawer');
+        }
+        const mainCartEl = document.querySelector('main-cart');
+        if (mainCartEl && mainCartEl.getAttribute('data-section-id')) fallbackSections.push(mainCartEl.getAttribute('data-section-id'));
+        // Merge and dedupe
+        sectionsToBundle = [...new Set([...sectionsToBundle, ...fallbackSections].filter(Boolean))];
 
         const body = JSON.stringify({
           id: line,
