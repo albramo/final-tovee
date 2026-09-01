@@ -32,7 +32,7 @@
           {%- if section.settings.recent_products_enabled -%}
             <li>
               <button class="drawer__tab" type="button" aria-controls="RecentlyViewed-{{ section.id }}" aria-expanded="false">
-                <span class="drawer__title heading lg:text-3xl text-2xl leading-none tracking-tight">{{ section.settings.recent_products_heading | escape }}</span>
+                <span class="drawer__title heading lg:text-3xl text-2xl leading-none tracking-tight">{{ 'sections.cart_drawer.recent_products_heading' | t | escape }}</span>
               </button>
             </li>
           {%- endif -%}
@@ -54,7 +54,11 @@
                 <div class="drawer__empty grid gap-5 md:gap-8">
                   <h2 class="drawer__empty-text heading leading-none tracking-tight">{{ 'cart.general.empty' | t }}</h2>
                   <div class="drawer__empty-message text-sm md:text-base leading-tight rte">
-                    {{- section.settings.empty_cart_message -}}
+                    {%- if section.settings.empty_cart_message != blank -%}
+                      {{- section.settings.empty_cart_message -}}
+                    {%- else -%}
+                      {{- 'sections.cart_drawer.empty_message' | t -}}
+                    {%- endif -%}
                   </div>
                   <ul class="drawer__empty-collections grid gap-3">
                     {%- if section.settings.empty_cart_collections == blank -%}
@@ -474,13 +478,16 @@
                     endif
                   endif
                 -%}
+                {%- liquid
+                  assign complementary_heading = 'sections.cart_drawer.cart_recommendations_heading' | t
+                -%}
                 {%- render 'product-complementary',
                   section_id: 'cart-drawer',
                   product_id: first_product_id,
                   image_ratio: settings.product_image_ratio,
                   image_fill: settings.product_image_fill,
                   limit: section.settings.cart_recommendations_limit,
-                  heading: section.settings.cart_recommendations_heading,
+                  heading: complementary_heading,
                   show_vendor: section.settings.show_cart_recommendations_vendor,
                   show_price: section.settings.show_cart_recommendations_price,
                   recommendations_products: section.settings.cart_recommendations_products,
@@ -683,7 +690,7 @@
 
         {%- if section.settings.recent_products_enabled -%}
           <div id="RecentlyViewed-{{ section.id }}" class="drawer__panel opacity-0 flex flex-col overflow-hidden">
-            <span class="sr-only">{{ section.settings.recent_products_heading | escape }}</span>
+            <span class="sr-only">{{ 'sections.cart_drawer.recent_products_heading' | t | escape }}</span>
             <recently-viewed class="cart__recent flex flex-col h-full" data-url="{{ routes.search_url }}?section_id=cart-drawer&type=product&q=" data-limit="{{ section.settings.recent_products_limit }}"{% if request.page_type == 'product' %} data-product-id="{{ product.id }}"{% endif %}>
               {%- if request.page_type == 'search' and search.performed and search.results_count > 0 -%}
                 {%- liquid
