@@ -77,9 +77,13 @@
   text-align: left;
   direction: rtl;
 }
+[dir="rtl"] .cart-drawer .drawer__header {
+  flex-direction: row-reverse;
+}
 [dir="rtl"] .cart-drawer .drawer__close {
-  margin-inline-start: 0;
-  margin-inline-end: auto;
+  margin-inline-start: 0 !important;
+  margin-inline-end: auto !important;
+  align-self: center;
 }
 [dir="rtl"] .cart-drawer .reversed-link,
 [dir="rtl"] .cart-drawer .link {
