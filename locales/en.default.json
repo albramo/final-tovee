@@ -151,15 +151,7 @@
       },
       "recently_viewed": {
         "empty": "Your recently viewed is empty."
-      },
-      "discount": "Discount",
-      "discount_code": "Discount code",
-      "discount_code_caption": "Discount code",
-      "apply": "Apply",
-      "discount_applied": "Discount applied to total order!",
-      "discount_invalid": "Invalid code or not applicable (check admin discount conditions)",
-      "discount_enter": "Please enter a discount code",
-      "discount_removed": "Discount removed - please re-enter code"
+      }
     },
     "drawers": {
       "navigation": "Site navigation"
