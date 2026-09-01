@@ -242,6 +242,11 @@
       "min_error": "This item has a minimum of {{ min }}",
       "max_error": "This item has a maximum of {{ max }}",
       "step_error": "You can only add this item in increments of {{ step }}"
+    },
+    "cart_drawer": {
+      "recent_products_heading": "Recently viewed",
+      "cart_recommendations_heading": "You may also like",
+      "empty_message": "<p>Not sure where to start?<br>Try these collections:</p>"
     }
   },
   "blogs": {

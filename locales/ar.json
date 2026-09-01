@@ -86,7 +86,8 @@
   "sections": {
     "cart_drawer": {
       "recent_products_heading": "شوهدت مؤخراً",
-      "cart_recommendations_heading": "قد يعجبك أيضاً"
+      "cart_recommendations_heading": "قد يعجبك أيضاً",
+      "empty_message": "<p>لست متأكداً من أين تبدأ؟<br>جرب هذه المجموعات:</p>"
     }
   }
 }
