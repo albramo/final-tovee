@@ -1,6 +1,8 @@
-{%- case request.locale.iso_code -%}
-  {%- when 'ae' or 'ar' or 'arc' or 'bcc' or 'bqi' or 'ckb' or 'dv' or 'fa' or 'glk' or 'ha' or 'he' or 'kwh' or 'ks' or 'ku' or 'mzn' or 'nqo' or 'pnb' or 'ps' or 'sd' or 'ug' or 'ur' or 'yi' -%}
-    rtl
-  {%- else -%}
-    ltr
-{%- endcase -%}
+{%- assign iso = request.locale.iso_code | downcase -%}
+{%- if iso contains 'ar' or iso contains 'he' or iso contains 'fa' or iso contains 'ur' -%}
+  rtl
+{%- elsif iso == 'ae' or iso == 'arc' or iso == 'bcc' or iso == 'bqi' or iso == 'ckb' or iso == 'dv' or iso == 'glk' or iso == 'ha' or iso == 'kwh' or iso == 'ks' or iso == 'ku' or iso == 'mzn' or iso == 'nqo' or iso == 'pnb' or iso == 'ps' or iso == 'sd' or iso == 'ug' or iso == 'yi' -%}
+  rtl
+{%- else -%}
+  ltr
+{%- endif -%}

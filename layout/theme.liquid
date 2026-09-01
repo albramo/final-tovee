@@ -46,6 +46,29 @@
       echo 'rtl.css' | asset_url | stylesheet_tag: preload: true
     endif
   -%}
+  <script>
+  // Fallback RTL for Translate & Adapt when locale still 'en' but content is Arabic
+  (function(){
+    try {
+      var html = document.documentElement;
+      var lang = (html.getAttribute('lang') || '').toLowerCase();
+      var isArLang = lang.indexOf('ar') === 0;
+      // Detect Arabic characters in cart drawer title
+      var hasArabic = false;
+      try { hasArabic = /[\u0600-\u06FF]/.test(document.documentElement.innerHTML.slice(0,5000)); } catch(e){}
+      if ((isArLang || hasArabic) && html.getAttribute('dir') !== 'rtl') {
+        html.setAttribute('dir','rtl');
+        html.dir = 'rtl';
+        if (!document.querySelector('link[href*="rtl.css"]')) {
+          var l = document.createElement('link');
+          l.rel = 'stylesheet';
+          l.href = "{{ 'rtl.css' | asset_url }}";
+          document.head.appendChild(l);
+        }
+      }
+    } catch(e){}
+  })();
+  </script>
 
   <link rel="stylesheet" href="{{ 'apps.css' | asset_url }}" media="print" fetchpriority="low" onload="this.media='all'">
 

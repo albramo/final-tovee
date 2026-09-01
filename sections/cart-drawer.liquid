@@ -740,16 +740,18 @@
   .js #CartDrawer .drawer__header::before {
     display: none !important;
   }
-  /* Fix close button position for both LTR/RTL and PC/mobile */
+  /* Fix close button - for Arabic: tabs right, X left (row-reverse) */
   #CartDrawer .drawer__header {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
     gap: var(--sp-4) !important;
+    flex-direction: row-reverse !important;
   }
   #CartDrawer .drawer__tabs {
     flex: 1 1 auto !important;
     min-width: 0 !important;
+    justify-content: flex-end !important;
   }
   .js #CartDrawer .drawer__close,
   #CartDrawer .drawer__close {
