@@ -66,14 +66,6 @@
       data-mobile-media-position="{{ section.settings.mobile_media_position }}"
       data-mode="{{ mode | default: 'featured' }}"
     >
-      {%- liquid
-        assign _breadcrumb_block = section.blocks | where: "type", "product-breadcrumb" | first
-      -%}
-      {%- if _breadcrumb_block and _breadcrumb_block.settings.show_on_mobile -%}
-        <div class="ekko-product-showcase__breadcrumb-mobile lg:hidden w-full">
-          {%- render 'product-breadcrumb', block: _breadcrumb_block, product_resource: product_item, is_mobile: true -%}
-        </div>
-      {%- endif -%}
       <div class="ekko-product-showcase__media product__gallery-container">
         {%- if placeholder -%}
           <div class="ekko-product-showcase__placeholder card media media--square" aria-hidden="true">

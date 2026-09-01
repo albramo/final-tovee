@@ -11,7 +11,7 @@
 -%}
 
 <nav
-  class="product__breadcrumb breadcrumb{% if is_mobile %} flex lg:hidden{% else %} hidden lg:flex{% endif %}"
+  class="product__breadcrumb breadcrumb{% unless block.settings.show_on_mobile %} hidden lg:flex{% endunless %}"
   role="navigation"
   aria-label="breadcrumbs"
 >
