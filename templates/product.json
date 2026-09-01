@@ -69,7 +69,7 @@
         "price": {
           "type": "product-price",
           "settings": {
-            "show_taxes_notice": true,
+            "show_taxes_notice": false,
             "show_payment_terms": true,
             "color": "#1c1c1c"
           },
