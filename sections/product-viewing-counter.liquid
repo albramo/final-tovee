@@ -10,37 +10,51 @@
 {%- if product_item != blank -%}
 <div class="product-viewing-counter-section w-full" style="--viewing-bg: {{ section.settings.background | default: 'transparent' }}; padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
   <div class="page-container">
-    <div class="viewing-counter flex items-center gap-2.5" data-viewing-counter="{{ section.id }}-{{ product_id }}" style="color: {{ section.settings.text_color }};">
+    <div class="viewing-counter flex items-center" data-viewing-counter="{{ section.id }}-{{ product_id }}" style="color: {{ section.settings.text_color }}; gap: 4px;">
       <span class="viewing-counter__eye relative flex items-center justify-center w-8 h-8 rounded-full shrink-0" style="background: {{ section.settings.eye_bg }}; color: {{ section.settings.eye_color }};">
         <span class="viewing-counter__ping absolute inset-0 rounded-full opacity-60" style="background: {{ section.settings.eye_bg }};"></span>
         {%- render 'icon', icon: 'eye', size: 'sm', class: 'relative z-1' -%}
       </span>
-      <span class="viewing-counter__text font-medium leading-none" style="font-size: {{ section.settings.text_size }}px;" data-viewing-text>{{ 'products.product.viewing_people' | t: count: 1 }}</span>
+      <span class="viewing-counter__text font-medium leading-none flex items-baseline gap-1" style="font-size: {{ section.settings.text_size }}px;">
+        <span data-viewing-number class="inline-block tabular-nums" style="transition: opacity 200ms ease, transform 200ms ease;">1</span>
+        <span>{{ 'products.product.viewing_suffix' | t }}</span>
+      </span>
     </div>
   </div>
 </div>
 <style>
-  .viewing-counter__ping { animation: viewing-ping 1.5s cubic-bezier(0,0,0.2,1) infinite; }
-  @keyframes viewing-ping { 75%, 100% { transform: scale(1.8); opacity: 0; } }
+  .viewing-counter__ping { animation: viewing-ping 1.4s cubic-bezier(0,0,0.2,1) infinite; }
+  @keyframes viewing-ping { 0% { transform: scale(0.9); opacity: 0.7; } 75%, 100% { transform: scale(1.9); opacity: 0; } }
   .viewing-counter__eye { overflow: visible; }
+  .viewing-counter__eye .icon-eye { animation: eye-icon-pulse 1.4s ease-in-out infinite; transform-origin: center; }
+  @keyframes eye-icon-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+  [data-viewing-number].viewing--out { opacity: 0; transform: translateY(4px); }
+  [data-viewing-number].viewing--in { opacity: 1; transform: translateY(0); }
 </style>
 <script>
 (() => {
   const id = "{{ section.id }}-{{ product_id }}";
-  const el = document.querySelector('[data-viewing-counter="'+id+'"] [data-viewing-text]');
-  if(!el || el.dataset.viewingInit) return;
-  el.dataset.viewingInit = "1";
-  const template = {{ 'products.product.viewing_people' | t: count: '__COUNT__' | json }};
-  const setCount = (n) => { el.textContent = template.replace('__COUNT__', String(n)); };
+  const wrap = document.querySelector('[data-viewing-counter="'+id+'"]');
+  const numEl = wrap?.querySelector('[data-viewing-number]');
+  if(!numEl || numEl.dataset.viewingInit) return;
+  numEl.dataset.viewingInit = "1";
+  const animateSet = (n) => {
+    numEl.classList.remove('viewing--in'); numEl.classList.add('viewing--out');
+    setTimeout(() => {
+      numEl.textContent = String(n);
+      numEl.classList.remove('viewing--out'); numEl.classList.add('viewing--in');
+    }, 160);
+  };
   let current = 1;
-  setCount(current);
-  setTimeout(() => { current = 3; setCount(current); }, 3000);
+  numEl.textContent = String(current);
+  numEl.classList.add('viewing--in');
+  setTimeout(() => { current = 3; animateSet(current); }, 3000);
   const rand = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
   const schedule = () => {
     const delay = rand(4000, 8000);
     setTimeout(() => {
       let next; do { next = rand(1,6); } while(next === current);
-      current = next; setCount(current); schedule();
+      current = next; animateSet(current); schedule();
     }, delay);
   };
   setTimeout(schedule, 3500);
@@ -49,11 +63,11 @@
 {%- else -%}
 <div class="product-viewing-counter-section w-full" style="padding-top: {{ section.settings.padding_top }}px; padding-bottom: {{ section.settings.padding_bottom }}px;">
   <div class="page-container">
-    <div class="viewing-counter flex items-center gap-2.5 opacity-50">
+    <div class="viewing-counter flex items-center opacity-50" style="gap: 4px;">
       <span class="viewing-counter__eye relative flex items-center justify-center w-8 h-8 rounded-full" style="background: {{ section.settings.eye_bg }}; color: {{ section.settings.eye_color }};">
         {%- render 'icon', icon: 'eye', size: 'sm' -%}
       </span>
-      <span style="font-size: {{ section.settings.text_size }}px;">{{ 'products.product.viewing_people' | t: count: 3 }}</span>
+      <span style="font-size: {{ section.settings.text_size }}px;">3 {{ 'products.product.viewing_suffix' | t }}</span>
     </div>
   </div>
 </div>

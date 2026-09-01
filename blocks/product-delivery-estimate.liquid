@@ -1,0 +1,193 @@
+{% doc %}
+  Delivery estimate with countdown - Order in next X hours to get between dates
+{% enddoc %}
+
+{%- liquid
+  assign product_item = product | default: section.settings.product
+  assign product_id = product_item.id | default: section.id
+  assign placeholder = false
+  if product_item == blank
+    assign placeholder = true
+  endif
+  assign min_days = block.settings.min_days | default: 4
+  assign max_days = block.settings.max_days | default: 5
+-%}
+
+{%- unless placeholder -%}
+<div class="ekko-product-block product__delivery-estimate" data-delivery-estimate="{{ section.id }}-{{ product_id }}" data-min-days="{{ min_days }}" data-max-days="{{ max_days }}" style="color: {{ block.settings.text_color | default: '#1C1C1C' }};">
+  <div class="delivery-estimate__main flex items-start p-3 rounded-lg" style="background: transparent; border: none; gap: 4px;">
+    <span class="delivery-estimate__icon flex items-center justify-center w-8 h-8 rounded-full shrink-0 mt-0.5" style="color: #111827; background: #FFFFFF; border: 1px solid #E5E7EB;">
+      {%- render 'icon', icon: 'countdown', size: 'sm', class: 'w-5 h-5 shrink-0' -%}
+    </span>
+    <div class="flex-1 min-w-0">
+      <p class="delivery-estimate__text text-sm leading-snug font-medium" style="font-size: {{ block.settings.text_size | default: 13 }}px;">
+        <span>{{ 'products.product.order_in_next' | t }}</span>
+        <span class="font-bold tabular-nums" data-delivery-hours>5</span>
+        <span>{{ 'products.product.hours' | t }}</span>
+        <span class="font-bold tabular-nums" data-delivery-minutes>12</span>
+        <span>{{ 'products.product.minutes' | t }}</span>
+        <span>{{ 'products.product.to_get_between' | t }}</span>
+        <span class="font-bold whitespace-nowrap" data-delivery-start>Thursday 27 Aug</span>
+        <span>{{ 'products.product.and' | t }}</span>
+        <span class="font-bold whitespace-nowrap" data-delivery-end>Friday 28 Aug</span>
+      </p>
+      {%- if block.settings.show_countdown -%}
+      <div class="delivery-estimate__countdown flex items-center justify-center gap-2 mt-3 w-full" data-delivery-countdown>
+        <div class="countdown-box flex items-center justify-center min-w-14 px-3 py-2.5 rounded-lg border-2 font-bold tabular-nums text-base leading-none shadow-sm" style="background: {{ block.settings.countdown_bg | default: '#FFFFFF' }}; border-color: {{ block.settings.border_color | default: '#111827' }}; color: {{ block.settings.countdown_text_color | default: '#111827' }};" data-cd-hours>08</div>
+        <span class="font-bold text-lg" style="color: {{ block.settings.text_color | default: '#1C1C1C' }};">:</span>
+        <div class="countdown-box flex items-center justify-center min-w-14 px-3 py-2.5 rounded-lg border-2 font-bold tabular-nums text-base leading-none shadow-sm" style="background: {{ block.settings.countdown_bg | default: '#FFFFFF' }}; border-color: {{ block.settings.border_color | default: '#111827' }}; color: {{ block.settings.countdown_text_color | default: '#111827' }};" data-cd-minutes>41</div>
+        <span class="font-bold text-lg" style="color: {{ block.settings.text_color | default: '#1C1C1C' }};">:</span>
+        <div class="countdown-box flex items-center justify-center min-w-14 px-3 py-2.5 rounded-lg border-2 font-bold tabular-nums text-base leading-none shadow-sm" style="background: {{ block.settings.countdown_bg | default: '#FFFFFF' }}; border-color: {{ block.settings.border_color | default: '#111827' }}; color: {{ block.settings.countdown_text_color | default: '#111827' }};" data-cd-seconds>25</div>
+      </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const id = "{{ section.id }}-{{ product_id }}";
+  const root = document.querySelector('[data-delivery-estimate="'+id+'"]');
+  if(!root || root.dataset.deliveryInit) return;
+  root.dataset.deliveryInit = "1";
+  const minDays = parseInt(root.dataset.minDays) || 4;
+  const maxDays = parseInt(root.dataset.maxDays) || 5;
+  const hoursEl = root.querySelector('[data-delivery-hours]');
+  const minutesEl = root.querySelector('[data-delivery-minutes]');
+  const startEl = root.querySelector('[data-delivery-start]');
+  const endEl = root.querySelector('[data-delivery-end]');
+  const cdH = root.querySelector('[data-cd-hours]');
+  const cdM = root.querySelector('[data-cd-minutes]');
+  const cdS = root.querySelector('[data-cd-seconds]');
+
+  const isRTL = document.documentElement.getAttribute('dir') === 'rtl' || document.documentElement.lang.startsWith('ar');
+  const locale = isRTL ? 'ar-EG' : 'en-US';
+
+  function formatDeliveryDate(daysAhead) {
+    const d = new Date();
+    d.setDate(d.getDate() + daysAhead);
+    // e.g. Thursday 27 Aug
+    try {
+      const weekday = new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(d);
+      const day = new Intl.DateTimeFormat(locale, { day: 'numeric' }).format(d);
+      const month = new Intl.DateTimeFormat(locale, { month: 'short' }).format(d);
+      return `${weekday} ${day} ${month}`;
+    } catch(e) {
+      return d.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'short' });
+    }
+  }
+
+  function updateDates() {
+    if(startEl) startEl.textContent = formatDeliveryDate(minDays);
+    if(endEl) endEl.textContent = formatDeliveryDate(maxDays);
+  }
+  updateDates();
+
+  function updateCountdown() {
+    const now = new Date();
+    const endOfDay = new Date(now);
+    endOfDay.setHours(23, 59, 59, 999);
+    let diff = endOfDay - now;
+    if(diff < 0) diff = 0;
+    const totalSec = Math.floor(diff / 1000);
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    if(hoursEl) hoursEl.textContent = String(h).padStart(2,'0');
+    if(minutesEl) minutesEl.textContent = String(m).padStart(2,'0');
+    if(cdH) cdH.textContent = String(h).padStart(2,'0');
+    if(cdM) cdM.textContent = String(m).padStart(2,'0');
+    if(cdS) cdS.textContent = String(s).padStart(2,'0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+  // update dates at midnight
+  setInterval(updateDates, 60*60*1000);
+})();
+</script>
+{%- endunless -%}
+
+{% schema %}
+{
+  "name": "Delivery estimate",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_countdown",
+      "label": "Show countdown",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "label": "Text size",
+      "min": 11,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "min_days",
+      "label": "Min delivery days",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "max_days",
+      "label": "Max delivery days",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#1C1C1C"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background",
+      "default": "#F9FAFB"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#E5E7EB"
+    },
+    {
+      "type": "color",
+      "id": "icon_bg",
+      "label": "Icon background",
+      "default": "#E0F2FE"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color",
+      "default": "#0284C7"
+    },
+    {
+      "type": "color",
+      "id": "countdown_bg",
+      "label": "Countdown background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "countdown_text_color",
+      "label": "Countdown text color",
+      "default": "#111827"
+    }
+  ],
+  "presets": [{ "name": "Delivery estimate" }]
+}
+{% endschema %}

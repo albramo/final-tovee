@@ -74,6 +74,14 @@
   "products": {
     "product": {
       "viewing_people": "{{ count }} شخص يشاهد هذا المنتج الآن",
+      "viewing_suffix": "شخص يشاهد هذا المنتج الآن",
+      "order_in_next": "اطلب خلال",
+      "hours": "ساعات",
+      "minutes": "دقائق",
+      "seconds": "ثواني",
+      "to_get_between": "ليصلك بين",
+      "and": "و",
+      "delivery_estimate": "اطلب خلال {{ hours }} ساعات {{ minutes }} دقيقة ليصلك بين {{ date_start }} و {{ date_end }}",
       "add_to_cart": "أضف إلى السلة",
       "sold_out": "نفد المخزون",
       "unavailable": "غير متوفر"
