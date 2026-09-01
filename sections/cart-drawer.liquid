@@ -817,18 +817,16 @@
     pointer-events: auto !important;
   }
 }
-/* Fix header for ALL screens - tabs right, X left (Arabic) - was only mobile before */
+/* Fix header alignment for all - let dir handle order, just ensure centering */
 #CartDrawer .drawer__header {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   gap: var(--sp-4) !important;
-  flex-direction: row-reverse !important;
 }
 #CartDrawer .drawer__tabs {
   flex: 1 1 auto !important;
   min-width: 0 !important;
-  justify-content: flex-end !important;
 }
 #CartDrawer .drawer__close {
   margin: 0 !important;

@@ -47,25 +47,50 @@
     endif
   -%}
   <script>
-  // Fallback RTL for Translate & Adapt when locale still 'en' but content is Arabic
+  // Fallback RTL for Translate & Adapt when locale still 'en' but content is Arabic - robust after body load
   (function(){
-    try {
-      var html = document.documentElement;
-      var lang = (html.getAttribute('lang') || '').toLowerCase();
-      var isArLang = lang.indexOf('ar') === 0;
-      // Detect Arabic characters in cart drawer title
-      var hasArabic = false;
-      try { hasArabic = /[\u0600-\u06FF]/.test(document.documentElement.innerHTML.slice(0,5000)); } catch(e){}
-      if ((isArLang || hasArabic) && html.getAttribute('dir') !== 'rtl') {
-        html.setAttribute('dir','rtl');
-        html.dir = 'rtl';
-        if (!document.querySelector('link[href*="rtl.css"]')) {
-          var l = document.createElement('link');
-          l.rel = 'stylesheet';
-          l.href = "{{ 'rtl.css' | asset_url }}";
-          document.head.appendChild(l);
+    function setRtlIfNeeded(){
+      try {
+        var html = document.documentElement;
+        var lang = (html.getAttribute('lang') || '').toLowerCase();
+        var isArLang = lang.indexOf('ar') === 0;
+        var hasArabic = false;
+        try {
+          var bodyText = document.body ? (document.body.innerText || document.body.textContent || '').slice(0,8000) : '';
+          var htmlText = html.innerHTML.slice(0,10000);
+          hasArabic = /[\u0600-\u06FF]/.test(bodyText) || /[\u0600-\u06FF]/.test(htmlText);
+          // Also check cart title specifically
+          var cartTitle = document.querySelector('.drawer__title');
+          if (cartTitle && /[\u0600-\u06FF]/.test(cartTitle.textContent)) hasArabic = true;
+        } catch(e){}
+        if ((isArLang || hasArabic) && html.getAttribute('dir') !== 'rtl') {
+          html.setAttribute('dir','rtl');
+          html.dir = 'rtl';
+          document.documentElement.classList.add('rtl');
+          if (!document.querySelector('link[href*="rtl.css"]')) {
+            var l = document.createElement('link');
+            l.rel = 'stylesheet';
+            l.href = "{{ 'rtl.css' | asset_url }}";
+            document.head.appendChild(l);
+          }
+          // Force header correct after dir change
+          var hdr = document.querySelector('#CartDrawer .drawer__header');
+          if (hdr) hdr.style.display = 'flex';
         }
-      }
+      } catch(e){}
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setRtlIfNeeded);
+    } else {
+      setRtlIfNeeded();
+    }
+    setTimeout(setRtlIfNeeded, 400);
+    setTimeout(setRtlIfNeeded, 1200);
+    setTimeout(setRtlIfNeeded, 2500);
+    try {
+      var obs = new MutationObserver(function(){ setRtlIfNeeded(); });
+      obs.observe(document.documentElement, {attributes:true, childList:true, subtree:true});
+      if (document.body) obs.observe(document.body, {childList:true, subtree:true});
     } catch(e){}
   })();
   </script>
