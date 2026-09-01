@@ -47,7 +47,7 @@
     endif
   -%}
   <script>
-  // Fallback RTL for Translate & Adapt when locale still 'en' but content is Arabic - robust after body load
+  // Fallback RTL + opposite close button for Arabic/English
   (function(){
     function setRtlIfNeeded(){
       try {
@@ -59,10 +59,17 @@
           var bodyText = document.body ? (document.body.innerText || document.body.textContent || '').slice(0,8000) : '';
           var htmlText = html.innerHTML.slice(0,10000);
           hasArabic = /[\u0600-\u06FF]/.test(bodyText) || /[\u0600-\u06FF]/.test(htmlText);
-          // Also check cart title specifically
           var cartTitle = document.querySelector('.drawer__title');
           if (cartTitle && /[\u0600-\u06FF]/.test(cartTitle.textContent)) hasArabic = true;
         } catch(e){}
+        // Add helper class for CSS to make close opposite to text
+        if (hasArabic || isArLang) {
+          html.classList.add('has-arabic');
+          document.body && document.body.classList.add('has-arabic');
+        } else {
+          html.classList.remove('has-arabic');
+          document.body && document.body.classList.remove('has-arabic');
+        }
         if ((isArLang || hasArabic) && html.getAttribute('dir') !== 'rtl') {
           html.setAttribute('dir','rtl');
           html.dir = 'rtl';
@@ -73,9 +80,12 @@
             l.href = "{{ 'rtl.css' | asset_url }}";
             document.head.appendChild(l);
           }
-          // Force header correct after dir change
           var hdr = document.querySelector('#CartDrawer .drawer__header');
           if (hdr) hdr.style.display = 'flex';
+        } else if (!hasArabic && !isArLang && html.getAttribute('dir') === 'rtl') {
+          // English: ensure ltr
+          html.setAttribute('dir','ltr');
+          html.dir = 'ltr';
         }
       } catch(e){}
     }
