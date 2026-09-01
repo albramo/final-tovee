@@ -798,6 +798,28 @@
     visibility: visible !important;
     pointer-events: auto !important;
   }
+  /* Phone: smaller text and close button */
+  #CartDrawer .drawer__title {
+    font-size: var(--text-lg) !important;
+    line-height: 1 !important;
+  }
+  #CartDrawer .drawer__title.heading {
+    font-size: var(--text-xl) !important;
+  }
+  #CartDrawer .drawer__tabs {
+    gap: 1.2rem !important;
+  }
+  .js #CartDrawer .drawer__close,
+  #CartDrawer .drawer__close {
+    height: var(--sp-10) !important;
+    width: var(--sp-10) !important;
+    min-height: var(--sp-10) !important;
+    min-width: var(--sp-10) !important;
+  }
+  #CartDrawer .drawer__close .icon {
+    width: var(--sp-3) !important;
+    height: var(--sp-3) !important;
+  }
 }
 /* Header base: separate text from close button */
 #CartDrawer .drawer__header {
