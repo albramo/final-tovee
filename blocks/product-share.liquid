@@ -8,77 +8,141 @@
   assign share_url = selected_variant.url | default: product_item.url | prepend: request.origin
   assign share_image = selected_variant.featured_image | default: product_item.featured_image
   assign help_drawer_id = 'HelpDrawer-' | append: section.id | append: '-' | append: block.id
+  assign shipping_drawer_id = 'ShippingDrawer-' | append: section.id | append: '-' | append: block.id
 -%}
 
 {%- if product_item != blank -%}
   <product-share-help
     data-block-id="{{ block.id }}"
     data-drawer-id="{{ help_drawer_id }}"
+    data-shipping-drawer-id="{{ shipping_drawer_id }}"
   >
-  <div class="ekko-product-block ekko-product-share flex justify-between items-center gap-4" data-product-share-anchor>
-    {%- render 'social-sharing',
-      section_id: section.id,
-      share_id: product_item.id,
-      share_label: block.settings.share_label,
-      share_title: product_item.title,
-      share_link: share_url,
-      share_image: share_image
-    -%}
-
-    {%- if block.settings.show_help_desk -%}
+  <div class="ekko-product-block ekko-product-share flex flex-col gap-3" data-product-share-anchor>
+    {%- comment -%} Top row: Shipping and returns + Need help? {%- endcomment -%}
+    <div class="flex justify-between items-center gap-4">
       <div class="flex items-center gap-2">
-        {%- render 'icon', icon: 'question' -%}
+        {%- render 'icon', icon: 'package' -%}
         <a
           class="link text-sm leading-tight cursor-pointer"
-          {% if block.settings.help_type == 'drawer' %}
+          href="#{{ shipping_drawer_id }}"
+          aria-controls="{{ shipping_drawer_id }}"
+          aria-expanded="false"
+        >
+          {{ 'Shipping and returns' | escape }}
+        </a>
+      </div>
+
+      {%- if block.settings.show_help_desk -%}
+        <div class="flex items-center gap-2">
+          {%- render 'icon', icon: 'question' -%}
+          <a
+            class="link text-sm leading-tight cursor-pointer"
             href="#{{ help_drawer_id }}"
             aria-controls="{{ help_drawer_id }}"
             aria-expanded="false"
-          {% elsif block.settings.help_page != blank %}
-            href="{{ block.settings.help_page.url }}"
-          {% else %}
-            role="link"
-            aria-disabled="true"
-          {% endif %}
-        >
-          {{- block.settings.help_label | escape -}}
-        </a>
-      </div>
-    {%- endif -%}
+          >
+            {{- block.settings.help_label | escape -}}
+          </a>
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Bottom row: Share {%- endcomment -%}
+    <div class="flex items-center gap-4">
+      {%- render 'social-sharing',
+        section_id: section.id,
+        share_id: product_item.id,
+        share_label: block.settings.share_label,
+        share_title: product_item.title,
+        share_link: share_url,
+        share_image: share_image
+      -%}
+    </div>
   </div>
 
-  {%- if block.settings.show_help_desk and block.settings.help_type == 'drawer' -%}
+  {%- comment -%} Need help? drawer → loads /policies/contact-information via fetch (avoids X-Frame-Options) {%- endcomment -%}
+  {%- if block.settings.show_help_desk -%}
     <drawer-element
       id="{{ help_drawer_id }}"
-      class="drawer drawer--end z-30 fixed bottom-0 left-0 h-full w-full pointer-events-none"
+      class="drawer drawer--end policy-drawer z-30 fixed bottom-0 left-0 h-full w-full pointer-events-none"
       role="dialog"
       aria-modal="true"
-      aria-label="{{ block.settings.drawer_heading | escape }}"
+      aria-label="Need help?"
       data-section-id="{{ section.id }}"
+      data-policy-url="/policies/contact-information"
       hidden
     >
       <overlay-element class="overlay fixed-modal invisible opacity-0 fixed bottom-0 left-0 w-full h-screen pointer-events-none" aria-controls="{{ help_drawer_id }}" aria-expanded="false"></overlay-element>
       <div class="drawer__inner z-10 absolute top-0 flex flex-col w-full h-full overflow-hidden">
-        <gesture-element class="drawer__header flex justify-between opacity-0 invisible relative">
-          <span class="drawer__title heading lg:text-3xl text-2xl leading-none tracking-tight">{{ block.settings.drawer_heading | escape }}</span>
-          <button class="button button--secondary button--close drawer__close hidden sm:flex items-center justify-center" type="button" is="hover-button" aria-controls="{{ help_drawer_id }}" aria-expanded="false" aria-label="{{ 'general.accessibility.close' | t | escape }}">
-            <span class="btn-fill" data-fill></span>
+        <gesture-element class="drawer__header flex justify-between items-center opacity-0 invisible relative">
+          <span class="drawer__title heading lg:text-3xl text-2xl leading-none tracking-tight">Need help?</span>
+          <button class="button button--secondary button--close drawer__close flex items-center justify-center shrink-0" type="button" aria-controls="{{ help_drawer_id }}" aria-expanded="false" aria-label="{{ 'general.accessibility.close' | t | escape }}">
             <span class="btn-text">{%- render 'icon', icon: 'close', size: 'sm' -%}</span>
           </button>
         </gesture-element>
         <div class="drawer__content opacity-0 invisible flex flex-col h-full grow shrink">
-          <div class="drawer__scrollable relative flex flex-col gap-5 md:gap-7 grow shrink">
-            {%- if block.settings.drawer_description != blank -%}
-              <div class="rte text-base">{{ block.settings.drawer_description }}</div>
-            {%- endif -%}
-            <ul class="help-list grid gap-4 md:gap-5">
-              {% content_for 'blocks' %}
-            </ul>
+          <div class="drawer__scrollable relative flex flex-col gap-5 md:gap-7 grow shrink p-6 md:p-8">
+            <div class="policy-drawer__content rte text-base" data-policy-content>
+              <div class="flex justify-center py-8">
+                {%- render 'icon', icon: 'loader', size: 'sm', class: 'animate-spin' -%}
+              </div>
+            </div>
+            {%- comment -%} Fallback server-rendered content for No-JS / SEO {%- endcomment -%}
+            <noscript>
+              {%- if pages['contact-information'] != blank -%}
+                <div class="rte text-base">{{ pages['contact-information'].content }}</div>
+              {%- elsif shop.policies.size > 0 -%}
+                {%- for policy in shop.policies -%}
+                  {%- if policy.url == '/policies/contact-information' -%}
+                    <div class="rte text-base">{{ policy.body }}</div>
+                  {%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+            </noscript>
           </div>
         </div>
       </div>
     </drawer-element>
   {%- endif -%}
+
+  {%- comment -%} Shipping and returns drawer → loads /policies/refund-policy via fetch {%- endcomment -%}
+  <drawer-element
+    id="{{ shipping_drawer_id }}"
+    class="drawer drawer--end policy-drawer z-30 fixed bottom-0 left-0 h-full w-full pointer-events-none"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Shipping and returns"
+    data-section-id="{{ section.id }}"
+    data-policy-url="/policies/refund-policy"
+    hidden
+  >
+    <overlay-element class="overlay fixed-modal invisible opacity-0 fixed bottom-0 left-0 w-full h-screen pointer-events-none" aria-controls="{{ shipping_drawer_id }}" aria-expanded="false"></overlay-element>
+    <div class="drawer__inner z-10 absolute top-0 flex flex-col w-full h-full overflow-hidden">
+      <gesture-element class="drawer__header flex justify-between items-center opacity-0 invisible relative">
+        <span class="drawer__title heading lg:text-3xl text-2xl leading-none tracking-tight">Shipping and returns</span>
+        <button class="button button--secondary button--close drawer__close flex items-center justify-center shrink-0" type="button" aria-controls="{{ shipping_drawer_id }}" aria-expanded="false" aria-label="{{ 'general.accessibility.close' | t | escape }}">
+          <span class="btn-text">{%- render 'icon', icon: 'close', size: 'sm' -%}</span>
+        </button>
+      </gesture-element>
+      <div class="drawer__content opacity-0 invisible flex flex-col h-full grow shrink">
+        <div class="drawer__scrollable relative flex flex-col gap-5 md:gap-7 grow shrink p-6 md:p-8">
+          <div class="policy-drawer__content rte text-base" data-policy-content>
+            <div class="flex justify-center py-8">
+              {%- render 'icon', icon: 'loader', size: 'sm', class: 'animate-spin' -%}
+            </div>
+          </div>
+          <noscript>
+            {%- if shop.refund_policy.body != blank -%}
+              <div class="rte text-base">{{ shop.refund_policy.body }}</div>
+            {%- elsif pages['refund-policy'] != blank -%}
+              <div class="rte text-base">{{ pages['refund-policy'].content }}</div>
+            {%- endif -%}
+          </noscript>
+        </div>
+      </div>
+    </div>
+  </drawer-element>
+
   </product-share-help>
 {%- endif -%}
 
@@ -88,9 +152,28 @@
       connectedCallback() {
         this.abortController = new AbortController();
         this.drawer = document.getElementById(this.dataset.drawerId);
+        this.shippingDrawer = document.getElementById(this.dataset.shippingDrawerId);
+
         this.drawer?.addEventListener('drawer:afterHide', this.handleDrawerAfterHide, {
           signal: this.abortController.signal
         });
+        this.shippingDrawer?.addEventListener('drawer:afterHide', this.handleShippingDrawerAfterHide, {
+          signal: this.abortController.signal
+        });
+        this.drawer?.addEventListener('drawer:afterShow', () => this.loadPolicy(this.drawer), {
+          signal: this.abortController.signal
+        });
+        this.shippingDrawer?.addEventListener('drawer:afterShow', () => this.loadPolicy(this.shippingDrawer), {
+          signal: this.abortController.signal
+        });
+        // Preload on init if drawer markup already contains data-policy-url (fetch in background)
+        if (this.drawer?.dataset.policyUrl) {
+          setTimeout(() => this.preloadPolicy(this.drawer), 1500);
+        }
+        if (this.shippingDrawer?.dataset.policyUrl) {
+          setTimeout(() => this.preloadPolicy(this.shippingDrawer), 1700);
+        }
+
         document.addEventListener('shopify:block:select', this.handleBlockSelect, {
           signal: this.abortController.signal
         });
@@ -107,6 +190,8 @@
 
         if (this.drawer?.open) this.drawer.hide();
         if (this.drawer?.parentElement === document.body) this.appendChild(this.drawer);
+        if (this.shippingDrawer?.open) this.shippingDrawer.hide();
+        if (this.shippingDrawer?.parentElement === document.body) this.appendChild(this.shippingDrawer);
       }
 
       get parentBlock() {
@@ -128,6 +213,48 @@
 
         drawer.hide();
         if (immediate) drawer.hidden = true;
+      }
+
+      preloadPolicy(drawer) {
+        if (!drawer || drawer.dataset.policyLoaded) return;
+        const fn = () => this.loadPolicy(drawer);
+        if ('requestIdleCallback' in window) requestIdleCallback(fn, { timeout: 2000 });
+        else setTimeout(fn, 500);
+      }
+
+      async loadPolicy(drawer) {
+        if (!drawer || drawer.dataset.policyLoaded === 'true') return;
+        const url = drawer.dataset.policyUrl;
+        const container = drawer.querySelector('[data-policy-content]');
+        if (!url || !container) return;
+        drawer.dataset.policyLoaded = 'true';
+        try {
+          const res = await fetch(url, { headers: { 'Accept': 'text/html' } });
+          if (!res.ok) throw new Error('Failed to fetch ' + url);
+          const html = await res.text();
+          const doc = new DOMParser().parseFromString(html, 'text/html');
+          let content = doc.querySelector('.shopify-policy__body .rte')
+            || doc.querySelector('.shopify-policy__body')
+            || doc.querySelector('.shopify-policy__container')
+            || doc.querySelector('main .rte')
+            || doc.querySelector('.rte');
+          if (content) {
+            container.innerHTML = content.innerHTML;
+            const title = doc.querySelector('.shopify-policy__title');
+            if (title && !container.querySelector('h1')) {
+              const h = document.createElement('h2');
+              h.className = 'h3 mb-4';
+              h.textContent = title.textContent.trim();
+              container.prepend(h);
+            }
+          } else {
+            throw new Error('No policy content found');
+          }
+        } catch (e) {
+          console.error('[policy-drawer] load failed', e);
+          container.innerHTML = `<p class="text-sm opacity-70">Could not load content. <a href="${url}" class="link underline" target="_blank" rel="noopener">Open page</a></p>`;
+          drawer.dataset.policyLoaded = 'false';
+        }
       }
 
       handleBlockSelect = (event) => {
@@ -169,6 +296,12 @@
 
         this.appendChild(this.drawer);
       };
+
+      handleShippingDrawerAfterHide = () => {
+        if (!Shopify.designMode || !this.shippingDrawer || this.shippingDrawer.parentElement !== document.body) return;
+
+        this.appendChild(this.shippingDrawer);
+      };
     });
   }
 {% endjavascript %}
@@ -176,6 +309,17 @@
 {% stylesheet %}
   product-share-help {
     display: contents;
+  }
+  /* Override theme's mobile hidden close button - show on phone next to title */
+  .policy-drawer .drawer__close {
+    clip: auto !important;
+    height: var(--sp-12) !important;
+    width: var(--sp-12) !important;
+    position: relative !important;
+    margin: 0 0 0 auto !important;
+    white-space: normal !important;
+    display: flex !important;
+    overflow: hidden !important;
   }
 {% endstylesheet %}
 
@@ -190,7 +334,6 @@
     { "type": "text", "id": "share_label", "label": "Share label", "default": "Share" },
     { "type": "checkbox", "id": "show_help_desk", "label": "Show help link", "default": true },
     { "type": "text", "id": "help_label", "label": "Help label", "default": "Need help?", "visible_if": "{{ block.settings.show_help_desk }}" },
-    { "type": "select", "id": "help_type", "label": "Help link type", "options": [{ "value": "drawer", "label": "Help drawer" }, { "value": "page", "label": "Page" }], "default": "drawer", "visible_if": "{{ block.settings.show_help_desk }}" },
     { "type": "page", "id": "help_page", "label": "Help page" },
     { "type": "header", "content": "Help drawer" },
     { "type": "text", "id": "drawer_heading", "label": "Heading", "default": "Need help?" },
@@ -198,41 +341,7 @@
   ],
   "presets": [
     {
-      "name": "Share",
-      "blocks": [
-        {
-          "type": "_product-help-content",
-          "settings": {
-            "icon": "rocket",
-            "heading": "Shipping <em>information</em>",
-            "text": "<p>Share delivery times, order processing details, and shipping policies.</p>",
-            "highlighted_text": "half_text",
-            "color_text": "#7C4A03",
-            "color_background": "#FFF8E8",
-            "color_highlight": "#FFD99A"
-          }
-        },
-        {
-          "type": "_product-help-item",
-          "settings": {
-            "icon": "email",
-            "heading": "Customer support",
-            "text": "<p>Send us a message and our team will help you.</p>",
-            "link_label": "Email us",
-            "link_type": "email"
-          }
-        },
-        {
-          "type": "_product-help-item",
-          "settings": {
-            "icon": "chat_bubble",
-            "heading": "More ways to get help",
-            "text": "<p>Find answers, delivery information, and store policies.</p>",
-            "link_label": "Contact us",
-            "link_type": "url"
-          }
-        }
-      ]
+      "name": "Share"
     }
   ]
 }

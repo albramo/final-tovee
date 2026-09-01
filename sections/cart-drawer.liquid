@@ -365,11 +365,14 @@
                                     </div>
                                   </x-modal>
                                 {%- endif -%}
-                                <quantity-input class="cart-quantity flex items-center relative">
+                                <quantity-input class="quantity flex items-center border rounded-sm overflow-hidden h-7">
                                   <label class="sr-only" for="Quantity-{{ section.id }}-{{ item.key }}">
                                     {{- 'products.quantity.label' | t -}}
                                   </label>
-                                  <input class="quantity__input input text-center w-full h-full"
+                                  <button type="button" name="minus" class="quantity__button !h-7 !w-7 !p-0 flex items-center justify-center shrink-0 !border-0 !rounded-none bg-transparent" aria-label="{{ 'products.quantity.decrease' | t: product: item.product.title | escape }}">
+                                    {%- render 'icon', icon: 'minus', size: 'xs' -%}
+                                  </button>
+                                  <input class="quantity__input !w-8 !h-7 !p-0 text-center text-sm font-medium !bg-transparent !border-0 !border-x !rounded-none !ring-0 focus:!ring-0"
                                     type="number"
                                     name="updates[]"
                                     aria-label="{{ 'products.quantity.input_label' | t: product: item.product.title | escape }}"
@@ -387,14 +390,9 @@
                                     step="{{ item.variant.quantity_rule.increment }}"
                                     value="{{ item.quantity }}"
                                   />
-                                  <div class="quantity__buttons absolute right-0 hidden lg:flex flex-col items-center justify-center h-full">
-                                    <button type="button" name="plus" class="quantity__button flex justify-center w-full items-end" aria-label="{{ 'products.quantity.increase' | t: product: item.product.title | escape }}">
-                                      {%- render 'icon', icon: 'increase', size: 'sm', class: 'stroke-1' -%}
-                                    </button>
-                                    <button type="button" name="minus" class="quantity__button flex justify-center w-full items-start" aria-label="{{ 'products.quantity.decrease' | t: product: item.product.title | escape }}">
-                                      {%- render 'icon', icon: 'decrease', size: 'sm', class: 'stroke-1' -%}
-                                    </button>
-                                  </div>
+                                  <button type="button" name="plus" class="quantity__button !h-7 !w-7 !p-0 flex items-center justify-center shrink-0 !border-0 !rounded-none bg-transparent" aria-label="{{ 'products.quantity.increase' | t: product: item.product.title | escape }}">
+                                    {%- render 'icon', icon: 'plus-2', size: 'xs' -%}
+                                  </button>
                                 </quantity-input>
                               </div>
                             {%- else -%}
@@ -423,10 +421,10 @@
                                 />
                                 <div class="quantity__buttons absolute right-0 hidden lg:flex flex-col items-center justify-center h-full sr-only">
                                   <button type="button" name="plus" class="quantity__button flex justify-center w-full items-end" aria-label="{{ 'products.quantity.increase' | t: product: item.product.title | escape }}" disabled>
-                                    {%- render 'icon', icon: 'increase', size: 'sm', class: 'stroke-1' -%}
+                                    {%- render 'icon', icon: 'plus-2', size: 'xs' -%}
                                   </button>
                                   <button type="button" name="minus" class="quantity__button flex justify-center w-full items-start" aria-label="{{ 'products.quantity.decrease' | t: product: item.product.title | escape }}" disabled>
-                                    {%- render 'icon', icon: 'decrease', size: 'sm', class: 'stroke-1' -%}
+                                    {%- render 'icon', icon: 'minus', size: 'xs' -%}
                                   </button>
                                 </div>
                               </div>

@@ -17,7 +17,7 @@
           "settings": {
             "show_collections_link": true,
             "show_product_title": true,
-            "show_on_mobile": false
+            "show_on_mobile": true
           },
           "blocks": {}
         },
@@ -187,68 +187,11 @@
             "share_label": "Share",
             "show_help_desk": true,
             "help_label": "Need help?",
-            "help_type": "drawer",
             "help_page": "",
             "drawer_heading": "Need help?",
-            "drawer_description": "<p>Choose a help option below and we'll point you in the right direction.</p>"
+            "drawer_description": ""
           },
-          "blocks": {
-            "shipping_content": {
-              "type": "_product-help-content",
-              "settings": {
-                "icon": "rocket",
-                "heading": "Shipping <em>information</em>",
-                "text": "<p>Share delivery times, order processing details, and shipping policies.</p>",
-                "highlighted_text": "half_text",
-                "highlighted_scribble": "circle",
-                "color_text": "#7c4a03",
-                "color_background": "#fff8e8",
-                "gradient_background": "",
-                "color_highlight": "#ffd99a",
-                "gradient_highlight": ""
-              },
-              "blocks": {}
-            },
-            "customer_support": {
-              "type": "_product-help-item",
-              "settings": {
-                "icon": "email",
-                "heading": "Customer support",
-                "text": "<p>Send us a message and our team will help you.</p>",
-                "link_label": "Email us",
-                "link_type": "email",
-                "link": "",
-                "email": "",
-                "phone": "",
-                "open_in_new_tab": false,
-                "text_color": "",
-                "background": ""
-              },
-              "blocks": {}
-            },
-            "contact_help": {
-              "type": "_product-help-item",
-              "settings": {
-                "icon": "chat_bubble",
-                "heading": "More ways to get help",
-                "text": "<p>Find answers, delivery information, and store policies.</p>",
-                "link_label": "Contact us",
-                "link_type": "url",
-                "link": "",
-                "email": "",
-                "phone": "",
-                "open_in_new_tab": false,
-                "text_color": "",
-                "background": ""
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "shipping_content",
-            "customer_support",
-            "contact_help"
-          ]
+          "blocks": {}
         },
         "details": {
           "type": "product-accordion",

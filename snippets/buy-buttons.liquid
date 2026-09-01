@@ -79,7 +79,7 @@
           <div class="flex items-center gap-4">
             <quantity-input class="quantity inline-flex relative" data-section-id="{{ section_id }}" data-product-id="{{ product_id }}">
               <button type="button" name="minus" class="quantity__button" aria-label="{{ 'products.quantity.decrease' | t: product: product.title | escape }}">
-                {%- render 'icon', icon: 'chevron-left', size: 'sm', class: 'stroke-2 transform' -%}
+                {%- render 'icon', icon: 'minus', size: 'xs' -%}
               </button>
               <input
                 id="Quantity-{{ section_id }}-{{ product_id }}"
@@ -101,7 +101,7 @@
                 form="{{ product_form_id }}"
               />
               <button type="button" name="plus" class="quantity__button" aria-label="{{ 'products.quantity.increase' | t: product: product.title | escape }}">
-                {%- render 'icon', icon: 'chevron-right', size: 'sm', class: 'stroke-2 transform' -%}
+                {%- render 'icon', icon: 'plus-2', size: 'xs' -%}
               </button>
             </quantity-input>
 
@@ -207,7 +207,7 @@
           <label for="Quantity-{{ section_id }}-{{ product_id }}" class="label sr-only">{{ 'products.quantity.label' | t }}</label>
           <quantity-input class="quantity inline-flex shrink-0 relative" data-section-id="{{ section_id }}" data-product-id="{{ product_id }}">
             <button type="button" name="minus" class="quantity__button" aria-label="{{ 'products.quantity.decrease' | t: product: product.title | escape }}">
-              {%- render 'icon', icon: 'chevron-left', size: 'sm', class: 'stroke-2 transform' -%}
+              {%- render 'icon', icon: 'minus', size: 'xs' -%}
             </button>
             <input
               id="Quantity-{{ section_id }}-{{ product_id }}"
@@ -229,7 +229,7 @@
               form="{{ product_form_id }}"
             />
             <button type="button" name="plus" class="quantity__button" aria-label="{{ 'products.quantity.increase' | t: product: product.title | escape }}">
-              {%- render 'icon', icon: 'chevron-right', size: 'sm', class: 'stroke-2 transform' -%}
+              {%- render 'icon', icon: 'plus-2', size: 'xs' -%}
             </button>
           </quantity-input>
         {%- endif -%}
