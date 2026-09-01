@@ -1,0 +1,92 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin language editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "general": {
+    "cart": {
+      "title": "السلة",
+      "view_cart": "عرض السلة",
+      "cart_count": {
+        "one": "{{ count }} منتج",
+        "other": "{{ count }} منتجات"
+      },
+      "free_shipping": {
+        "remaining_html": "أنفق {{ remaining_amount }} أكثر للحصول على شحن مجاني!",
+        "congratulations_html": "أنت مؤهل للشحن المجاني."
+      },
+      "note": {
+        "title": "ملاحظة الطلب",
+        "caption": "تعليمات خاصة للطلب",
+        "button": "تطبيق"
+      },
+      "shipping_calculator": {
+        "title": "الشحن",
+        "caption": "تقدير تكلفة الشحن",
+        "button": "احسب",
+        "error": "حدث خطأ أثناء جلب أسعار الشحن:",
+        "not_found": "عذراً، لا نقوم بالشحن إلى عنوانك.",
+        "one_result": "يوجد سعر شحن واحد لعنوانك:",
+        "multiple_results": "توجد عدة أسعار شحن لعنوانك:"
+      },
+      "recently_viewed": {
+        "empty": "سجل المشاهدة فارغ."
+      },
+      "discount": "خصم",
+      "discount_code": "كود الخصم",
+      "apply": "تطبيق",
+      "discount_enter": "الرجاء إدخال كود الخصم",
+      "discount_invalid": "كود غير صالح أو غير قابل للتطبيق",
+      "discount_applied": "تم تطبيق الخصم على إجمالي الطلب!",
+      "discount_removed": "تمت إزالة الخصم - الرجاء إعادة إدخال الكود"
+    },
+    "accessibility": {
+      "close": "إغلاق",
+      "skip_to_content": "تخطي إلى المحتوى"
+    }
+  },
+  "cart": {
+    "general": {
+      "title": "سلة التسوق",
+      "remove": "إزالة",
+      "note": "ملاحظة الطلب",
+      "subtotal": "المجموع الفرعي",
+      "cart_error": "حدث خطأ أثناء تحديث السلة. حاول مرة أخرى.",
+      "update": "تحديث السلة",
+      "checkout": "إتمام الشراء",
+      "we_accept": "نقبل",
+      "empty": "سلة التسوق فارغة حالياً.",
+      "continue_shopping": "متابعة التسوق",
+      "view_cart": "عرض السلة"
+    },
+    "headings": {
+      "product": "المنتج",
+      "price": "السعر",
+      "total": "الإجمالي",
+      "quantity": "الكمية"
+    }
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "أضف إلى السلة",
+      "sold_out": "نفد المخزون",
+      "unavailable": "غير متوفر"
+    },
+    "quantity": {
+      "label": "الكمية",
+      "increase": "زيادة الكمية لـ {{ product }}",
+      "decrease": "تقليل الكمية لـ {{ product }}"
+    }
+  },
+  "sections": {
+    "cart_drawer": {
+      "recent_products_heading": "شوهدت مؤخراً",
+      "cart_recommendations_heading": "قد يعجبك أيضاً"
+    }
+  }
+}
