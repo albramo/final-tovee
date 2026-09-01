@@ -499,7 +499,7 @@
                   {%- if section.settings.show_discount -%}
                     <button type="button" class="flex gap-2d5 grow items-center justify-center" aria-controls="Discount-{{ section.id }}" aria-expanded="false">
                       {%- render 'icon', icon: 'discount', size: 'lg', class: 'icon-light shrink-0' -%}
-                      <span class="reversed-link text-sm leading-tight">Discount</span>
+                      <span class="reversed-link text-sm leading-tight">{{ 'general.cart.discount' | t }}</span>
                     </button>
                   {%- endif -%}
                   {%- if section.settings.show_shipping_calculator -%}
@@ -609,7 +609,7 @@
                       <overlay-element class="fixed-modal opacity-0 z-1 absolute top-0 left-0 w-full h-full" aria-controls="Discount-{{ section.id }}" aria-expanded="false"></overlay-element>
                       <div class="modal__container flex flex-col z-3 absolute left-0 bottom-0 w-full">
                         <div class="modal__header flex items-center justify-between relative">
-                          <span class="font-medium text-sm md:text-base">Discount code</span>
+                          <span class="font-medium text-sm md:text-base">{{ 'general.cart.discount_code' | t }}</span>
                           <button type="button" class="close flex items-center justify-center absolute top-0 right-0" is="magnet-button" aria-controls="Discount-{{ section.id }}" aria-expanded="false" aria-label="{{ 'general.accessibility.close' | t | escape }}">
                             {%- render 'icon', icon: 'close' -%}
                           </button>
@@ -618,12 +618,12 @@
                           <discount-code class="modal__scrollable grid gap-4" data-section-id="{{ section.id }}">
                             <div class="field">
                               <input type="text" name="discount" class="input is-floating" placeholder=" " id="DiscountCode-{{ section.id }}" autocomplete="off" />
-                              <label class="label is-floating" for="DiscountCode-{{ section.id }}">Discount code</label>
+                              <label class="label is-floating" for="DiscountCode-{{ section.id }}">{{ 'general.cart.discount_code' | t }}</label>
                             </div>
                             <div class="justify-self-start">
                               <button class="button button--primary" type="button" is="hover-button" data-apply-discount>
                                 <span class="btn-fill" data-fill></span>
-                                <span class="btn-text">Apply</span>
+                                <span class="btn-text">{{ 'general.cart.apply' | t }}</span>
                               </button>
                             </div>
                             <div class="grid gap-3 text-sm" data-discount-message hidden></div>
@@ -646,21 +646,8 @@
                       {%- endfor -%}
                     </ul>
                   {%- endif -%}
-                  <div class="grid grid-cols-2 gap-4">
-                    <div class="tax-note text-sm sm:text-base rte">
-                      {%- liquid
-                        if cart.taxes_included and shop.shipping_policy.body != blank
-                          echo 'cart.general.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url
-                        elsif cart.taxes_included
-                          echo 'cart.general.taxes_included_but_shipping_at_checkout' | t
-                        elsif shop.shipping_policy.body != blank
-                          echo 'cart.general.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url
-                        else
-                          echo 'cart.general.taxes_and_shipping_at_checkout' | t
-                        endif
-                      -%}
-                    </div>
-                    <div class="totals grid place-self-end gap-1">
+                  <div class="flex justify-end">
+                    <div class="totals grid gap-1 text-right">
                       <span class="totals__subtotal text-sm sm:text-base">{{ 'cart.general.subtotal' | t }}</span>
                       <div class="totals__subtotal-value text-lg-2xl font-bold leading-none tracking-tight">{{ cart.total_price | money_with_currency }}</div>
                     </div>
@@ -812,7 +799,7 @@ if (!customElements.get('discount-code')) {
     async apply() {
       const code = this.input.value.trim();
       if (!code) {
-        this.showMessage('Please enter a discount code', 'error');
+        this.showMessage({{ 'general.cart.discount_enter' | t | json }}, 'error');
         return;
       }
       this.button.setAttribute('aria-busy', 'true');
@@ -847,7 +834,7 @@ if (!customElements.get('discount-code')) {
           }
         } catch(e){ discountApplied = true; }
         if(!discountApplied){
-          this.showMessage('Invalid code or not applicable (check admin discount conditions)', 'error');
+          this.showMessage({{ 'general.cart.discount_invalid' | t | json }}, 'error');
           this.button.removeAttribute('aria-busy');
           return;
         }
@@ -867,14 +854,14 @@ if (!customElements.get('discount-code')) {
             }
           }
         } catch(e){}
-        this.showMessage('Discount applied to total order!', 'success');
+        this.showMessage({{ 'general.cart.discount_applied' | t | json }}, 'success');
         setTimeout(() => {
           const modal = this.closest('modal-element');
           if (modal && typeof modal.hide === 'function') modal.hide();
           else if (modal) { modal.hidden = true; modal.removeAttribute('open'); document.querySelector(`[aria-controls="${modal.id}"]`)?.setAttribute('aria-expanded','false'); }
         }, 900);
       } catch (e) {
-        this.showMessage('Invalid discount code', 'error');
+        this.showMessage({{ 'general.cart.discount_invalid' | t | json }}, 'error');
       } finally {
         this.button.removeAttribute('aria-busy');
       }
@@ -938,7 +925,7 @@ if (!customElements.get('discount-code')) {
     const input = document.querySelector('discount-code input[name="discount"]');
     if(input) input.value = '';
     const msg = document.querySelector('[data-discount-message]');
-    if(msg){ msg.textContent = 'Discount removed - please re-enter code'; msg.className='alert alert--info grid gap-3 text-sm'; msg.hidden=false; setTimeout(()=>{msg.hidden=true;},2800); }
+    if(msg){ msg.textContent = {{ 'general.cart.discount_removed' | t | json }}; msg.className='alert alert--info grid gap-3 text-sm'; msg.hidden=false; setTimeout(()=>{msg.hidden=true;},2800); }
     // Verify cleared, then refresh cart without page reload
     setTimeout(async()=>{
       try{
