@@ -47,6 +47,13 @@
     endif
   -%}
 
+  @font-face {
+    font-family: 'Noto Kufi Arabic';
+    src: url('{{ 'NotoKufiArabic.ttf' | asset_url }}') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+  }
   :root {
     /*! Ekko foundation compatibility */
     --font-primary--family: {{ body_font.family }}, {{ body_font.fallback_families }};
@@ -245,7 +252,28 @@
       --page-padding: max(var(--sp-12), 50vw - var(--scrollbar-width, 0px)/2 - var(--page-width)/2);
     }
   }
+
+  /* Arabic font: NotoKufiArabic.ttf when language is Arabic */
+  html[lang^="ar"], html[dir="rtl"], html.has-arabic {
+    --font-primary--family: 'Noto Kufi Arabic', sans-serif;
+    --font-heading-family: 'Noto Kufi Arabic', sans-serif;
+    --font-body-family: 'Noto Kufi Arabic', sans-serif;
+    --font-navigation-family: 'Noto Kufi Arabic', sans-serif;
+    --font-button-family: 'Noto Kufi Arabic', sans-serif;
+    --font-product-family: 'Noto Kufi Arabic', sans-serif;
+  }
+  html[lang^="ar"] body, html[dir="rtl"] body, html.has-arabic body {
+    font-family: 'Noto Kufi Arabic', sans-serif !important;
+  }
+  /* Ensure headings/buttons/inputs inherit Arabic font */
+  html[lang^="ar"] h1, html[lang^="ar"] h2, html[lang^="ar"] h3, html[lang^="ar"] h4, html[lang^="ar"] h5, html[lang^="ar"] h6,
+  html[dir="rtl"] h1, html[dir="rtl"] h2, html[dir="rtl"] h3, html[dir="rtl"] h4, html[dir="rtl"] h5, html[dir="rtl"] h6,
+  html.has-arabic h1, html.has-arabic h2, html.has-arabic h3, html.has-arabic h4, html.has-arabic h5, html.has-arabic h6,
+  html[lang^="ar"] .heading, html[dir="rtl"] .heading, html.has-arabic .heading {
+    font-family: 'Noto Kufi Arabic', sans-serif !important;
+  }
 </style>
+<link rel="preload" as="font" href="{{ 'NotoKufiArabic.ttf' | asset_url }}" type="font/ttf" crossorigin>
 
 {%- unless settings.type_body_font.system? -%}
   {% # theme-check-disable AssetPreload %}
