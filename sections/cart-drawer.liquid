@@ -828,17 +828,21 @@
   flex: 1 1 auto !important;
   min-width: 0 !important;
 }
-/* LTR (English) - tabs left, X right */
-html[dir="ltr"] #CartDrawer .drawer__header {
+/* LTR English: tabs left, X right (opposite) */
+html[dir="ltr"]:not(.has-arabic) #CartDrawer .drawer__header {
   flex-direction: row !important;
 }
-/* RTL / Arabic - tabs right, X left (opposite) */
-html[dir="rtl"] #CartDrawer .drawer__header,
-html.has-arabic #CartDrawer .drawer__header,
-html[lang^="ar"] #CartDrawer .drawer__header {
+/* Arabic but dir still ltr (Translate & Adapt) -> force opposite */
+html.has-arabic[dir="ltr"] #CartDrawer .drawer__header,
+html[lang^="ar"][dir="ltr"] #CartDrawer .drawer__header {
   flex-direction: row-reverse !important;
 }
-html.has-arabic #CartDrawer .drawer__tabs {
+/* True RTL -> row already puts tabs right, X left */
+html[dir="rtl"] #CartDrawer .drawer__header {
+  flex-direction: row !important;
+}
+html.has-arabic #CartDrawer .drawer__tabs,
+html[dir="rtl"] #CartDrawer .drawer__tabs {
   justify-content: flex-end !important;
 }
 #CartDrawer .drawer__close {
