@@ -163,6 +163,23 @@
           },
           "blocks": {}
         },
+        "product_bundle_gmbm8P": {
+          "type": "product-bundle",
+          "name": "Product bundle",
+          "settings": {
+            "heading": "Complete your routine",
+            "icon": "bag",
+            "icon_width": 38,
+            "products": [
+              "tovee-barrier-repair-moisturizer-50ml",
+              "tovee-gentle-cleanser-150ml"
+            ],
+            "metafield": "",
+            "opened": true,
+            "clickable": true
+          },
+          "blocks": {}
+        },
         "pickup": {
           "type": "product-pickup",
           "settings": {},
@@ -243,8 +260,8 @@
             "style": "with-border",
             "icon": "none",
             "heading": "Shipping and returns",
-            "content": "<p>Add details about materials, sizing, shipping, or care.</p>",
-            "page": "",
+            "content": "",
+            "page": "returns-refunds",
             "liquid": "",
             "opened": false
           },
@@ -296,6 +313,7 @@
         "variants",
         "quantity",
         "buy_buttons",
+        "product_bundle_gmbm8P",
         "pickup",
         "share",
         "details",
