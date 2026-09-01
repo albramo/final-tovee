@@ -169,7 +169,7 @@
           "settings": {
             "heading": "Complete your routine",
             "product_limit": 6,
-            "show_vendor": true,
+            "show_vendor": false,
             "show_price": true,
             "image_ratio": "square",
             "image_fill": false
