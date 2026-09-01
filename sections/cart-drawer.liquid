@@ -740,19 +740,6 @@
   .js #CartDrawer .drawer__header::before {
     display: none !important;
   }
-  /* Fix close button - for Arabic: tabs right, X left (row-reverse) */
-  #CartDrawer .drawer__header {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    gap: var(--sp-4) !important;
-    flex-direction: row-reverse !important;
-  }
-  #CartDrawer .drawer__tabs {
-    flex: 1 1 auto !important;
-    min-width: 0 !important;
-    justify-content: flex-end !important;
-  }
   .js #CartDrawer .drawer__close,
   #CartDrawer .drawer__close {
     clip: auto !important;
@@ -761,7 +748,6 @@
     min-height: var(--sp-12) !important;
     min-width: var(--sp-12) !important;
     margin: 0 !important;
-    margin-inline-start: auto !important;
     margin-block: 0 !important;
     overflow: hidden !important;
     position: relative !important;
@@ -777,17 +763,6 @@
     padding: 0 !important;
     transform: none !important;
     flex: 0 0 auto !important;
-  }
-  [dir="rtl"] #CartDrawer .drawer__header {
-    flex-direction: row-reverse !important;
-  }
-  /* RTL: زر الإغلاق جهة الشمال (يسار الشاشة) */
-  [dir="rtl"] #CartDrawer .drawer__close {
-    margin: 0 !important;
-  }
-  [dir="rtl"] .js #CartDrawer .drawer__close,
-  [dir="rtl"] #CartDrawer .drawer__close {
-    margin: 0 !important;
   }
   /* Mobile hover like PC - X white + background black */
   .js #CartDrawer .drawer__close .btn-fill {
@@ -817,7 +792,7 @@
     pointer-events: auto !important;
   }
 }
-/* Header: close opposite to text for both languages */
+/* Header base: separate text from close button */
 #CartDrawer .drawer__header {
   display: flex !important;
   align-items: center !important;
@@ -827,23 +802,38 @@
 #CartDrawer .drawer__tabs {
   flex: 1 1 auto !important;
   min-width: 0 !important;
+  display: flex !important;
+  gap: 2.5rem !important;
 }
-/* LTR English: tabs left, X right (opposite) */
-html[dir="ltr"]:not(.has-arabic) #CartDrawer .drawer__header {
+/* LTR English: tabs left, X right */
+html[dir="ltr"]:not(.has-arabic):not([lang^="ar"]) #CartDrawer .drawer__header {
   flex-direction: row !important;
 }
-/* Arabic but dir still ltr (Translate & Adapt) -> force opposite */
+html[dir="ltr"]:not(.has-arabic):not([lang^="ar"]) #CartDrawer .drawer__tabs {
+  flex-direction: row !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+/* Arabic (true RTL OR Translate & Adapt keeps dir ltr but adds has-arabic/lang) -> X left, text right */
+html[dir="rtl"] #CartDrawer .drawer__header,
+html.has-arabic #CartDrawer .drawer__header,
+html[lang^="ar"] #CartDrawer .drawer__header,
 html.has-arabic[dir="ltr"] #CartDrawer .drawer__header,
 html[lang^="ar"][dir="ltr"] #CartDrawer .drawer__header {
   flex-direction: row-reverse !important;
 }
-/* True RTL -> row already puts tabs right, X left */
-html[dir="rtl"] #CartDrawer .drawer__header {
-  flex-direction: row !important;
-}
+html[dir="rtl"] #CartDrawer .drawer__tabs,
 html.has-arabic #CartDrawer .drawer__tabs,
-html[dir="rtl"] #CartDrawer .drawer__tabs {
-  justify-content: flex-end !important;
+html[lang^="ar"] #CartDrawer .drawer__tabs {
+  flex-direction: row-reverse !important;
+  justify-content: flex-start !important; /* row-reverse + flex-start = flush to right edge */
+  text-align: right !important;
+}
+/* Ensure titles themselves align right in Arabic only */
+html[dir="rtl"] #CartDrawer .drawer__title,
+html.has-arabic #CartDrawer .drawer__title,
+html[lang^="ar"] #CartDrawer .drawer__title {
+  text-align: right !important;
 }
 #CartDrawer .drawer__close {
   margin: 0 !important;
