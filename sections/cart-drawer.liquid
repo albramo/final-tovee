@@ -814,26 +814,25 @@ html[dir="ltr"]:not(.has-arabic):not([lang^="ar"]) #CartDrawer .drawer__tabs {
   justify-content: flex-start !important;
   text-align: left !important;
 }
-/* Arabic (true RTL OR Translate & Adapt keeps dir ltr but adds has-arabic/lang) -> X left, text right */
+/* Arabic (true RTL OR Translate & Adapt) -> flipped: X right, text left (same as screenshot) */
 html[dir="rtl"] #CartDrawer .drawer__header,
 html.has-arabic #CartDrawer .drawer__header,
 html[lang^="ar"] #CartDrawer .drawer__header,
 html.has-arabic[dir="ltr"] #CartDrawer .drawer__header,
 html[lang^="ar"][dir="ltr"] #CartDrawer .drawer__header {
-  flex-direction: row-reverse !important;
+  flex-direction: row !important;
 }
 html[dir="rtl"] #CartDrawer .drawer__tabs,
 html.has-arabic #CartDrawer .drawer__tabs,
 html[lang^="ar"] #CartDrawer .drawer__tabs {
-  flex-direction: row-reverse !important;
-  justify-content: flex-start !important; /* row-reverse + flex-start = flush to right edge */
-  text-align: right !important;
+  flex-direction: row !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
 }
-/* Ensure titles themselves align right in Arabic only */
 html[dir="rtl"] #CartDrawer .drawer__title,
 html.has-arabic #CartDrawer .drawer__title,
 html[lang^="ar"] #CartDrawer .drawer__title {
-  text-align: right !important;
+  text-align: left !important;
 }
 #CartDrawer .drawer__close {
   margin: 0 !important;
