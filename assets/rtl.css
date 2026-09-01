@@ -80,9 +80,9 @@
 [dir="rtl"] .cart-drawer .drawer__header {
   flex-direction: row-reverse;
 }
-[dir="rtl"] .cart-drawer .drawer__close {
-  margin-inline-start: 0 !important;
-  margin-inline-end: auto !important;
+[dir="rtl"] .cart-drawer .drawer__close,
+[dir="rtl"] #CartDrawer .drawer__close {
+  margin: 0 !important;
   align-self: center;
 }
 [dir="rtl"] .cart-drawer .reversed-link,

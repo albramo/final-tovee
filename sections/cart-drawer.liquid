@@ -779,10 +779,13 @@
   [dir="rtl"] #CartDrawer .drawer__header {
     flex-direction: row-reverse !important;
   }
+  /* RTL: زر الإغلاق جهة الشمال (يسار الشاشة) */
+  [dir="rtl"] #CartDrawer .drawer__close {
+    margin: 0 !important;
+  }
   [dir="rtl"] .js #CartDrawer .drawer__close,
   [dir="rtl"] #CartDrawer .drawer__close {
-    margin-inline-start: 0 !important;
-    margin-inline-end: auto !important;
+    margin: 0 !important;
   }
   /* Mobile hover like PC - X white + background black */
   .js #CartDrawer .drawer__close .btn-fill {
