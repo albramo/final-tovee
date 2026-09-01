@@ -9,6 +9,9 @@
  */
 {
   "current": {
-    "page_width": 1600
+    "color_button_background": "#800020",
+    "color_drawer_button_background": "#800020",
+    "page_width": 1600,
+    "content_for_index": []
   }
 }

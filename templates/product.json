@@ -93,12 +93,12 @@
             "min_days": 4,
             "max_days": 5,
             "text_color": "#1c1c1c",
-            "bg_color": "#f9fafb",
-            "border_color": "#e5e7eb",
-            "icon_bg": "#e0f2fe",
+            "bg_color": "#800020",
+            "border_color": "#112C60",
+            "icon_bg": "#02080B",
             "icon_color": "#0284c7",
-            "countdown_bg": "#ffffff",
-            "countdown_text_color": "#111827"
+            "countdown_bg": "#800020",
+            "countdown_text_color": "#FFFFFF"
           },
           "blocks": {}
         },
