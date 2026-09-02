@@ -10950,10 +10950,114 @@ details.active .drawer__promotions .mega-menu__item,
   padding: 0;
   height: var(--sp-12);
   width: var(--sp-12);
-  background-color: rgb(var(--color-button-text));
+  background-color: rgba(255, 255, 255, 0.78);
   position: absolute;
   inset-block-start: var(--sp-4);
   inset-inline-end: var(--sp-4);
+}
+
+.quick-add .button,
+.quick-view__button {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  background-image: none !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: #333 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  overflow: visible !important;
+}
+
+/* Kill the ::after pseudo border on these buttons */
+.quick-add .button::after,
+.quick-view__button::after {
+  display: none !important;
+  border: none !important;
+  content: none !important;
+}
+
+/* Kill the .btn-fill hover circle completely */
+.quick-add .button .btn-fill,
+.quick-add .button [data-fill],
+.quick-view__button .btn-fill,
+.quick-view__button [data-fill] {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: none !important;
+  background-color: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Ensure icons and text are visible - outline style, NOT filled */
+.quick-add .button .btn-text,
+.quick-view__button .btn-text {
+  color: #333 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.quick-add .button .btn-text .icon,
+.quick-add .button .icon,
+.quick-view__button .btn-text .icon,
+.quick-view__button .icon {
+  color: #333 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.quick-add .button .btn-text svg,
+.quick-add .button svg,
+.quick-view__button .btn-text svg,
+.quick-view__button svg {
+  color: #333 !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.5 !important;
+}
+
+.quick-add .button:hover,
+.quick-view__button:hover {
+  background-color: rgba(255, 255, 255, 0.97) !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.13) !important;
+}
+
+@media screen and (max-width: 767px) {
+  .quick-view__button {
+    opacity: 1 !important;
+    visibility: visible !important;
+    inset-block-start: 8px !important;
+    inset-inline-end: 8px !important;
+    top: 8px !important;
+    right: 8px !important;
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    max-height: 32px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 5 !important;
+    padding: 0 !important;
+  }
+
+  .quick-view__button .icon {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .quick-add .button {
+    border-radius: 50% !important;
+  }
 }
 
 @media screen and (pointer: fine) {
