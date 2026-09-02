@@ -140,9 +140,15 @@ console.log(theme.settings.themeName + ' (' + theme.settings.themeVersion + ') b
       document.addEventListener('focusout', theme.a11y.trapFocusHandlers.focusout);
       document.addEventListener('focusin', theme.a11y.trapFocusHandlers.focusin);
 
-      elementToFocus.focus();
+      if (elementToFocus && (!theme.config.isTouch || (elementToFocus.tagName === 'INPUT' || elementToFocus.tagName === 'TEXTAREA'))) {
+        try {
+          if (elementToFocus.offsetWidth > 5 && elementToFocus.offsetHeight > 5) {
+            elementToFocus.focus();
+          }
+        } catch(e) {}
+      }
 
-      if (elementToFocus.tagName === 'INPUT' && ['search', 'text', 'email', 'url'].includes(elementToFocus.type) && elementToFocus.value) {
+      if (elementToFocus && elementToFocus.tagName === 'INPUT' && ['search', 'text', 'email', 'url'].includes(elementToFocus.type) && elementToFocus.value) {
         elementToFocus.setSelectionRange(0, elementToFocus.value.length);
       }
     },
@@ -554,7 +560,7 @@ console.log(theme.settings.themeName + ' (' + theme.settings.themeVersion + ') b
       }
 
       load() {
-        if (theme.config.isTouch || document.body.getAttribute('data-button-hover') === 'none') return;
+        if (theme.config.isTouch || (window.matchMedia && window.matchMedia('(hover: none)').matches) || window.innerWidth < 990 || document.body.getAttribute('data-button-hover') === 'none') return;
 
         this.container.addEventListener('mouseenter', this.onEnterHandler.bind(this));
         this.container.addEventListener('mouseleave', this.onLeaveHandler.bind(this));
@@ -600,7 +606,7 @@ console.log(theme.settings.themeName + ' (' + theme.settings.themeVersion + ') b
       }
 
       load() {
-        if (theme.config.isTouch || document.body.getAttribute('data-button-hover') === 'none') return;
+        if (theme.config.isTouch || (window.matchMedia && window.matchMedia('(hover: none)').matches) || window.innerWidth < 990 || document.body.getAttribute('data-button-hover') === 'none') return;
 
         this.container.addEventListener('mousemove', this.onMoveHandler.bind(this));
         this.container.addEventListener('mouseleave', this.onLeaveHandler.bind(this));
@@ -1761,7 +1767,10 @@ class ModalElement extends HTMLElement {
   }
 
   get focusElement() {
-    return this.querySelector('button');
+    const visibleBtn = Array.from(this.querySelectorAll('button, a[href], input, [tabindex]:not([tabindex="-1"])')).find(el => {
+      return el.offsetWidth > 5 && el.offsetHeight > 5;
+    });
+    return visibleBtn || this.querySelector('button') || this;
   }
 
   connectedCallback() {
