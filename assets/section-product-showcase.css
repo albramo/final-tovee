@@ -170,6 +170,13 @@
   line-height: 1.35;
   letter-spacing: .08em;
   text-transform: uppercase;
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  justify-content: flex-start !important;
+  justify-self: left !important;
+  text-align: left !important;
+  margin-inline: 0 auto !important;
+  width: 100%;
 }
 
 .ekko-product-title[data-meta-layout='stacked'] .ekko-product-title__metadata {
