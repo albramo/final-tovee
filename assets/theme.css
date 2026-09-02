@@ -5960,9 +5960,10 @@ ol {
   max-width: 36rem;
   color: rgb(var(--color-foreground));
   background-color: rgb(var(--color-background));
-  transform: translateX(calc(var(--tw-translate-x) * var(--transform-logical)));
+  transform: translate3d(calc(var(--tw-translate-x) * var(--transform-logical)), 0, 0);
   will-change: transform;
-  contain: layout paint;
+  contain: layout style paint;
+  backface-visibility: hidden;
 }
 
 .drawer--start .drawer__inner {
@@ -5995,6 +5996,7 @@ ol {
 
 .drawer[active]>.drawer__inner {
   --tw-translate-x: 0;
+  will-change: auto;
 }
 
 .drawer[active]>.drawer__inner>:is(.drawer__content, .drawer__header) {
@@ -6096,7 +6098,8 @@ ol {
     transform: translateZ(0)
   }
 
-  .drawer[active]>.drawer__inner {
+.drawer[active]>.drawer__inner {
+  will-change: auto;
     opacity: 1;
   }
 
@@ -6438,7 +6441,9 @@ ol {
 .drawer__scrollable {
   overflow-x: hidden;
   overflow-y: auto;
-  padding: var(--sp-6) var(--sp-5)
+  padding: var(--sp-6) var(--sp-5);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 @media screen and (min-width: 1024px) {
@@ -6587,7 +6592,10 @@ ol {
 
 .horizontal-product {
   --cart-item-media-width: var(--sp-20);
-  padding-block-end: var(--sp-4)
+  padding-block-end: var(--sp-4);
+  content-visibility: auto;
+  contain-intrinsic-size: auto 120px;
+  contain: layout style;
 }
 
 .horizontal-product+.horizontal-product {

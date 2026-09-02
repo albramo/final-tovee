@@ -1858,7 +1858,15 @@ class ModalElement extends HTMLElement {
     if (!this.open) return;
 
     this.beforeHide();
-    this.resetGesture();
+    // Perf: Double rAF - let browser start close animation before heavy cleanup
+    // resetGesture does style writes - defer to next frame to avoid blocking INP Processing 187ms
+    const doReset = () => this.resetGesture();
+    if (this.gesture) {
+      requestAnimationFrame(() => requestAnimationFrame(doReset));
+    } else {
+      this.resetGesture();
+    }
+    // Defer body scroll unlock heavy work until after presentation
     this.removeAttribute('open');
 
     return theme.utils.waitForEvent(this, this.events.afterHide);
@@ -1890,33 +1898,51 @@ class ModalElement extends HTMLElement {
   beforeShow() { }
 
   afterHide() {
-    // Perf: Clean will-change after animation
-    if (this.overlay) this.overlay.style.willChange = '';
-    if (this.gestureWrap) this.gestureWrap.style.willChange = '';
-    setTimeout(() => {
-      theme.a11y.removeTrapFocus(this.activeElement);
+    // Perf: Clean will-change after animation - use double rAF to avoid layout thrash
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (this.overlay) this.overlay.style.willChange = '';
+        if (this.gestureWrap) this.gestureWrap.style.willChange = '';
+        const inner = this.querySelector('.drawer__inner');
+        if (inner) inner.style.willChange = '';
+      });
+    });
+    // Defer trapFocus cleanup + body scroll lock to idle - reduces Processing 187ms
+    const doCleanup = () => {
+      try { theme.a11y.removeTrapFocus(this.activeElement); } catch(e){}
       if (this.shouldLock) {
         lockLayerCount.set(ModalElement, lockLayerCount.get(ModalElement) - 1);
         document.body.classList.toggle(this.classes.open, lockLayerCount.get(ModalElement) > 0);
       }
-    }, 50);
+    };
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(doCleanup, { timeout: 500 });
+    } else {
+      setTimeout(doCleanup, 80);
+    }
   }
   afterShow() {
-    // Perf: Defer trapFocus out of INP processing/presentation critical path
-    // trapFocus does querySelectorAll(focusable) which is ~15-40ms on mobile
+    // Perf: Critical - body lock must be sync for scroll, but trapFocus deferred
     if (this.shouldLock) {
       lockLayerCount.set(ModalElement, lockLayerCount.get(ModalElement) + 1);
       document.body.classList.remove(this.classes.opening);
       document.body.classList.add(this.classes.open);
     }
-    // Defer focus trapping to next idle frame to reduce Processing duration
+    // Clean will-change after animation via double rAF
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (this.overlay) this.overlay.style.willChange = 'auto';
+        const inner = this.querySelector('.drawer__inner');
+        if (inner) inner.style.willChange = 'auto';
+      });
+    });
     const doTrap = () => {
       try { theme.a11y.trapFocus(this, this.focusElement); } catch(e) {}
     };
     if ('requestIdleCallback' in window) {
       requestIdleCallback(doTrap, { timeout: 300 });
     } else {
-      requestAnimationFrame(() => setTimeout(doTrap, 50));
+      requestAnimationFrame(() => setTimeout(doTrap, 60));
     }
   }
 
