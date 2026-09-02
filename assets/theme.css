@@ -10285,6 +10285,15 @@ details.active .drawer__promotions .mega-menu__item,
   text-transform: var(--font-product-text-transform);
 }
 
+.horizontal-product__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
 .product-card__content.text-center :is(.price, .unit-price, .product-card__rating, .product-card__bottom) {
   justify-content: center;
 }

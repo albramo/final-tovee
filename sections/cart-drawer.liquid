@@ -908,7 +908,7 @@ if (!customElements.get('discount-code')) {
         } else {
           discountResponse = await fetch(`/discount/${encodeURIComponent(code)}?redirect=/cart`, { credentials: 'same-origin', headers: { 'Accept': 'text/html' } });
         }
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 600));
         // Verify discount application without page reload
         let afterTotal = null;
         let discountApplied = false;
@@ -919,12 +919,15 @@ if (!customElements.get('discount-code')) {
             const c2 = await r2.json();
             afterTotal = c2.total_price;
             totalDiscount = c2.total_discount || 0;
-            if(totalDiscount > 0 || (beforeTotal !== null && afterTotal < beforeTotal)) discountApplied = true;
-            if(discountResponse && (discountResponse.ok || discountResponse.redirected)) discountApplied = true;
+            // Only mark as applied if we can verify actual discount changed
+            if(totalDiscount > 0) discountApplied = true;
+            else if(beforeTotal !== null && afterTotal < beforeTotal) discountApplied = true;
+            // Check if any cart-level discount codes exist
+            if(!discountApplied && c2.cart_level_discount_applications && c2.cart_level_discount_applications.length > 0) discountApplied = true;
           }
-        } catch(e){ discountApplied = true; }
+        } catch(e){ /* cannot verify - show error */ }
         if(!discountApplied){
-          this.showMessage({{ 'general.cart.discount_invalid' | t | json }}, 'error');
+          this.showMessage('كود الخصم غير صحيح أو غير متاح حالياً، تأكد من الكود وحاول مرة أخرى', 'error');
           this.button.removeAttribute('aria-busy');
           return;
         }
@@ -951,7 +954,7 @@ if (!customElements.get('discount-code')) {
           else if (modal) { modal.hidden = true; modal.removeAttribute('open'); document.querySelector(`[aria-controls="${modal.id}"]`)?.setAttribute('aria-expanded','false'); }
         }, 900);
       } catch (e) {
-        this.showMessage({{ 'general.cart.discount_invalid' | t | json }}, 'error');
+        this.showMessage('حدث خطأ أثناء تطبيق الكود، تأكد من الكود وحاول مرة أخرى', 'error');
       } finally {
         this.button.removeAttribute('aria-busy');
       }
