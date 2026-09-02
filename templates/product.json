@@ -391,7 +391,7 @@
         "heading": "YOU MAY ALSO LIKE",
         "heading_ar": "قد يعجبك أيضاً",
         "card_gap": 24,
-        "card_gap_mobile": 16,
+        "card_gap_mobile": 5,
         "show_navigation": true,
         "padding_top": 48,
         "padding_bottom": 48,

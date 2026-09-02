@@ -10056,7 +10056,7 @@ details.active .drawer__promotions .mega-menu__item,
 .card-grid {
   --card-grid-per-row: 2;
   --card-grid-template: auto-flow dense/repeat(var(--card-grid-per-row), minmax(0, 1fr));
-  --card-grid-gap: var(--sp-3);
+  --card-grid-gap: var(--card-grid-gap-mobile, 5px);
   grid: var(--card-grid-template);
   gap: var(--card-grid-gap);
 }
@@ -10074,7 +10074,7 @@ details.active .drawer__promotions .mega-menu__item,
 @media screen and (min-width: 768px) {
   .card-grid {
     --card-grid-per-row: 3;
-    --card-grid-gap: clamp(var(--sp-4), 1.263vw, var(--sp-6));
+    --card-grid-gap: var(--card-grid-gap-desktop, clamp(var(--sp-3d5), 1.1vw, var(--sp-5)));
   }
 
   .card-grid--1 {
@@ -10265,9 +10265,15 @@ details.active .drawer__promotions .mega-menu__item,
 }
 
 .product-card__content {
-  --card-content-padding: clamp(var(--sp-4), 1.263vw, var(--sp-6)) clamp(var(--sp-4), 2.105vw, var(--sp-10)) clamp(var(--sp-4), 2.105vw, var(--sp-10));
+  --card-content-padding: clamp(var(--sp-2d5), 0.9vw, var(--sp-4)) clamp(var(--sp-3), 1.2vw, var(--sp-5)) clamp(var(--sp-3), 1.2vw, var(--sp-5));
   grid-template-columns: minmax(0, 1fr);
-  padding: var(--card-content-padding)
+  padding: var(--card-content-padding);
+}
+
+@media screen and (max-width: 767px) {
+  .product-card__content {
+    --card-content-padding: var(--sp-2) var(--sp-2d5);
+  }
 }
 
 .product-card__top {
