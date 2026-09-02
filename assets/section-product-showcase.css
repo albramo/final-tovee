@@ -272,26 +272,7 @@ a.ekko-product-title__vendor:hover { text-decoration: underline; }
   line-height: 1.55;
 }
 
-.ekko-product-showcase__breadcrumb-mobile {
-  order: -1;
-  width: 100%;
-}
-
-.ekko-product-showcase__breadcrumb-mobile .product__breadcrumb {
-  margin-bottom: 0;
-}
-
-@media screen and (min-width: 990px) {
-  .ekko-product-showcase__breadcrumb-mobile {
-    display: none !important;
-  }
-}
-
 @media screen and (max-width: 989px) {
-  .ekko-product-showcase__details .product__breadcrumb {
-    display: none !important;
-  }
-
   .ekko-product-showcase[data-mobile-media-position='last'] .ekko-product-showcase__media { order: 2; }
   .ekko-product-showcase[data-mobile-media-position='last'] .ekko-product-showcase__details { order: 1; }
 

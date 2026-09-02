@@ -9,6 +9,10 @@
  */
 {
   "sections": {
+    "breadcrumb_mobile": {
+      "type": "product-breadcrumb-mobile",
+      "settings": {}
+    },
     "main": {
       "type": "product",
       "blocks": {
@@ -17,7 +21,7 @@
           "settings": {
             "show_collections_link": true,
             "show_product_title": true,
-            "show_on_mobile": true
+            "show_on_mobile": false
           },
           "blocks": {}
         },
@@ -361,6 +365,7 @@
     }
   },
   "order": [
+    "breadcrumb_mobile",
     "main",
     "product_details"
   ]

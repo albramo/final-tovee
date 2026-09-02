@@ -1,0 +1,70 @@
+{%- liquid
+  assign breadcrumb_product = product
+  assign breadcrumb_collection = collection
+  if breadcrumb_collection == blank and breadcrumb_product != blank
+    assign breadcrumb_collection = breadcrumb_product.collections | first
+  endif
+-%}
+
+<style>
+  .product-breadcrumb-mobile {
+    display: none;
+  }
+  @media screen and (max-width: 989px) {
+    .product-breadcrumb-mobile {
+      display: block;
+      padding-inline: 1rem;
+    }
+    /* نفس تصميم الـ PC بالظبط + سطر واحد فقط */
+    .product-breadcrumb-mobile.breadcrumb ul {
+      flex-wrap: nowrap !important;
+      overflow: hidden;
+      width: 100%;
+      white-space: nowrap;
+    }
+    .product-breadcrumb-mobile.breadcrumb li {
+      flex-shrink: 0;
+    }
+    .product-breadcrumb-mobile.breadcrumb li:last-child {
+      flex: 1 1 0%;
+      min-width: 0;
+      overflow: hidden;
+    }
+  }
+  @media screen and (min-width: 990px) {
+    .product-breadcrumb-mobile {
+      display: none !important;
+    }
+  }
+</style>
+
+<nav class="product-breadcrumb-mobile product__breadcrumb breadcrumb" role="navigation" aria-label="breadcrumbs">
+  <ul class="inline-flex flex-wrap gap-4 md:gap-6">
+    <li class="flex items-center gap-4 md:gap-6">
+      <a class="block" href="{{ routes.root_url }}" title="{{ 'general.breadcrumbs.home_link_title' | t | escape }}">
+        {%- render 'icon', icon: 'home', size: 'sm' -%}
+        <span class="sr-only">{{ 'general.breadcrumbs.home_link_title' | t }}</span>
+      </a>
+    </li>
+    {%- if breadcrumb_collection != blank -%}
+      <li class="flex items-center gap-4 md:gap-6">
+        <a class="reversed-link" href="{{ breadcrumb_collection.url }}">{{ breadcrumb_collection.title | escape }}</a>
+      </li>
+    {%- else -%}
+      <li class="flex items-center gap-4 md:gap-6">
+        <a class="reversed-link" href="{{ routes.collections_url }}">{{ 'general.breadcrumbs.collections' | t }}</a>
+      </li>
+    {%- endif -%}
+    <li class="flex items-center gap-4 md:gap-6 min-w-0 flex-1 overflow-hidden" aria-current="page">
+      <span class="block truncate overflow-hidden text-ellipsis whitespace-nowrap min-w-0">{{- breadcrumb_product.title | default: page_title | escape -}}</span>
+    </li>
+  </ul>
+</nav>
+
+{% schema %}
+{
+  "name": "Breadcrumb Mobile",
+  "class": "product-breadcrumb-mobile-section",
+  "settings": []
+}
+{% endschema %}

@@ -93,14 +93,6 @@
         {%- endif -%}
       </div>
 
-      {%- for block in section.blocks -%}
-        {%- if block.type == 'product-breadcrumb' -%}
-          <div class="ekko-product-showcase__breadcrumb-mobile lg:hidden">
-            {%- render 'product-breadcrumb', block: block, product_resource: product_item -%}
-          </div>
-        {%- endif -%}
-      {%- endfor -%}
-
       <product-info
         id="ProductInfo-{{ section.id }}-{{ product_id }}"
         class="ekko-product-showcase__details product__info block{% if section.settings.enable_sticky_info %} sticky{% endif %}"

@@ -123,6 +123,129 @@
     grid-row: 1 / span 50;
   }
 
+  /* Center Collapsible details when Included in the box is hidden - robust for hidden blocks */
+  @media screen and (min-width: 990px) {
+    .ekko-product-details__blocks:not(:has(> .shopify-block:not([hidden]):has(> .ekko-product-details__included))),
+    .ekko-product-details-section.ekko-product-details--centered .ekko-product-details__blocks {
+      grid-template-columns: minmax(0, 1fr);
+      justify-items: center;
+    }
+    .ekko-product-details__blocks:not(:has(> .shopify-block:not([hidden]):has(> .ekko-product-details__included))) > .shopify-block,
+    .ekko-product-details-section.ekko-product-details--centered .ekko-product-details__blocks > .shopify-block {
+      width: 100%;
+      max-width: 72rem;
+      justify-self: center;
+    }
+    .ekko-product-details-section.ekko-product-details--centered .ekko-product-details__tabs-nav {
+      justify-content: center;
+      margin-inline: auto;
+    }
+    .ekko-product-details-section.ekko-product-details--centered .ekko-product-detail-row--tab-active {
+      width: 100%;
+      max-width: 72rem;
+      margin-inline: auto;
+    }
+    /* Center the text inside tab panel when no sidebar */
+    .ekko-product-details-section.ekko-product-details--centered .ekko-product-detail-row__data {
+      text-align: center !important;
+    }
+    .ekko-product-details-section.ekko-product-details--centered .ekko-product-detail-row__eyebrow {
+      justify-content: center !important;
+      text-align: center !important;
+    }
+    .ekko-product-details-section.ekko-product-details--centered .ekko-product-detail-row__rte {
+      text-align: center !important;
+      margin-inline: auto !important;
+    }
+    .ekko-product-details-section.ekko-product-details--centered .ekko-product-detail-row__rte ul,
+    .ekko-product-details-section.ekko-product-details--centered .ekko-product-detail-row__rte ol {
+      display: inline-block;
+      text-align: start;
+      margin-inline: auto;
+    }
+    /* Fallback: when tabs exist, always center content on desktop (even if centered class missed) */
+    .ekko-product-details-section:has(.ekko-product-details__tabs-nav) .ekko-product-detail-row__data,
+    .ekko-product-details-section:has(.ekko-product-details__tabs-nav) .ekko-product-detail-row__rte {
+      text-align: center !important;
+    }
+    .ekko-product-details-section:has(.ekko-product-details__tabs-nav) .ekko-product-detail-row__eyebrow {
+      justify-content: center !important;
+      text-align: center !important;
+    }
+    .ekko-product-details-section:has(.ekko-product-details__tabs-nav) .ekko-product-detail-row--tab-active {
+      text-align: center;
+      width: 100%;
+      max-width: 72rem;
+      margin-inline: auto;
+    }
+  }
+
+  /* Tabs - desktop only (same Collapsible detail becomes tab panel) */
+  .ekko-product-details__tabs-nav { display: none; }
+
+  @media screen and (min-width: 990px) {
+    /* Force single centered column when tabs are active (desktop) */
+    .ekko-product-details-section:has(.ekko-product-details__tabs-nav) .ekko-product-details__blocks {
+      grid-template-columns: minmax(0, 1fr) !important;
+      justify-items: center !important;
+    }
+    .ekko-product-details-section:has(.ekko-product-details__tabs-nav) .ekko-product-details__blocks > .shopify-block {
+      grid-column: 1 !important;
+      width: 100% !important;
+      max-width: 72rem !important;
+      justify-self: center !important;
+      margin-inline: auto !important;
+    }
+    .ekko-product-details__tabs-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: .45rem;
+      width: fit-content;
+      max-width: 100%;
+      margin: 0 auto 2rem;
+      flex-wrap: wrap;
+    }
+    .ekko-product-details__tab {
+      appearance: none;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #6b6b6b;
+      font-family: var(--font-heading-family);
+      font-size: .82rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .62rem 1.1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 180ms ease;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .ekko-product-details__tab:hover { color: #171717; }
+    .ekko-product-details__tab--active {
+      color: #171717;
+      border-color: #171717;
+      background: #fff;
+    }
+    /* Hide accordion rows, show only active tab panel */
+    .ekko-product-details-section:has(.ekko-product-details__tabs-nav) .ekko-product-detail-row {
+      display: none;
+    }
+    .ekko-product-details-section:has(.ekko-product-details__tabs-nav) .ekko-product-detail-row--tab-active {
+      display: block;
+    }
+    .ekko-product-details-section:has(.ekko-product-details__tabs-nav) .ekko-product-detail-row--tab-active .ekko-product-detail-row__summary {
+      display: none;
+    }
+    .ekko-product-details-section:has(.ekko-product-details__tabs-nav) .ekko-product-detail-row--tab-active::details-content {
+      block-size: auto;
+      opacity: 1;
+      overflow: visible;
+    }
+  }
+
   @media screen and (max-width: 989px) {
     .ekko-product-details__header {
       display: grid;
@@ -181,21 +304,118 @@
         document.fonts?.ready.then(() => {
           if (this.isConnected) this.syncSpecColumns();
         });
+
+        this.initTabs();
+        this._onResizeTabs = () => {
+          if (window.matchMedia('(min-width: 990px)').matches) {
+            if (!this.tabsNav && this.details.length) this.buildTabs();
+          } else {
+            this.teardownTabs();
+          }
+        };
+        window.addEventListener('resize', this._onResizeTabs);
       }
 
       disconnectedCallback() {
         this.removeEventListener('toggle', this.onToggle, true);
         this.removeEventListener('shopify:block:select', this.onBlockSelect);
         this.specResizeObserver?.disconnect();
+        this._centerObserver?.disconnect();
+        window.removeEventListener('resize', this._onResizeTabs);
+        this.teardownTabs();
+      }
+
+      updateCenteredState() {
+        const section = this.closest('.ekko-product-details-section');
+        if (!section) return;
+        const included = this.querySelector('.ekko-product-details__included');
+        if (!included) {
+          section.classList.add('ekko-product-details--centered');
+          return;
+        }
+        const block = included.closest('.shopify-block');
+        const isHidden = !block || block.hasAttribute('hidden') || getComputedStyle(block).display === 'none' || block.offsetParent === null;
+        if (isHidden) section.classList.add('ekko-product-details--centered');
+        else section.classList.remove('ekko-product-details--centered');
+      }
+
+      initTabs() {
+        this.updateCenteredState();
+        // observe hidden changes to re-center
+        this._centerObserver = new MutationObserver(() => this.updateCenteredState());
+        this._centerObserver.observe(this, { attributes: true, attributeFilter: ['hidden'], subtree: true, childList: true });
+        if (!this.details.length) return;
+        if (window.matchMedia('(min-width: 990px)').matches) this.buildTabs();
+      }
+
+      buildTabs() {
+        if (this.tabsNav) return;
+        const blocksWithDetails = this.details.filter((d) => !d.hidden);
+        if (!blocksWithDetails.length) return;
+        this.tabsNav = document.createElement('div');
+        this.tabsNav.className = 'ekko-product-details__tabs-nav';
+        this.tabsNav.setAttribute('role', 'tablist');
+        blocksWithDetails.forEach((detail, i) => {
+          const headingEl = detail.querySelector('.ekko-product-detail-row__summary-main span:last-child');
+          const raw = headingEl ? headingEl.textContent.trim() : `Tab ${i + 1}`;
+          const btn = document.createElement('button');
+          btn.className = 'ekko-product-details__tab';
+          btn.type = 'button';
+          btn.setAttribute('role', 'tab');
+          btn.setAttribute('aria-selected', 'false');
+          btn.textContent = raw.toUpperCase();
+          btn.dataset.index = this.details.indexOf(detail);
+          btn.addEventListener('click', () => this.activateTab(parseInt(btn.dataset.index, 10)));
+          this.tabsNav.appendChild(btn);
+        });
+        const blocksEl = this.querySelector('.ekko-product-details__blocks');
+        if (blocksEl) blocksEl.before(this.tabsNav);
+        const firstIdx = blocksWithDetails.indexOf(blocksWithDetails.find((d) => d.open) || blocksWithDetails[0]);
+        const realIdx = this.details.indexOf(blocksWithDetails[firstIdx >= 0 ? firstIdx : 0]);
+        this.activateTab(realIdx);
+      }
+
+      activateTab(realIndex) {
+        if (!this.tabsNav) return;
+        const tabs = [...this.tabsNav.children];
+        tabs.forEach((btn) => {
+          const idx = parseInt(btn.dataset.index, 10);
+          const active = idx === realIndex;
+          btn.classList.toggle('ekko-product-details__tab--active', active);
+          btn.setAttribute('aria-selected', active ? 'true' : 'false');
+          btn.tabIndex = active ? 0 : -1;
+        });
+        this.details.forEach((detail, idx) => {
+          const active = idx === realIndex;
+          detail.classList.toggle('ekko-product-detail-row--tab-active', active);
+          if (active) {
+            detail.open = true;
+          } else if (window.matchMedia('(min-width: 990px)').matches) {
+            // keep closed but still hidden via CSS; ensure not open to avoid animation flash
+            // do not force close to keep mobile state when resizing back
+          }
+        });
+        requestAnimationFrame(() => this.syncSpecColumns());
+      }
+
+      teardownTabs() {
+        if (this.tabsNav) {
+          this.tabsNav.remove();
+          this.tabsNav = null;
+        }
+        this.details.forEach((d) => d.classList.remove('ekko-product-detail-row--tab-active'));
       }
 
       onToggle = (event) => {
         const current = event.target;
         if (!current.matches('.ekko-product-detail-row')) return;
-
+        // On desktop with tabs, ignore toggle single_open logic and keep tab active
+        if (this.tabsNav && window.matchMedia('(min-width: 990px)').matches) {
+          if (current.open) requestAnimationFrame(() => this.syncSpecColumns(current));
+          return;
+        }
         if (current.open) requestAnimationFrame(() => this.syncSpecColumns(current));
         if (this.dataset.singleOpen !== 'true' || !current.open) return;
-
         this.details.forEach((item) => {
           if (item !== current) item.open = false;
         });
@@ -204,6 +424,16 @@
       onBlockSelect = (event) => {
         const row = event.target.closest('.ekko-product-detail-row');
         if (!row) return;
+        // If tabs active on desktop, activate corresponding tab
+        if (this.tabsNav && window.matchMedia('(min-width: 990px)').matches) {
+          const idx = this.details.indexOf(row);
+          if (idx >= 0) this.activateTab(idx);
+          requestAnimationFrame(() => {
+            this.syncSpecColumns(row);
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
+          return;
+        }
         row.open = true;
         requestAnimationFrame(() => {
           this.syncSpecColumns(row);
