@@ -82,7 +82,7 @@
       <div class="product-card__media relative h-auto">
         {%- if show_quick_view -%}
           {%- capture quick_view_id -%}Quickview-{{ section_id }}{% if block_id != blank %}-{{ block_id }}{% endif %}-{{ product_id }}{%- endcapture -%}
-          <button type="button" class="quick-view__button button button--secondary z-2 absolute top-0 right-0 opacity-0" is="hover-button" aria-controls="{{ quick_view_id }}" aria-expanded="false">
+          <button type="button" class="quick-view__button button button--secondary z-2 absolute opacity-0" is="hover-button" aria-controls="{{ quick_view_id }}" aria-expanded="false">
             <span class="btn-fill" data-fill></span>
             <span class="btn-text">
               {%- render 'icon', icon: 'eye', size: 'sm' -%}

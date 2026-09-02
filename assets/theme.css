@@ -11035,10 +11035,8 @@ details.active .drawer__promotions .mega-menu__item,
     visibility: visible !important;
     inset-block-start: 8px !important;
     inset-inline-end: 8px !important;
-    top: 8px !important;
-    right: 8px !important;
-    left: auto !important;
     inset-inline-start: auto !important;
+    inset-block-end: auto !important;
     width: 32px !important;
     height: 32px !important;
     min-width: 32px !important;
@@ -11050,6 +11048,16 @@ details.active .drawer__promotions .mega-menu__item,
     justify-content: center !important;
     z-index: 5 !important;
     padding: 0 !important;
+  }
+
+  html[dir="rtl"] .quick-view__button {
+    right: auto !important;
+    left: 8px !important;
+  }
+
+  html[dir="ltr"] .quick-view__button {
+    left: auto !important;
+    right: 8px !important;
   }
 
   .quick-view__button .icon {
