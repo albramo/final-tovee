@@ -17,7 +17,7 @@
           "settings": {
             "show_collections_link": true,
             "show_product_title": true,
-            "show_on_mobile": false
+            "show_on_mobile": true
           },
           "blocks": {}
         },
@@ -80,8 +80,8 @@
           "settings": {
             "text_size": 15,
             "text_color": "#1c1c1c",
-            "eye_bg": "#DCFCE7",
-            "eye_color": "#16A34A"
+            "eye_bg": "#dcfce7",
+            "eye_color": "#16a34a"
           },
           "blocks": {}
         },
@@ -92,12 +92,12 @@
             "text_size": 13,
             "min_days": 4,
             "max_days": 5,
-            "text_color": "#1C1C1C",
-            "bg_color": "#F9FAFB",
-            "border_color": "#E5E7EB",
-            "icon_bg": "#E0F2FE",
-            "icon_color": "#0284C7",
-            "countdown_bg": "#FFFFFF",
+            "text_color": "#1c1c1c",
+            "bg_color": "#f9fafb",
+            "border_color": "#e5e7eb",
+            "icon_bg": "#e0f2fe",
+            "icon_color": "#0284c7",
+            "countdown_bg": "#ffffff",
             "countdown_text_color": "#111827"
           },
           "blocks": {}
@@ -159,6 +159,19 @@
             "enable_back_in_stock": false,
             "show_back_in_stock_name": false,
             "show_back_in_stock_phone": false
+          },
+          "blocks": {}
+        },
+        "product_complementary_tmi6Tn": {
+          "type": "product-complementary",
+          "name": "Complementary products",
+          "settings": {
+            "heading": "Complete your routine",
+            "product_limit": 6,
+            "show_vendor": false,
+            "show_price": true,
+            "image_ratio": "square",
+            "image_fill": false
           },
           "blocks": {}
         },
@@ -224,19 +237,6 @@
             "shadow_opacity": 14
           },
           "blocks": {}
-        },
-        "product_complementary_tmi6Tn": {
-          "type": "product-complementary",
-          "name": "Complementary products",
-          "settings": {
-            "heading": "Complete your routine",
-            "product_limit": 6,
-            "show_vendor": false,
-            "show_price": true,
-            "image_ratio": "square",
-            "image_fill": false
-          },
-          "blocks": {}
         }
       },
       "block_order": [
@@ -294,6 +294,7 @@
       "blocks": {
         "description": {
           "type": "_product-details-description",
+          "disabled": true,
           "settings": {
             "heading": "Product description",
             "font_size": 16
@@ -350,7 +351,7 @@
             "materials_note": {
               "type": "_product-details-note",
               "settings": {
-                "text": "<p>Add a component image and replace these sample specifications with product information or product metafields.</p>",
+                "text": "<p>{{ product.metafields.custom.description | metafield_tag }}</p>",
                 "page": "",
                 "metafield_namespace": "",
                 "metafield_key": ""
