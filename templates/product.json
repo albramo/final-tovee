@@ -332,46 +332,12 @@
             "background": ""
           },
           "blocks": {}
-        },
-        "included": {
-          "type": "_product-details-included",
-          "settings": {
-            "heading": "Included in the Box",
-            "columns": 2,
-            "columns_mobile": 2,
-            "item_size": 112,
-            "image_scale": 75,
-            "background": ""
-          },
-          "blocks": {
-            "main_product": {
-              "type": "_product-details-included-item",
-              "settings": {
-                "heading": "Main product",
-                "quantity": 1
-              },
-              "blocks": {}
-            },
-            "accessory": {
-              "type": "_product-details-included-item",
-              "settings": {
-                "heading": "Accessory",
-                "quantity": 1
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "main_product",
-            "accessory"
-          ]
         }
       },
       "block_order": [
         "description",
         "materials",
-        "compatibility",
-        "included"
+        "compatibility"
       ],
       "settings": {
         "heading": "Product details",
