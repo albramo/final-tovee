@@ -10075,9 +10075,22 @@ details.active .drawer__promotions .mega-menu__item,
 
 .product-card__content,
 .product-card--card .product-card__content,
-.product-card--standard .product-card__content {
+.product-card--standard .product-card__content,
+.product-card__details,
+.product-card__title-row,
+.product-card__price-row,
+.product-card__title,
+.price,
+.card {
   background: transparent !important;
   background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.product-card,
+.card {
+  --color-card-background: transparent !important;
+  --color-background: transparent !important;
 }
 
 .product-card__price-row,
@@ -10374,6 +10387,68 @@ details.active .drawer__promotions .mega-menu__item,
 
   .no-js .product-card__carousel {
     display: none;
+  }
+}
+
+/* === FIX: Unified product-card shadow for mobile & desktop (was hidden <768 due to nested media) === */
+.product-card,
+.product-card--card,
+.product-card--standard {
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  overflow: visible !important;
+}
+.product-card__media {
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  background: #fff;
+  /* Lightened shadow - unified base for desktop */
+  box-shadow: 0 6px 18px rgba(0,0,0,0.09), 0 2px 8px rgba(0,0,0,0.06) !important;
+  filter: none !important;
+}
+
+/* Fix clipping of shadow by parent sliders/viewports - Featured collections mobile fix */
+.card-grid,
+.you-may-also-like__card-grid,
+.ekko-featured-collection__list,
+.ekko-featured-collection__item {
+  overflow: visible !important;
+}
+.ekko-featured-collection__item > .card {
+  overflow: visible !important;
+}
+.recently-viewed .page-width {
+  overflow: visible !important;
+}
+.recently-viewed .page-width.overflow-hidden {
+  overflow: visible !important;
+}
+
+@media screen and (max-width: 989px) {
+  .product-card__media {
+    /* Even lighter on mobile */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07), 0 2px 6px rgba(0,0,0,0.05) !important;
+  }
+  .slider--tablet,
+  .you-may-also-like .slider--tablet,
+  .ekko-featured-collection[data-mobile-swipe='true'] .ekko-featured-collection__viewport {
+    padding-block: 16px !important;
+    margin-block: -16px !important;
+    /* overflow-x remains auto, padding gives space for shadow */
+  }
+  /* Ensure scroll containers don't clip vertically */
+  .you-may-also-like .slider--tablet::-webkit-scrollbar,
+  .ekko-featured-collection__viewport::-webkit-scrollbar {
+    display: none;
+  }
+}
+@media screen and (min-width: 990px) {
+  .ekko-featured-collection[data-desktop-carousel='true'] .ekko-featured-collection__viewport,
+  .you-may-also-like .slider--desktop {
+    padding-block: 20px !important;
+    margin-block: -20px !important;
   }
 }
 
@@ -11832,6 +11907,13 @@ details.active .drawer__promotions .mega-menu__item,
     --slider-grid: auto / auto-flow var(--slider-item-width);
     grid: var(--slider-grid);
   }
+
+  /* Make all mobile cards bigger while keeping 2 per row */
+  .card-grid,
+  .card-grid--2,
+  .mobile\:card-grid--2 {
+    gap: 10px !important;
+  }
 }
 
 @media screen and (max-width: 639px) {
@@ -12817,6 +12899,7 @@ video-media[suspended]~* {
 
 .product__media {
   background-color: rgb(var(--color-placeholder));
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.05);
 }
 
 @media screen and (min-width: 1024px) {
