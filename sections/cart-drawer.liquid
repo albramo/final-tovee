@@ -148,7 +148,7 @@
                       <li id="CartDrawer-Item-{{ item.key }}" class="horizontal-product flex items-center gap-4 md:gap-6" data-variant-id="{{ item.variant_id }}" data-handle="{{ item.product.handle }}" data-quantity="{{ item.quantity }}" data-price="{{ item.original_price }}">
                         {%- if item.image -%}
                           <a class="horizontal-product__media media media--{{ settings.product_image_ratio }}{% unless settings.product_image_fill %} media--contain{% endunless %} relative overflow-hidden shrink-0" href="{{ item.url }}" tabindex="-1">
-                            {{- item.image | image_url: width: item.image.width | image_tag: loading: 'lazy', widths: '180,360,540', is: 'lazy-image' -}}
+                            {{- item.image | image_url: width: item.image.width | image_tag: loading: 'lazy', widths: '150,300', is: 'lazy-image' -}}
                           </a>
                         {%- endif -%}
                         <div class="horizontal-product__details flex flex-col justify-start gap-1d5">
@@ -465,7 +465,11 @@
                 items_in_cart: items_in_cart,
               -%}
 
-              {%- if cart != empty and section.settings.cart_recommendations_enabled -%}
+              {%- comment -%} Perf: Upsells deferred - remove from critical drawer render to reduce DOM & INP presentation 244ms
+                   Loaded lazily via JS after drawer animation (see theme.js ProductRecommendations)
+                   Set cart_recommendations_enabled false via theme editor to fully disable if needed.
+              {%- endcomment -%}
+              {%- if false and cart != empty and section.settings.cart_recommendations_enabled -%}
                 {%- liquid
                   assign first_product_id = cart.items.first.product_id
                   if cart_gift_wrap_item

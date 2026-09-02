@@ -548,7 +548,8 @@ div.pswp__img--placeholder {
 /*! flickity */
 
 .flickity-enabled {
-  position: relative
+  position: relative;
+  touch-action: pan-y
 }
 
 .flickity-enabled:focus {
@@ -558,13 +559,15 @@ div.pswp__img--placeholder {
 .flickity-viewport {
   height: 100%;
   overflow: hidden;
-  position: relative
+  position: relative;
+  touch-action: pan-y
 }
 
 .flickity-slider {
   position: absolute;
   height: 100%;
-  width: 100%
+  width: 100%;
+  will-change: transform
 }
 
 .flickity-enabled.is-draggable {
@@ -3148,6 +3151,13 @@ button.shopify-payment-button__button--unbranded::after {
   inset-inline-start: -25%;
   position: absolute;
   transform: translate3d(0, -76%, 0);
+  will-change: transform;
+  contain: paint;
+}
+@media (pointer: coarse) {
+  .button .btn-fill {
+    transition: none !important;
+  }
 }
 
 .button--primary .btn-fill {
@@ -5871,8 +5881,8 @@ ol {
 
 .drawer .overlay {
   cursor: none;
-  transition: .8s cubic-bezier(.7, 0, .2, 1);
-  transition-property: opacity, visibility, background-color;
+  transition: .42s cubic-bezier(.32, .72, 0, 1);
+  transition-property: opacity, visibility;
 }
 
 .drawer--start .overlay {
@@ -5951,6 +5961,8 @@ ol {
   color: rgb(var(--color-foreground));
   background-color: rgb(var(--color-background));
   transform: translateX(calc(var(--tw-translate-x) * var(--transform-logical)));
+  will-change: transform;
+  contain: layout paint;
 }
 
 .drawer--start .drawer__inner {
@@ -5974,7 +5986,7 @@ ol {
 }
 
 .loaded .drawer__inner {
-  transition: transform .6s cubic-bezier(.7, 0, .2, 1)
+  transition: transform .38s cubic-bezier(.32, .72, 0, 1)
 }
 
 .drawer[open] {
@@ -6382,7 +6394,7 @@ ol {
 }
 
 .drawer__tabs {
-  transition: all var(--animation-primary);
+  transition: opacity var(--animation-primary);
   transition-delay: .1s
 }
 
@@ -6514,7 +6526,7 @@ ol {
 }
 
 .drawer .modal {
-  transition: all .3s ease;
+  transition: opacity .3s ease, visibility .3s ease;
   z-index: 3
 }
 

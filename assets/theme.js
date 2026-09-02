@@ -1872,6 +1872,11 @@ class ModalElement extends HTMLElement {
 
     this.beforeShow();
     this.activeElement = activeElement;
+    // Instant feedback: add opening class immediately for perceived speed
+    if (animate && this.overlay) {
+      this.overlay.style.willChange = 'opacity';
+      if (this.gestureWrap) this.gestureWrap.style.willChange = 'transform';
+    }
     this.setAttribute('open', animate ? '' : 'immediate');
 
     if (this.shouldLock) {
@@ -1885,14 +1890,16 @@ class ModalElement extends HTMLElement {
   beforeShow() { }
 
   afterHide() {
+    // Perf: Clean will-change after animation
+    if (this.overlay) this.overlay.style.willChange = '';
+    if (this.gestureWrap) this.gestureWrap.style.willChange = '';
     setTimeout(() => {
       theme.a11y.removeTrapFocus(this.activeElement);
       if (this.shouldLock) {
         lockLayerCount.set(ModalElement, lockLayerCount.get(ModalElement) - 1);
-
         document.body.classList.toggle(this.classes.open, lockLayerCount.get(ModalElement) > 0);
       }
-    });
+    }, 50);
   }
   afterShow() {
     // Perf: Defer trapFocus out of INP processing/presentation critical path
@@ -1914,21 +1921,18 @@ class ModalElement extends HTMLElement {
   }
 
   showTransition() {
-    // Perf: Use rAF to avoid forced style calc during INP processing.
-    // active is set on next frame to let browser batch style recalc.
+    // Perf: Instant feedback - set active on next frame (16ms) instead of 60ms for faster perceived open
     requestAnimationFrame(() => {
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         if (this.hasAttribute('open')) this.setAttribute('active', '');
-      }, 60);
+      });
     });
     return new Promise((resolve) => {
       let done = false;
       const finish = () => { if (!done) { done = true; resolve(); } };
-      // Listen for overlay transitionend (GPU opacity) with fallback timeout
-      // Avoid getComputedStyle() which forces sync style calc during INP processing
       this.overlay.addEventListener('transitionend', finish, { once: true });
-      // Fallback 750ms covers .6s drawer transform + .8s overlay
-      setTimeout(finish, 750);
+      // Fallback 500ms covers new .38s drawer + .4s overlay
+      setTimeout(finish, 550);
     });
   }
   hideTransition() {

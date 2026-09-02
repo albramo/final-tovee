@@ -95,7 +95,19 @@
   </ul>
 
   {%- if request.design_mode == false and settings.preload_links -%}
-    <script src="{{ 'instant-page.js' | asset_url }}" type="module" fetchpriority="low" defer="defer"></script>
+    <script type="module" fetchpriority="low">
+      (function(){
+        const loadInstant = () => {
+          const s=document.createElement('script');
+          s.src="{{ 'instant-page.js' | asset_url }}";
+          s.type="module";
+          s.fetchPriority="low";
+          document.head.appendChild(s);
+        };
+        if('requestIdleCallback' in window) requestIdleCallback(loadInstant,{timeout:4000});
+        else window.addEventListener('load', () => setTimeout(loadInstant, 2500));
+      })();
+    </script>
   {%- endif -%}
 </body>
 </html>
