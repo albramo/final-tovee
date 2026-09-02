@@ -3225,6 +3225,18 @@ button.shopify-payment-button__button--unbranded {
   backdrop-filter: blur(12px);
 }
 
+.icon,
+svg.icon {
+  pointer-events: none !important;
+}
+
+.cart-drawer-button,
+.drawer__close,
+.dock__item,
+[aria-controls="CartDrawer"] {
+  touch-action: manipulation !important;
+}
+
 .button--close,
 .drawer__close {
   backdrop-filter: none !important;
@@ -6223,15 +6235,8 @@ ol {
   }
 
   .js .drawer__close {
-    clip: rect(0, 0, 0, 0);
-    border-width: 0;
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    white-space: nowrap;
-    width: 1px;
+    display: none !important;
+    pointer-events: none !important;
   }
 
   .js .drawer .drawer__inner {
