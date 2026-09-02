@@ -222,7 +222,7 @@
     --page-width: {{ settings.page_width }}px;
     --gap-padding: clamp(var(--sp-5), 2.526vw, var(--sp-12));
     --grid-gap: clamp(40px, 20vw, 60px);
-    --page-padding: var(--sp-5);
+    --page-padding: var(--sp-2d5);
     --page-container: min(calc(100vw - var(--scrollbar-width, 0px) - var(--page-padding) * 2), var(--page-width));
     --rounded-button: {{ rounded_button }}rem;
     --rounded-input: {{ rounded_input }}rem;
@@ -231,6 +231,12 @@
 
     /*! Other */
     --icon-weight: {{ settings.icon_weight }}px;
+  }
+
+  @media screen and (min-width: 768px) {
+    :root {
+      --page-padding: var(--sp-5);
+    }
   }
 
   @media screen and (min-width: 1024px) {
