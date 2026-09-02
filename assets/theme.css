@@ -6965,31 +6965,24 @@ ol {
 
   .drawer .horizontal-product__quantity {
     flex-shrink: 0;
-    max-width: 3rem;
   }
 
   .drawer .cart-quantity {
-    height: var(--sp-8);
-    width: var(--sp-10);
+    height: var(--sp-9);
+    width: var(--sp-12);
   }
 
   .drawer .cart-quantity .quantity__input {
     font-size: var(--text-xs);
-    padding-inline: 0;
   }
 
   .drawer .cart-quantity .quantity__buttons {
-    width: var(--sp-4);
+    width: var(--sp-5);
   }
 
   .drawer .cart-quantity .quantity__button {
-    height: var(--sp-4);
-    padding-inline-end: var(--sp-1);
-  }
-
-  .drawer .cart-quantity .quantity__button .icon {
-    width: 6px;
-    height: 6px;
+    height: var(--sp-5);
+    padding-inline-end: var(--sp-2);
   }
 }
 
