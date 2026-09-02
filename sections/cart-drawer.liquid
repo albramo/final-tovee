@@ -927,23 +927,30 @@ if (!customElements.get('discount-code')) {
           }
         } catch(e){ /* cannot verify - show error */ }
         if(!discountApplied){
-          this.showMessage('كود الخصم غير صحيح أو غير متاح حالياً، تأكد من الكود وحاول مرة أخرى', 'error');
+          this.showMessage({{ 'general.cart.discount_invalid' | t | json }}, 'error');
           this.button.removeAttribute('aria-busy');
           return;
         }
-        // Update cart drawer without page reload - respects admin rules and shows order-level discount in footer (total invoice) not per product if admin set as order discount
+        // Full cart drawer refresh - updates items with line-level discounts + footer with cart-level discounts
+        // This respects all Shopify admin rules: product discount, order discount, BuyXGetY, minimum requirements, etc.
         document.dispatchEvent(new CustomEvent('cart:refresh', { detail: { open: true } }));
+        // Also force full section re-render to ensure line-level discounts (product-specific) appear on each item
         try {
-          const sectionRes = await fetch(`${theme.routes.root_url}?section_id=cart-drawer`, { credentials: 'same-origin' });
+          const sectionRes = await fetch(`${theme.routes.root_url}?section_id=cart-drawer&t=${Date.now()}`, { credentials: 'same-origin' });
           if(sectionRes.ok){
             const html = await sectionRes.text();
             const doc = new DOMParser().parseFromString(html, 'text/html');
             const newDrawer = doc.querySelector('#CartDrawer');
             const currentDrawer = document.querySelector('#CartDrawer');
             if(newDrawer && currentDrawer){
-              const newTotals = newDrawer.querySelector('.drawer__footer-bottom');
-              const curTotals = currentDrawer.querySelector('.drawer__footer-bottom');
-              if(newTotals && curTotals) curTotals.innerHTML = newTotals.innerHTML;
+              // Update cart items (shows line-level discount per product)
+              const newItems = newDrawer.querySelector('cart-items');
+              const curItems = currentDrawer.querySelector('cart-items');
+              if(newItems && curItems) curItems.innerHTML = newItems.innerHTML;
+              // Update footer (shows cart-level discount + updated totals)
+              const newFooter = newDrawer.querySelector('.drawer__footer');
+              const curFooter = currentDrawer.querySelector('.drawer__footer');
+              if(newFooter && curFooter) curFooter.innerHTML = newFooter.innerHTML;
             }
           }
         } catch(e){}
@@ -954,7 +961,7 @@ if (!customElements.get('discount-code')) {
           else if (modal) { modal.hidden = true; modal.removeAttribute('open'); document.querySelector(`[aria-controls="${modal.id}"]`)?.setAttribute('aria-expanded','false'); }
         }, 900);
       } catch (e) {
-        this.showMessage('حدث خطأ أثناء تطبيق الكود، تأكد من الكود وحاول مرة أخرى', 'error');
+        this.showMessage({{ 'general.cart.discount_error' | t | json }}, 'error');
       } finally {
         this.button.removeAttribute('aria-busy');
       }

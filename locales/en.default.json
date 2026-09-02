@@ -156,7 +156,8 @@
       "discount_code": "Discount code",
       "apply": "Apply",
       "discount_enter": "Please enter a discount code",
-      "discount_invalid": "Invalid code or not applicable (check admin discount conditions)",
+      "discount_invalid": "Discount code is invalid or not available, please check and try again",
+      "discount_error": "An error occurred while applying the code, please try again",
       "discount_applied": "Discount applied to total order!",
       "discount_removed": "Discount removed - please re-enter code"
     },

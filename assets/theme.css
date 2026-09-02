@@ -6957,6 +6957,42 @@ ol {
   margin-block-start: auto;
 }
 
+@media screen and (max-width: 639px) {
+  .drawer .horizontal-product__details {
+    min-width: 0;
+    flex: 1 1 0%;
+  }
+
+  .drawer .horizontal-product__quantity {
+    flex-shrink: 0;
+    max-width: 3rem;
+  }
+
+  .drawer .cart-quantity {
+    height: var(--sp-8);
+    width: var(--sp-10);
+  }
+
+  .drawer .cart-quantity .quantity__input {
+    font-size: var(--text-xs);
+    padding-inline: 0;
+  }
+
+  .drawer .cart-quantity .quantity__buttons {
+    width: var(--sp-4);
+  }
+
+  .drawer .cart-quantity .quantity__button {
+    height: var(--sp-4);
+    padding-inline-end: var(--sp-1);
+  }
+
+  .drawer .cart-quantity .quantity__button .icon {
+    width: 6px;
+    height: 6px;
+  }
+}
+
 /*! gift-wrapping */
 
 .cart-drawer .gift-wrapping {
