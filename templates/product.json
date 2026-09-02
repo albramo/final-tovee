@@ -309,62 +309,17 @@
             "image_position": "left",
             "image_ratio": "1 / 1",
             "image_fit": "contain",
+            "image_metafield_namespace": "",
+            "image_metafield_key": "",
             "eyebrow": "Component details",
-            "row_style": "plain",
+            "content": "",
+            "page": "",
+            "metafield_namespace": "",
+            "metafield_key": "",
             "text_color": "",
             "background": ""
           },
-          "blocks": {
-            "material": {
-              "type": "_product-details-spec-row",
-              "settings": {
-                "label": "Material",
-                "value": "Aircraft-grade aluminum",
-                "suffix": "",
-                "metafield_namespace": "",
-                "metafield_key": ""
-              },
-              "blocks": {}
-            },
-            "finish": {
-              "type": "_product-details-spec-row",
-              "settings": {
-                "label": "Finish",
-                "value": "Matte anodized",
-                "suffix": "",
-                "metafield_namespace": "",
-                "metafield_key": ""
-              },
-              "blocks": {}
-            },
-            "weight": {
-              "type": "_product-details-spec-row",
-              "settings": {
-                "label": "Weight",
-                "value": "240 g",
-                "suffix": "",
-                "metafield_namespace": "",
-                "metafield_key": ""
-              },
-              "blocks": {}
-            },
-            "materials_note": {
-              "type": "_product-details-note",
-              "settings": {
-                "text": "<p>{{ product.metafields.custom.description | metafield_tag }}</p>",
-                "page": "",
-                "metafield_namespace": "",
-                "metafield_key": ""
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "material",
-            "finish",
-            "weight",
-            "materials_note"
-          ]
+          "blocks": {}
         },
         "compatibility": {
           "type": "_product-details-collapsible",
@@ -374,39 +329,17 @@
             "image_position": "left",
             "image_ratio": "4 / 3",
             "image_fit": "contain",
+            "image_metafield_namespace": "",
+            "image_metafield_key": "",
             "eyebrow": "Product specifications",
-            "row_style": "alternating",
+            "content": "",
+            "page": "",
+            "metafield_namespace": "",
+            "metafield_key": "",
             "text_color": "",
             "background": ""
           },
-          "blocks": {
-            "dimensions": {
-              "type": "_product-details-spec-row",
-              "settings": {
-                "label": "Dimensions",
-                "value": "18 × 12 cm",
-                "suffix": "",
-                "metafield_namespace": "",
-                "metafield_key": ""
-              },
-              "blocks": {}
-            },
-            "compatible_models": {
-              "type": "_product-details-spec-row",
-              "settings": {
-                "label": "Compatibility",
-                "value": "Add compatible models",
-                "suffix": "",
-                "metafield_namespace": "",
-                "metafield_key": ""
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "dimensions",
-            "compatible_models"
-          ]
+          "blocks": {}
         },
         "included": {
           "type": "_product-details-included",

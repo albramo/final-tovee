@@ -1,5 +1,6 @@
 {% doc %}
-  Renders a product component image and nested specification rows in an accordion. Now supports direct metafield binding for content and image.
+  Renders a product component image and collapsible content bound to any product metafield.
+  No nested Specification rows - single unit: heading + metafield content + image (manual or metafield).
 {% enddoc %}
 
 {%- liquid
@@ -86,10 +87,6 @@
         <div class="ekko-product-detail-row__rte rte">{{ block.settings.page.content }}</div>
       {%- elsif block.settings.content != blank -%}
         <div class="ekko-product-detail-row__rte rte">{{ block.settings.content }}</div>
-      {%- else -%}
-        <div class="ekko-product-detail-row__children ekko-product-detail-row__children--{{ block.settings.row_style }}">
-          {% content_for 'blocks' %}
-        </div>
       {%- endif -%}
     </div>
   </div>
@@ -217,29 +214,6 @@
   .ekko-product-detail-row__rte > :first-child { margin-block-start: 0; }
   .ekko-product-detail-row__rte > :last-child { margin-block-end: 0; }
 
-  .ekko-product-detail-row__children {
-    display: grid;
-    gap: .125rem;
-  }
-
-  .ekko-product-detail-row__children > .shopify-block {
-    min-width: 0;
-  }
-
-  .ekko-product-detail-row__children > .shopify-block:has(> .ekko-product-spec-row) {
-    display: block;
-  }
-
-  .ekko-product-detail-row__children > .shopify-block:has(> .ekko-product-detail-note) {
-    display: block;
-    padding-inline: .875rem;
-  }
-
-  .ekko-product-detail-row__children--alternating > .shopify-block:nth-child(odd):has(.ekko-product-spec-row) {
-    background: color-mix(in srgb, currentColor 5%, transparent);
-    border-radius: .5rem;
-  }
-
   @media screen and (max-width: 749px) {
     .ekko-product-detail-row__summary {
       min-height: 4rem;
@@ -266,16 +240,13 @@
 {% schema %}
 {
   "name": "Collapsible detail",
-  "blocks": [
-    { "type": "_product-details-spec-row" },
-    { "type": "_product-details-note" }
-  ],
+  "blocks": [],
   "settings": [
     { "type": "text", "id": "heading", "label": "Row heading", "default": "Materials & construction" },
     { "type": "image_picker", "id": "icon_image", "label": "Heading icon" },
     { "type": "checkbox", "id": "opened", "label": "Open by default", "default": false },
     { "type": "header", "content": "Product component image" },
-    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "image_picker", "id": "image", "label": "Image (manual)" },
     { "type": "select", "id": "image_position", "label": "Image position", "options": [{ "value": "left", "label": "Left" }, { "value": "right", "label": "Right" }], "default": "left" },
     { "type": "select", "id": "image_ratio", "label": "Image ratio", "options": [{ "value": "1 / 1", "label": "Square" }, { "value": "4 / 3", "label": "Landscape" }, { "value": "3 / 4", "label": "Portrait" }], "default": "1 / 1" },
     { "type": "select", "id": "image_fit", "label": "Image fit", "options": [{ "value": "contain", "label": "Contain" }, { "value": "cover", "label": "Cover" }], "default": "contain" },
@@ -284,24 +255,18 @@
     { "type": "text", "id": "image_metafield_key", "label": "Image metafield key", "info": "File reference type. When filled, metafield image replaces manual image." },
     { "type": "header", "content": "Row content" },
     { "type": "text", "id": "eyebrow", "label": "Table label", "default": "Component details" },
-    { "type": "select", "id": "row_style", "label": "Table style (for nested rows)", "options": [{ "value": "plain", "label": "Plain" }, { "value": "alternating", "label": "Alternating rows" }], "default": "plain" },
-    { "type": "richtext", "id": "content", "label": "Content", "info": "Shown when no metafield / page is set. Supports dynamic source." },
+    { "type": "richtext", "id": "content", "label": "Content (manual)", "info": "Shown when no metafield / page is set." },
     { "type": "page", "id": "page", "label": "Page content", "info": "Shown when metafield is empty and manual content is empty." },
-    { "type": "header", "content": "Connect content to metafield" },
+    { "type": "header", "content": "Connect content to ANY metafield" },
     { "type": "text", "id": "metafield_namespace", "label": "Content metafield namespace", "info": "Example: custom" },
-    { "type": "text", "id": "metafield_key", "label": "Content metafield key", "info": "When filled, metafield content replaces manual content and nested rows. Works with rich_text, multi-line text, etc." },
+    { "type": "text", "id": "metafield_key", "label": "Content metafield key", "info": "When filled, this metafield replaces manual content. Works with rich_text, multi-line, single-line, etc." },
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "text_color", "label": "Text" },
     { "type": "color", "id": "background", "label": "Background" }
   ],
   "presets": [
     {
-      "name": "Collapsible detail",
-      "blocks": [
-        { "type": "_product-details-spec-row", "settings": { "label": "Material", "value": "Aircraft-grade aluminum" } },
-        { "type": "_product-details-spec-row", "settings": { "label": "Weight", "value": "240 g" } },
-        { "type": "_product-details-spec-row", "settings": { "label": "Dimensions", "value": "18 × 12 cm" } }
-      ]
+      "name": "Collapsible detail"
     }
   ]
 }
