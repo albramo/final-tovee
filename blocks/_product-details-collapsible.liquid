@@ -1,6 +1,37 @@
 {% doc %}
-  Renders a product component image and nested specification rows in an accordion.
+  Renders a product component image and nested specification rows in an accordion. Now supports direct metafield binding for content and image.
 {% enddoc %}
+
+{%- liquid
+  assign content_metafield_namespace = block.settings.metafield_namespace | strip
+  assign content_metafield_key = block.settings.metafield_key | strip
+  assign content_metafield = blank
+  if content_metafield_namespace != blank and content_metafield_key != blank
+    assign content_metafield = product.metafields[content_metafield_namespace][content_metafield_key]
+  endif
+
+  assign image_metafield_namespace = block.settings.image_metafield_namespace | strip
+  assign image_metafield_key = block.settings.image_metafield_key | strip
+  assign image_metafield = blank
+  if image_metafield_namespace != blank and image_metafield_key != blank
+    assign image_metafield = product.metafields[image_metafield_namespace][image_metafield_key]
+  endif
+
+  assign display_image = blank
+  if image_metafield.value != blank
+    assign display_image = image_metafield.value
+    if image_metafield.list? and display_image.first != blank
+      assign display_image = display_image.first
+    endif
+  elsif block.settings.image != blank
+    assign display_image = block.settings.image
+  endif
+
+  assign has_content_metafield = false
+  if content_metafield.value != blank
+    assign has_content_metafield = true
+  endif
+-%}
 
 <details
   class="ekko-product-detail-row"
@@ -25,10 +56,10 @@
     </span>
   </summary>
 
-  <div class="ekko-product-detail-row__content{% if block.settings.image == blank %} ekko-product-detail-row__content--without-image{% elsif block.settings.image_position == 'right' %} ekko-product-detail-row__content--image-right{% endif %}">
-    {%- if block.settings.image != blank -%}
+  <div class="ekko-product-detail-row__content{% if display_image == blank %} ekko-product-detail-row__content--without-image{% elsif block.settings.image_position == 'right' %} ekko-product-detail-row__content--image-right{% endif %}">
+    {%- if display_image != blank -%}
       <figure class="ekko-product-detail-row__media">
-        {{ block.settings.image | image_url: width: 1200 | image_tag:
+        {{ display_image | image_url: width: 1200 | image_tag:
           loading: 'lazy',
           widths: '320,480,640,800,1000,1200',
           sizes: '(max-width: 749px) calc(100vw - 64px), (max-width: 989px) 42vw, 30vw',
@@ -41,9 +72,25 @@
       {%- if block.settings.eyebrow != blank -%}
         <p class="ekko-product-detail-row__eyebrow">{{ block.settings.eyebrow | escape }}</p>
       {%- endif -%}
-      <div class="ekko-product-detail-row__children ekko-product-detail-row__children--{{ block.settings.row_style }}">
-        {% content_for 'blocks' %}
-      </div>
+      {%- if has_content_metafield -%}
+        <div class="ekko-product-detail-row__rte rte">
+          {%- if content_metafield.list? -%}
+            {%- for item in content_metafield.value -%}
+              {{ item }}{% unless forloop.last %}<br>{% endunless %}
+            {%- endfor -%}
+          {%- else -%}
+            {{ content_metafield | metafield_tag }}
+          {%- endif -%}
+        </div>
+      {%- elsif block.settings.page != blank -%}
+        <div class="ekko-product-detail-row__rte rte">{{ block.settings.page.content }}</div>
+      {%- elsif block.settings.content != blank -%}
+        <div class="ekko-product-detail-row__rte rte">{{ block.settings.content }}</div>
+      {%- else -%}
+        <div class="ekko-product-detail-row__children ekko-product-detail-row__children--{{ block.settings.row_style }}">
+          {% content_for 'blocks' %}
+        </div>
+      {%- endif -%}
     </div>
   </div>
 </details>
@@ -162,6 +209,14 @@
     background: color-mix(in srgb, currentColor 16%, transparent);
   }
 
+  .ekko-product-detail-row__rte {
+    font-size: .95rem;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+  .ekko-product-detail-row__rte > :first-child { margin-block-start: 0; }
+  .ekko-product-detail-row__rte > :last-child { margin-block-end: 0; }
+
   .ekko-product-detail-row__children {
     display: grid;
     gap: .125rem;
@@ -224,9 +279,17 @@
     { "type": "select", "id": "image_position", "label": "Image position", "options": [{ "value": "left", "label": "Left" }, { "value": "right", "label": "Right" }], "default": "left" },
     { "type": "select", "id": "image_ratio", "label": "Image ratio", "options": [{ "value": "1 / 1", "label": "Square" }, { "value": "4 / 3", "label": "Landscape" }, { "value": "3 / 4", "label": "Portrait" }], "default": "1 / 1" },
     { "type": "select", "id": "image_fit", "label": "Image fit", "options": [{ "value": "contain", "label": "Contain" }, { "value": "cover", "label": "Cover" }], "default": "contain" },
+    { "type": "header", "content": "Image metafield (overrides manual image)" },
+    { "type": "text", "id": "image_metafield_namespace", "label": "Image metafield namespace", "info": "Example: custom. Leave blank to use manual image." },
+    { "type": "text", "id": "image_metafield_key", "label": "Image metafield key", "info": "File reference type. When filled, metafield image replaces manual image." },
     { "type": "header", "content": "Row content" },
     { "type": "text", "id": "eyebrow", "label": "Table label", "default": "Component details" },
-    { "type": "select", "id": "row_style", "label": "Table style", "options": [{ "value": "plain", "label": "Plain" }, { "value": "alternating", "label": "Alternating rows" }], "default": "plain" },
+    { "type": "select", "id": "row_style", "label": "Table style (for nested rows)", "options": [{ "value": "plain", "label": "Plain" }, { "value": "alternating", "label": "Alternating rows" }], "default": "plain" },
+    { "type": "richtext", "id": "content", "label": "Content", "info": "Shown when no metafield / page is set. Supports dynamic source." },
+    { "type": "page", "id": "page", "label": "Page content", "info": "Shown when metafield is empty and manual content is empty." },
+    { "type": "header", "content": "Connect content to metafield" },
+    { "type": "text", "id": "metafield_namespace", "label": "Content metafield namespace", "info": "Example: custom" },
+    { "type": "text", "id": "metafield_key", "label": "Content metafield key", "info": "When filled, metafield content replaces manual content and nested rows. Works with rich_text, multi-line text, etc." },
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "text_color", "label": "Text" },
     { "type": "color", "id": "background", "label": "Background" }
