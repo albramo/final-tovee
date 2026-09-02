@@ -196,19 +196,6 @@
           },
           "blocks": {}
         },
-        "details": {
-          "type": "product-accordion",
-          "settings": {
-            "style": "with-border",
-            "icon": "none",
-            "heading": "Shipping and returns",
-            "content": "<p>Add details about materials, sizing, shipping, or care.</p>",
-            "page": "",
-            "liquid": "",
-            "opened": false
-          },
-          "blocks": {}
-        },
         "sticky_buy": {
           "type": "product-sticky-buy",
           "settings": {
@@ -258,7 +245,6 @@
         "product_complementary_tmi6Tn",
         "pickup",
         "share",
-        "details",
         "sticky_buy"
       ],
       "settings": {
@@ -308,10 +294,10 @@
         "materials": {
           "type": "_product-details-collapsible",
           "settings": {
-            "heading": "Materials & construction",
+            "heading": "DESCRIPTION",
             "opened": true,
-            "eyebrow": "Component details",
-            "content": "{{ product.description }}",
+            "eyebrow": "",
+            "content": "<p>{{ product.description }}</p>",
             "page": "",
             "image_position": "left",
             "image_ratio": "1 / 1",
@@ -324,13 +310,47 @@
         "compatibility": {
           "type": "_product-details-collapsible",
           "settings": {
-            "heading": "Size & compatibility",
+            "heading": "INGREDIENTS",
             "opened": false,
-            "eyebrow": "Product specifications",
-            "content": "",
+            "eyebrow": "",
+            "content": "<p>{{ product.metafields.custom.ingredients | metafield_tag }}</p>",
             "page": "",
             "image_position": "left",
             "image_ratio": "4 / 3",
+            "image_fit": "contain",
+            "text_color": "",
+            "background": ""
+          },
+          "blocks": {}
+        },
+        "product_details_collapsible_7XBn9i": {
+          "type": "_product-details-collapsible",
+          "name": "Collapsible detail",
+          "settings": {
+            "heading": "HOW TO USE",
+            "opened": false,
+            "eyebrow": "",
+            "content": "<p>{{ product.metafields.custom.usee | metafield_tag }}</p>",
+            "page": "",
+            "image_position": "left",
+            "image_ratio": "1 / 1",
+            "image_fit": "contain",
+            "text_color": "",
+            "background": ""
+          },
+          "blocks": {}
+        },
+        "product_details_collapsible_DpKCH3": {
+          "type": "_product-details-collapsible",
+          "name": "Collapsible detail",
+          "settings": {
+            "heading": "Features",
+            "opened": false,
+            "eyebrow": "",
+            "content": "<p>{{ product.metafields.custom.features | metafield_tag }}</p>",
+            "page": "",
+            "image_position": "left",
+            "image_ratio": "1 / 1",
             "image_fit": "contain",
             "text_color": "",
             "background": ""
@@ -341,7 +361,9 @@
       "block_order": [
         "description",
         "materials",
-        "compatibility"
+        "compatibility",
+        "product_details_collapsible_7XBn9i",
+        "product_details_collapsible_DpKCH3"
       ],
       "settings": {
         "heading": "Product details",
