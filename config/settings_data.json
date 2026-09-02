@@ -12,6 +12,11 @@
     "color_button_background": "#800020",
     "color_drawer_button_background": "#800020",
     "page_width": 1600,
+    "card_style": "card",
+    "product_secondary_image": false,
+    "product_quick_add": true,
+    "product_quick_view": true,
+    "product_disable_collection_portion": true,
     "content_for_index": []
   }
 }
