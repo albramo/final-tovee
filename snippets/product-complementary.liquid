@@ -75,7 +75,7 @@
     endif
   endif
 -%}
-<product-recommendations class="complementary-products flex flex-col gap-5" data-url="{{ routes.product_recommendations_url }}?section_id={{ section_id }}&product_id={{ product_id }}&limit={{ limit }}&intent=complementary" data-fallback-enabled="{{ fallback_enabled }}" data-limit="{{ limit }}">
+<product-recommendations class="complementary-products flex flex-col gap-5" data-url="{{ routes.product_recommendations_url }}?section_id={{ section_id }}&product_id={{ product_id }}&limit={{ limit }}&intent=complementary" data-fallback-enabled="{{ fallback_enabled }}" data-limit="{{ limit }}" hidden style="display:none;">
   <div class="flex justify-between gap-4 items-center">
     <p class="recommend__title font-medium text-lg grow">{{ heading | escape }}</p>
     {%- if products_count > 1 -%}

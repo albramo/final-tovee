@@ -1909,28 +1909,17 @@ class ModalElement extends HTMLElement {
   beforeShow() { }
 
   afterHide() {
-    // Perf: Clean will-change after animation - use double rAF to avoid layout thrash
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (this.overlay) this.overlay.style.willChange = '';
-        if (this.gestureWrap) this.gestureWrap.style.willChange = '';
-        const inner = this.querySelector('.drawer__inner');
-        if (inner) inner.style.willChange = '';
-      });
-    });
-    // Defer trapFocus cleanup + body scroll lock to idle - reduces Processing 187ms
-    const doCleanup = () => {
-      try { theme.a11y.removeTrapFocus(this.activeElement); } catch(e){}
-      if (this.shouldLock) {
-        lockLayerCount.set(ModalElement, lockLayerCount.get(ModalElement) - 1);
-        document.body.classList.toggle(this.classes.open, lockLayerCount.get(ModalElement) > 0);
-      }
-    };
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(doCleanup, { timeout: 500 });
-    } else {
-      setTimeout(doCleanup, 80);
+    try { theme.a11y.removeTrapFocus(this.activeElement); } catch(e){}
+    if (this.shouldLock) {
+      lockLayerCount.set(ModalElement, Math.max(0, lockLayerCount.get(ModalElement) - 1));
+      document.body.classList.toggle(this.classes.open, lockLayerCount.get(ModalElement) > 0);
     }
+    requestAnimationFrame(() => {
+      if (this.overlay) this.overlay.style.willChange = '';
+      if (this.gestureWrap) this.gestureWrap.style.willChange = '';
+      const inner = this.querySelector('.drawer__inner');
+      if (inner) inner.style.willChange = '';
+    });
   }
   afterShow() {
     // Perf: Critical - body lock must be sync for scroll, but trapFocus deferred
@@ -1977,8 +1966,12 @@ class ModalElement extends HTMLElement {
     return new Promise((resolve) => {
       let done = false;
       const finish = () => { if (!done) { done = true; resolve(); } };
-      this.overlay.addEventListener('transitionend', finish, { once: true });
-      setTimeout(finish, 700);
+      const inner = this.querySelector('.drawer__inner');
+      const elToWatch = inner || this.overlay;
+      if (elToWatch) {
+        elToWatch.addEventListener('transitionend', finish, { once: true });
+      }
+      setTimeout(finish, 380);
     });
   }
 
@@ -2654,16 +2647,14 @@ class ProductRecommendations extends HTMLElement {
 
           const recommendations = sectionInnerHTML.querySelector('product-recommendations');
           if (recommendations && recommendations.innerHTML.trim().length) {
-            // Check if inner has actual products (not just empty placeholder)
-            const hasProducts = recommendations.querySelector('product-complementary')?.innerHTML.trim().length || recommendations.querySelector('.horizontal-products')?.children.length;
+            const hasProducts = (recommendations.querySelector('product-complementary')?.children.length > 0) || (recommendations.querySelector('.horizontal-products')?.children.length > 0);
             if (hasProducts) {
               this.innerHTML = recommendations.innerHTML;
               this.removeAttribute('hidden');
+              this.style.display = '';
               this.dispatchEvent(new CustomEvent('recommendations:loaded'));
-              // Re-init flickity if needed
               const comp = this.querySelector('product-complementary');
               if (comp && comp.classList.contains('flickity') && !comp.carousel) {
-                // trigger connectedCallback logic
                 comp.connectedCallback?.();
               }
               return;
@@ -2672,8 +2663,9 @@ class ProductRecommendations extends HTMLElement {
           if (!isFallback) {
             return tryFallback();
           } else {
-            // No products found even with fallback -> keep visible
-            this.removeAttribute('hidden');
+            this.setAttribute('hidden', '');
+            this.style.display = 'none';
+            this.innerHTML = '';
             this.dispatchEvent(new CustomEvent('is-empty'));
           }
         })
@@ -2684,13 +2676,13 @@ class ProductRecommendations extends HTMLElement {
     };
 
     const tryFallback = () => {
-      // Try related intent as fallback for complementary
       if (originalUrl.includes('intent=complementary')) {
         const fallbackUrl = originalUrl.replace('intent=complementary', 'intent=related');
         return fetchRecommendations(fallbackUrl, true);
       }
-      // Try searching for products not in cart via collections fallback - keep current content if any
-      this.removeAttribute('hidden');
+      this.setAttribute('hidden', '');
+      this.style.display = 'none';
+      this.innerHTML = '';
       this.dispatchEvent(new CustomEvent('is-empty'));
       return Promise.resolve();
     };
