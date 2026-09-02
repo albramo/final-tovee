@@ -11034,11 +11034,11 @@ details.active .drawer__promotions .mega-menu__item,
     opacity: 1 !important;
     visibility: visible !important;
     inset-block-start: 8px !important;
-    inset-inline-end: 8px !important;
+    inset-inline-start: 8px !important;
     top: 8px !important;
-    right: 8px !important;
-    left: auto !important;
-    inset-inline-start: auto !important;
+    left: 8px !important;
+    right: auto !important;
+    inset-inline-end: auto !important;
     width: 32px !important;
     height: 32px !important;
     min-width: 32px !important;
