@@ -414,11 +414,16 @@ if (!customElements.get('cart-drawer')) {
       show(focusElement = null, animate = true) {
         super.show(focusElement, animate);
 
+        // Perf: Defer tab switching out of INP processing path
+        // tabList.reset() triggers aria-expanded + panel open → Recalculate Style
         if (this.tabList) {
-          this.tabList.reset();
-
-          if (this.open) {
-            theme.a11y.trapFocus(this, this.focusElement);
+          const doReset = () => {
+            try { this.tabList.reset(); } catch(e) {}
+          };
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(doReset, { timeout: 400 });
+          } else {
+            setTimeout(doReset, 80);
           }
         }
       }

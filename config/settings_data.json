@@ -12,17 +12,6 @@
     "color_button_background": "#800020",
     "color_drawer_button_background": "#800020",
     "page_width": 1600,
-    "card_style": "card",
-    "card_text_alignment": "center",
-    "card_border_thickness": 0,
-    "product_image_fill": false,
-    "product_vendor": false,
-    "product_secondary_image": false,
-    "product_hover_video": false,
-    "product_rating": false,
-    "product_save_type": "percent",
-    "product_disable_collection_portion": true,
-    "cart_icon": "cart",
     "content_for_index": []
   }
 }

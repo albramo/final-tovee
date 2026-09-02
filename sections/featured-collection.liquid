@@ -336,9 +336,6 @@
       scrollbar-width: none;
       margin-inline: calc(var(--page-padding) * -1);
       padding-inline: var(--page-padding);
-      /* FIX: shadow not clipped - lighter mobile shadow */
-      padding-block: 16px;
-      margin-block: -16px;
     }
 
     .ekko-featured-collection[data-mobile-swipe='true'] .ekko-featured-collection__viewport::-webkit-scrollbar { display: none; }
@@ -406,8 +403,6 @@
       overscroll-behavior-x: contain;
       scroll-snap-type: x mandatory;
       scrollbar-width: none;
-      padding-block: 20px;
-      margin-block: -20px;
     }
 
     .ekko-featured-collection[data-desktop-carousel='true'] .ekko-featured-collection__viewport::-webkit-scrollbar { display: none; }

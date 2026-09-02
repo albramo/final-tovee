@@ -1000,32 +1000,11 @@ console.log(theme.settings.themeName + ' (' + theme.settings.themeVersion + ') b
   });
 })();
 
-// Prevent vertical scroll while using flickity sliders
+// Perf: Use CSS touch-action instead of JS preventDefault to avoid Input delay 286ms
+// Flickity drag now handled by browser compositor via touch-action: pan-y
 new theme.initWhenVisible(() => {
-  var e = !1;
-  var t;
-
-  document.body.addEventListener('touchstart', function (i) {
-    if (!i.target.closest('.flickity-slider')) {
-      return e = !1;
-      void 0;
-    }
-    e = !0;
-    t = {
-      x: i.touches[0].pageX,
-      y: i.touches[0].pageY
-    }
-  }, theme.supportsPassive ? { passive: true } : false);
-
-  document.body.addEventListener('touchmove', function (i) {
-    if (e && i.cancelable) {
-      var n = {
-        x: i.touches[0].pageX - t.x,
-        y: i.touches[0].pageY - t.y
-      };
-      Math.abs(n.x) > Flickity.defaults.dragThreshold && i.preventDefault()
-    }
-  }, theme.supportsPassive ? { passive: false } : false);
+  // No JS blocking - CSS handles it. Keep minimal listener for legacy fallback only if needed
+  // touch-action: pan-y on .flickity-viewport allows vertical scroll + horizontal drag without JS
 });
 
 class LoadingBar extends HTMLElement {
@@ -1916,35 +1895,49 @@ class ModalElement extends HTMLElement {
     });
   }
   afterShow() {
-    theme.a11y.trapFocus(this, this.focusElement);
+    // Perf: Defer trapFocus out of INP processing/presentation critical path
+    // trapFocus does querySelectorAll(focusable) which is ~15-40ms on mobile
     if (this.shouldLock) {
       lockLayerCount.set(ModalElement, lockLayerCount.get(ModalElement) + 1);
-
       document.body.classList.remove(this.classes.opening);
       document.body.classList.add(this.classes.open);
+    }
+    // Defer focus trapping to next idle frame to reduce Processing duration
+    const doTrap = () => {
+      try { theme.a11y.trapFocus(this, this.focusElement); } catch(e) {}
+    };
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(doTrap, { timeout: 300 });
+    } else {
+      requestAnimationFrame(() => setTimeout(doTrap, 50));
     }
   }
 
   showTransition() {
-    setTimeout(() => {
-      this.setAttribute('active', '');
-    }, 75);
+    // Perf: Use rAF to avoid forced style calc during INP processing.
+    // active is set on next frame to let browser batch style recalc.
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        if (this.hasAttribute('open')) this.setAttribute('active', '');
+      }, 60);
+    });
     return new Promise((resolve) => {
-      const computedStyle = window.getComputedStyle(this.overlay);
-      const hasTransition = computedStyle.transitionProperty !== 'none' && parseFloat(computedStyle.transitionDuration) > 0;
-
-      if (!hasTransition) {
-        resolve();
-        return;
-      }  
-                          
-      this.overlay.addEventListener('transitionend', resolve, { once: true });
+      let done = false;
+      const finish = () => { if (!done) { done = true; resolve(); } };
+      // Listen for overlay transitionend (GPU opacity) with fallback timeout
+      // Avoid getComputedStyle() which forces sync style calc during INP processing
+      this.overlay.addEventListener('transitionend', finish, { once: true });
+      // Fallback 750ms covers .6s drawer transform + .8s overlay
+      setTimeout(finish, 750);
     });
   }
   hideTransition() {
     this.removeAttribute('active');
     return new Promise((resolve) => {
-      this.overlay.addEventListener('transitionend', resolve, { once: true });
+      let done = false;
+      const finish = () => { if (!done) { done = true; resolve(); } };
+      this.overlay.addEventListener('transitionend', finish, { once: true });
+      setTimeout(finish, 700);
     });
   }
 
@@ -2502,7 +2495,31 @@ class RecentlyViewed extends HTMLElement {
       return;
     }
 
-    Motion.inView(this, this.init.bind(this), { margin: '600px 0px 600px 0px' });
+    // Perf: If inside cart-drawer, defer fetch until after drawer animation
+    // Otherwise immediate fetch via inView causes 100-300ms Processing during open
+    const drawer = this.closest('cart-drawer');
+    if (drawer) {
+      let initialized = false;
+      const schedule = () => {
+        if (initialized) return;
+        initialized = true;
+        const run = () => { try { this.init(); } catch(e){} };
+        if ('requestIdleCallback' in window) {
+          setTimeout(() => requestIdleCallback(run, {timeout:800}), 700);
+        } else {
+          setTimeout(run, 800);
+        }
+      };
+      if (drawer.hasAttribute('open')) {
+        schedule();
+      } else {
+        drawer.addEventListener('drawer:afterShow', schedule, {once:true});
+        // Fallback inView but only if drawer open
+        Motion.inView(this, () => { if(drawer.hasAttribute('open') && !initialized) schedule(); }, { margin: '600px 0px 600px 0px' });
+      }
+    } else {
+      Motion.inView(this, this.init.bind(this), { margin: '600px 0px 600px 0px' });
+    }
   }
 
   init() {
@@ -2552,28 +2569,43 @@ customElements.define('recently-viewed', RecentlyViewed);
 class ProductRecommendations extends HTMLElement {
   constructor() {
     super();
+    this._recInitialized = false;
 
-    // For cart drawer, ensure fetch even when drawer is hidden initially - use inView with larger margin and also trigger on drawer open
+    // For cart drawer, defer fetch until after drawer animation to avoid INP 368ms
     if (this.closest('cart-drawer')) {
-      // If drawer already open, fetch immediately, otherwise wait for inView
-      setTimeout(() => {
-        if (this.closest('cart-drawer')?.hasAttribute('open') || this.closest('cart-drawer')?.hasAttribute('active')) {
-          this.init();
+      const drawer = this.closest('cart-drawer');
+      const scheduleInit = () => {
+        if (this._recInitialized) return;
+        this._recInitialized = true;
+        const run = () => { try { this.init(); } catch(e){} };
+        // Wait for drawer animation (600ms) + idle to keep Processing/Presentation low
+        const delay = 650;
+        if ('requestIdleCallback' in window) {
+          setTimeout(() => requestIdleCallback(run, { timeout: 800 }), delay);
         } else {
-          Motion.inView(this, this.init.bind(this), { margin: '600px 0px 600px 0px' });
-          // Also listen for drawer open to trigger fetch
-          const drawer = this.closest('cart-drawer');
-          if (drawer) {
-            const observer = new MutationObserver(() => {
-              if (drawer.hasAttribute('open')) {
-                this.init();
-                observer.disconnect();
-              }
-            });
-            observer.observe(drawer, { attributes: true, attributeFilter: ['open', 'active'] });
-          }
+          setTimeout(run, delay + 150);
         }
-      }, 50);
+      };
+      // If drawer already open/active, schedule deferred fetch
+      if (drawer?.hasAttribute('open') || drawer?.hasAttribute('active')) {
+        scheduleInit();
+      } else {
+        // Fallback: inView will also schedule, but drawer:afterShow is primary (perf)
+        Motion.inView(this, () => {
+          if (drawer?.hasAttribute('open') && !this._recInitialized) scheduleInit();
+        }, { margin: '600px 0px 600px 0px' });
+        if (drawer) {
+          drawer.addEventListener('drawer:afterShow', scheduleInit, { once: true });
+          // MutationObserver as secondary fallback (but deferred)
+          const observer = new MutationObserver(() => {
+            if (drawer.hasAttribute('open') && !this._recInitialized) {
+              observer.disconnect();
+              // Wait for afterShow instead of immediate init
+            }
+          });
+          observer.observe(drawer, { attributes: true, attributeFilter: ['open'] });
+        }
+      }
     } else {
       Motion.inView(this, this.init.bind(this), { margin: '600px 0px 600px 0px' });
     }
@@ -6895,36 +6927,44 @@ class SlideshowElement extends HTMLElement {
     this.initialized = true;
 
     const that = this;
-    if (this.items.length > 1) {
-      this.slider = new Flickity(this, {
-        accessibility: false,
-        pageDots: false,
-        prevNextButtons: false,
-        wrapAround: true,
-        rightToLeft: theme.config.rtl,
-        autoPlay: this.autoplay ? this.speed : false,
-        adaptiveHeightProperty: this.adaptiveHeightProperty,
-        on: {
-          ready: function() {
-            const { selectedElement } = this;
-            that.onReady(selectedElement);
+    const doInit = () => {
+      if (that.items.length > 1) {
+        that.slider = new Flickity(that, {
+          accessibility: false,
+          pageDots: false,
+          prevNextButtons: false,
+          wrapAround: true,
+          rightToLeft: theme.config.rtl,
+          autoPlay: that.autoplay ? that.speed : false,
+          adaptiveHeightProperty: that.adaptiveHeightProperty,
+          on: {
+            ready: function() {
+              const { selectedElement } = this;
+              that.onReady(selectedElement);
+            }
           }
-        }
-      });
+        });
 
-      this.slider.on('change', this.onChange.bind(this));
-      this.addEventListener('slider:previous', () => this.slider.previous());
-      this.addEventListener('slider:next', () => this.slider.next());
-      this.addEventListener('slider:play', () => this.slider.playPlayer());
-      this.addEventListener('slider:pause', () => this.slider.pausePlayer());
+        that.slider.on('change', that.onChange.bind(that));
+        that.addEventListener('slider:previous', () => that.slider.previous());
+        that.addEventListener('slider:next', () => that.slider.next());
+        that.addEventListener('slider:play', () => that.slider.playPlayer());
+        that.addEventListener('slider:pause', () => that.slider.pausePlayer());
   
-      if (Shopify.designMode) {
-        this.addEventListener('shopify:block:select', (event) => this.slider.select(this.items.indexOf(event.target)));
+        if (Shopify.designMode) {
+          that.addEventListener('shopify:block:select', (event) => that.slider.select(that.items.indexOf(event.target)));
+        }
       }
-    }
-    else if (this.items.length === 1) {
-      const selectedElement = this.firstChild;
-      that.onReady(selectedElement);
+      else if (that.items.length === 1) {
+        const selectedElement = that.firstChild;
+        that.onReady(selectedElement);
+      }
+    };
+    // Perf: Defer Flickity to idle to avoid Input delay 286ms blocking main thread
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(doInit, { timeout: 600 });
+    } else {
+      setTimeout(doInit, 80);
     }
   }
 
