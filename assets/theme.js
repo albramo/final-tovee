@@ -5612,8 +5612,9 @@ class ProductStickyForm extends HTMLElement {
     this.abortController = new AbortController();
     const signal = this.abortController.signal;
 
-    this.scopeFrom = document.querySelector('.quick-order-list') || this.productForm;
-    this.scopeTo = document.querySelector('.footer-group');
+    const mainSubmit = document.querySelector('.product-info button.product-form__submit') || document.querySelector('.product-info form[is="product-form"]') || this.productForm;
+    this.scopeFrom = mainSubmit || document.querySelector('.quick-order-list');
+    this.scopeTo = document.querySelector('footer.footer') || document.querySelector('.footer-group') || document.querySelector('.footer-section');
     this.scopeFromPassed = false;
     this.scopeToReached = false;
     this.previewForced = false;
@@ -5644,6 +5645,12 @@ class ProductStickyForm extends HTMLElement {
       this.footerObserver = new IntersectionObserver(this.handleIntersection.bind(this));
       this.footerObserver.observe(this.scopeTo);
     }
+
+    const mainQuantityInputs = this.getMainQuantityInputs();
+    mainQuantityInputs.forEach((input) => {
+      input.addEventListener('change', () => this.syncQuantityFromMainForm(), { signal });
+      input.addEventListener('input', () => this.syncQuantityFromMainForm(), { signal });
+    });
 
     this.syncQuantityFromMainForm();
     this.handleViewportChange();
@@ -5691,27 +5698,21 @@ class ProductStickyForm extends HTMLElement {
 
     if (this.scopeFrom) {
       triggerPassed = this.scopeFrom.getBoundingClientRect().bottom <= 0;
+    } else {
+      triggerPassed = window.scrollY >= Number(this.getAttribute('data-scroll-distance') || 400);
     }
-    if (this.scopeTo) {
-      const footerRect = this.scopeTo.getBoundingClientRect();
-      const cardHeight = this.stickySurface.firstElementChild?.offsetHeight || 96;
-      const bottomGap = Number.parseFloat(getComputedStyle(this).getPropertyValue('--sticky-bottom-gap')) || 0;
-      footerReached = footerRect.top <= window.innerHeight - cardHeight - bottomGap && footerRect.bottom > 0;
+    const footerEl = this.scopeTo || document.querySelector('footer.footer') || document.querySelector('.footer-group') || document.querySelector('.footer-section');
+    if (footerEl) {
+      const footerRect = footerEl.getBoundingClientRect();
+      footerReached = footerRect.top <= (window.innerHeight - 40) && footerRect.bottom > 0;
     }
 
-    if (trigger === 'always') triggerPassed = true;
-    if (trigger === 'scroll') {
-      triggerPassed = window.scrollY >= Number(this.getAttribute('data-scroll-distance') || 500);
-    }
+    if (!mobile && trigger === 'always') triggerPassed = true;
 
     const quickViewOpen = this.quickView?.open === true;
     const visible = this.previewForced || (allowedOnViewport && triggerPassed && !footerReached && !quickViewOpen);
     this.toggleAttribute('visible', visible);
     this.portal?.toggleAttribute('visible', visible);
-    document.body.classList.toggle(
-      'ekko-sticky-buy-active',
-      mobile && visible && this.getAttribute('data-mobile-dock') === 'replace'
-    );
   }
 
   handleBlockSelect(event) {
@@ -5886,8 +5887,17 @@ class ProductStickyForm extends HTMLElement {
       event.preventDefault();
       this.adjustQuantity(1);
     }
-    else if (event.target.closest('[type="submit"]')) {
+    else if (event.target.closest('[type="submit"]') || event.target.closest('.ekko-sticky-buy__submit')) {
+      event.preventDefault();
       this.syncQuantityToMainForm();
+      const stickySubmit = this.stickySurface.querySelector('.ekko-sticky-buy__submit');
+      if (stickySubmit) stickySubmit.setAttribute('aria-busy', 'true');
+      const mainForm = this.productForm || document.querySelector('.product-info form[is="product-form"]');
+      if (mainForm && typeof mainForm.requestSubmit === 'function') {
+        mainForm.requestSubmit();
+      } else if (mainForm) {
+        mainForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      }
     }
   }
 

@@ -16039,3 +16039,29 @@ video-media:not([playing]) .deferred-poster .play-button .icon:last-child:not(:o
     margin-inline: auto;
   }
 }
+
+/* Fixed 1:1 Product Card Image Container & White Background Alignment */
+.product-card .media,
+.product-card__media .media,
+.product-card__media {
+  background-color: #ffffff !important;
+  aspect-ratio: 1 / 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.product-card .media > img,
+.product-card__media .media > img,
+.product-card .media img,
+.product-card__media img {
+  object-fit: contain !important;
+  object-position: center center !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: #ffffff !important;
+}

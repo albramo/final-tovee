@@ -17,8 +17,8 @@
         "other": "{{ count }} منتجات"
       },
       "free_shipping": {
-        "remaining_html": "أنفق {{ remaining_amount }} أكثر للحصول على شحن مجاني!",
-        "congratulations_html": "أنت مؤهل للشحن المجاني."
+        "remaining_html": "أضف منتجات بقيمة {{ remaining_amount }} للحصول على شحن مجاني! 🚚",
+        "congratulations_html": "مبروك! لقد حصلت على الشحن المجاني 🎉"
       },
       "note": {
         "title": "ملاحظة الطلب",
@@ -42,6 +42,7 @@
       "apply": "تطبيق",
       "discount_enter": "الرجاء إدخال كود الخصم",
       "discount_invalid": "كود الخصم غير صحيح أو غير متاح حالياً، تأكد من الكود وحاول مرة أخرى",
+      "discount_already_applied": "لديك كود خصم مفعّل بالفعل، لا يمكن استخدام أكثر من كود خصم واحد",
       "discount_error": "حدث خطأ أثناء تطبيق الكود، تأكد من الكود وحاول مرة أخرى",
       "discount_applied": "تم تطبيق الخصم على إجمالي الطلب!",
       "discount_removed": "تمت إزالة الخصم - الرجاء إعادة إدخال الكود"

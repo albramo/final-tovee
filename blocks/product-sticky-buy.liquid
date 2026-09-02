@@ -41,9 +41,9 @@
       --sticky-radius: {{ block.settings.corner_radius }}px;
       --sticky-background: {{ block.settings.background }};
       --sticky-text: {{ block.settings.text_color }};
-      --sticky-button-background: {{ block.settings.button_background }};
+      --sticky-button-background: {% if block.settings.button_background != blank and block.settings.button_background != '#171717' %}{{ block.settings.button_background }}{% else %}#800020{% endif %};
       --sticky-button-text: {{ block.settings.button_text_color }};
-      --sticky-button-hover-background: {{ block.settings.button_hover_background }};
+      --sticky-button-hover-background: {% if block.settings.button_hover_background != blank and block.settings.button_hover_background != '#333333' %}{{ block.settings.button_hover_background }}{% else %}#600018{% endif %};
       --sticky-button-hover-text: {{ block.settings.button_hover_text_color }};
       --sticky-shadow-opacity: {{ block.settings.shadow_opacity | divided_by: 100.0 }};
     "
@@ -141,32 +141,32 @@
           </button>
         {%- endif -%}
 
-        {%- if block.settings.show_quantity -%}
-          <div class="ekko-sticky-buy__quantity" aria-label="{{ 'products.quantity.label' | t | escape }}">
-            <button type="button" data-sticky-quantity-minus aria-label="{{ 'products.quantity.decrease' | t: product: product_item.title | escape }}">−</button>
-            <input
-              type="number"
-              inputmode="numeric"
-              autocomplete="off"
-              data-sticky-quantity
-              value="{{ current_variant.quantity_rule.min | default: 1 }}"
-              min="{{ current_variant.quantity_rule.min | default: 1 }}"
-              step="{{ current_variant.quantity_rule.increment | default: 1 }}"
-              {% if current_variant.quantity_rule.max != null %}max="{{ current_variant.quantity_rule.max }}"{% endif %}
-              aria-label="{{ 'products.quantity.label' | t | escape }}"
-            >
-            <button type="button" data-sticky-quantity-plus aria-label="{{ 'products.quantity.increase' | t: product: product_item.title | escape }}">+</button>
-          </div>
-        {%- endif -%}
+        <div class="ekko-sticky-buy__quantity" aria-label="{{ 'products.quantity.label' | t | escape }}">
+          <button type="button" data-sticky-quantity-minus aria-label="{{ 'products.quantity.decrease' | t: product: product_item.title | escape }}">−</button>
+          <input
+            type="number"
+            inputmode="numeric"
+            autocomplete="off"
+            data-sticky-quantity
+            value="{{ current_variant.quantity_rule.min | default: 1 }}"
+            min="{{ current_variant.quantity_rule.min | default: 1 }}"
+            step="{{ current_variant.quantity_rule.increment | default: 1 }}"
+            {% if current_variant.quantity_rule.max != null %}max="{{ current_variant.quantity_rule.max }}"{% endif %}
+            aria-label="{{ 'products.quantity.label' | t | escape }}"
+          >
+          <button type="button" data-sticky-quantity-plus aria-label="{{ 'products.quantity.increase' | t: product: product_item.title | escape }}">+</button>
+        </div>
 
         <button
           type="submit"
           name="add"
           form="{{ product_form_id }}"
-          class="ekko-sticky-buy__submit"
+          class="ekko-sticky-buy__submit button button--primary"
+          is="hover-button"
           data-available-label="{{ available_label | escape }}"
           {% unless current_variant.available %}disabled{% endunless %}
         >
+          <span class="btn-fill" data-fill></span>
           <span class="btn-text"><span data-sold-out="{{ 'products.product.sold_out' | t | escape }}">
             {%- if current_variant.available -%}{{ available_label }}{%- else -%}{{ 'products.product.sold_out' | t }}{%- endif -%}
           </span></span>
@@ -576,124 +576,97 @@
   }
 
   @media screen and (max-width: 767px) {
-    .ekko-sticky-buy {
-      inset-block-end: max(var(--sticky-bottom-gap), env(safe-area-inset-bottom));
-      padding-inline: 8px;
+    .ekko-sticky-buy,
+    .ekko-sticky-buy--portal {
+      inset-block-end: calc(var(--mobile-dock-height, 56px) + 8px) !important;
+      padding-inline: 10px !important;
     }
 
     .ekko-sticky-buy[data-show-mobile='false'] {
-      display: none;
-    }
-
-    body:has(.mobile-dock-section.active) .ekko-sticky-buy--portal[data-mobile-dock='above'],
-    body:has(.mobile-dock-section.shopify-active) .ekko-sticky-buy--portal[data-mobile-dock='above'] {
-      inset-block-end: calc(max(var(--sticky-bottom-gap), env(safe-area-inset-bottom)) + var(--mobile-dock-height, 0px));
+      display: none !important;
     }
 
     body.ekko-sticky-buy-active .mobile-dock,
     body.ekko-sticky-quick-view-open .mobile-dock {
-      transform: translateY(calc(100% + env(safe-area-inset-bottom))) !important;
-      pointer-events: none;
+      transform: translateY(0) !important;
+      pointer-events: auto !important;
+    }
+
+    .ekko-sticky-buy__product {
+      display: none !important;
     }
 
     .ekko-sticky-buy__card,
     .ekko-sticky-buy__card[data-content-width='custom'] {
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 10px;
-      max-width: none;
-      min-height: 68px;
-      padding: 8px 10px;
-      border-radius: min(var(--sticky-radius), 16px);
-      background: color-mix(in srgb, var(--sticky-background) 98%, transparent);
-      box-shadow: 0 12px 34px rgb(0 0 0 / max(var(--sticky-shadow-opacity), .12));
-    }
-
-    .ekko-sticky-buy__media {
-      display: block;
-      flex-basis: 44px;
-      width: 44px;
-      border-radius: max(8px, calc(min(var(--sticky-radius), 16px) - 7px));
-    }
-
-    .ekko-sticky-buy__identity {
-      gap: 2px;
-    }
-
-    .ekko-sticky-buy__title {
-      font-size: 14px;
-    }
-
-    .ekko-sticky-buy__meta {
-      gap: 6px;
-      overflow: hidden;
-    }
-
-    .ekko-sticky-buy__selected {
-      gap: 4px;
-      overflow: hidden;
-      font-size: 11px;
-    }
-
-    .ekko-sticky-buy__selected::before {
-      content: '·';
-      flex: 0 0 auto;
-    }
-
-    .ekko-sticky-buy__selected > [data-sticky-product-options] {
-      overflow: hidden;
-      max-width: 58px;
-      text-overflow: ellipsis;
-    }
-
-    .ekko-sticky-buy__change {
-      flex: 0 0 auto;
-      color: currentColor;
-    }
-
-    .ekko-sticky-buy__price .price {
-      font-size: 12px;
-      white-space: nowrap;
-    }
-
-    .ekko-sticky-buy__product-trigger {
-      display: block;
-      z-index: 2;
-      position: absolute;
-      inset: -4px;
-      padding: 0;
-      background: transparent;
-      border: 0;
-      border-radius: inherit;
-      cursor: pointer;
-    }
-
-    .ekko-sticky-buy__product-trigger:focus-visible {
-      outline: 2px solid currentColor;
-      outline-offset: 2px;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 10px !important;
+      max-width: none !important;
+      min-height: 56px !important;
+      padding: 6px 10px !important;
+      border-radius: 14px !important;
+      background: color-mix(in srgb, var(--sticky-background, #fff) 98%, transparent) !important;
+      box-shadow: 0 8px 24px rgb(0 0 0 / max(var(--sticky-shadow-opacity, 0.15), .15)) !important;
     }
 
     .ekko-sticky-buy__actions {
-      gap: 7px;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      width: 100% !important;
+      gap: 10px !important;
     }
 
     .ekko-sticky-buy__inline-options,
-    .ekko-sticky-buy__quantity {
+    .ekko-sticky-buy__options-button {
       display: none !important;
     }
 
-    .ekko-sticky-buy[data-variant-interaction='quick_buy'] .ekko-sticky-buy__options-button,
-    .ekko-sticky-buy[data-variant-interaction='inline'] .ekko-sticky-buy__options-button {
-      display: none;
+    .ekko-sticky-buy__quantity {
+      display: grid !important;
+      grid-template-columns: 34px 38px 34px !important;
+      align-items: center !important;
+      height: 42px !important;
+      border-radius: 10px !important;
+      background: color-mix(in srgb, currentColor 8%, transparent) !important;
+    }
+
+    .ekko-sticky-buy__quantity button {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      height: 42px !important;
+      width: 34px !important;
+      font-size: 18px !important;
+      font-weight: 600 !important;
+      background: transparent !important;
+      border: 0 !important;
+      color: inherit !important;
+      cursor: pointer !important;
+    }
+
+    .ekko-sticky-buy__quantity input {
+      height: 42px !important;
+      width: 38px !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      text-align: center !important;
+      background: transparent !important;
+      border: 0 !important;
+      color: inherit !important;
     }
 
     .ekko-sticky-buy__submit {
-      z-index: 3;
-      min-width: 112px;
-      min-height: 48px;
-      padding: 10px 14px;
-      border-radius: max(8px, calc(min(var(--sticky-radius), 16px) - 6px));
-      font-size: 13px;
-      white-space: nowrap;
+      z-index: 3 !important;
+      flex: 1 1 auto !important;
+      min-width: 120px !important;
+      height: 42px !important;
+      min-height: 42px !important;
+      padding: 8px 14px !important;
+      border-radius: 10px !important;
+      font-size: 14px !important;
+      white-space: nowrap !important;
     }
 
     .ekko-sticky-quick-view .drawer__inner {
@@ -802,9 +775,9 @@
     { "type": "header", "content": "Colors and shape" },
     { "type": "color", "id": "background", "label": "Background", "default": "#FFFFFF" },
     { "type": "color", "id": "text_color", "label": "Text", "default": "#171717" },
-    { "type": "color", "id": "button_background", "label": "Button background", "default": "#171717" },
+    { "type": "color", "id": "button_background", "label": "Button background", "default": "#800020" },
     { "type": "color", "id": "button_text_color", "label": "Button text", "default": "#FFFFFF" },
-    { "type": "color", "id": "button_hover_background", "label": "Button hover background", "default": "#333333" },
+    { "type": "color", "id": "button_hover_background", "label": "Button hover background", "default": "#600018" },
     { "type": "color", "id": "button_hover_text_color", "label": "Button hover text", "default": "#FFFFFF" },
     { "type": "range", "id": "corner_radius", "label": "Corner radius", "min": 0, "max": 32, "step": 2, "unit": "px", "default": 18 },
     { "type": "checkbox", "id": "enable_blur", "label": "Enable background blur", "default": true },

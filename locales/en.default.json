@@ -131,8 +131,8 @@
         "other": "{{ count }} items"
       },
       "free_shipping": {
-        "remaining_html": "Spend {{ remaining_amount }} more to reach free shipping!",
-        "congratulations_html": "You are eligible for free shipping."
+        "remaining_html": "Add {{ remaining_amount }} more worth of products to get free shipping! 🚚",
+        "congratulations_html": "Congratulations! You've unlocked free shipping! 🎉"
       },
       "note": {
         "title": "Order note",
@@ -157,6 +157,7 @@
       "apply": "Apply",
       "discount_enter": "Please enter a discount code",
       "discount_invalid": "Discount code is invalid or not available, please check and try again",
+      "discount_already_applied": "You already have an active discount code, you cannot use more than one code",
       "discount_error": "An error occurred while applying the code, please try again",
       "discount_applied": "Discount applied to total order!",
       "discount_removed": "Discount removed - please re-enter code"
