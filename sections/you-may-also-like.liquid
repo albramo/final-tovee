@@ -1,0 +1,359 @@
+{% comment %}
+  YOU MAY ALSO LIKE / قد يعجبك أيضاً
+  - Section: shows up to 6 real products, 4 per view on desktop, 3 on mobile (slider)
+  - Uses same product-card as theme, lazy images, content-visibility for performance (does not block critical)
+{% endcomment %}
+
+{%- liquid
+  assign product_limit = 6
+  assign columns_desktop = 4
+  assign columns_mobile = 2
+-%}
+
+<style>
+  #shopify-section-{{ section.id }} {
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --ymal-columns: {{ columns_desktop }};
+    --ymal-columns-mobile: {{ columns_mobile }};
+    --ymal-gap: {{ section.settings.card_gap }}px;
+    --ymal-gap-mobile: {{ section.settings.card_gap_mobile }}px;
+    {%- render 'section-variables', section: section -%}
+  }
+</style>
+
+{%- liquid
+  assign display_heading = section.settings.heading
+  if request.locale.iso_code == 'ar' and section.settings.heading_ar != blank
+    assign display_heading = section.settings.heading_ar
+  endif
+-%}
+{%- if display_heading != blank or section.settings.description != blank -%}
+  {%- capture section_header -%}
+    <div class="you-may-also-like__header" style="text-align: center; margin-block-end: 2rem;">
+      {%- if display_heading != blank -%}
+        <h2 class="you-may-also-like__heading" style="font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 600; margin: 0;">{{ display_heading }}</h2>
+      {%- endif -%}
+      {%- if section.settings.description != blank -%}
+        <div class="you-may-also-like__desc rte" style="margin-block-start: .75rem; opacity: .7;">{{ section.settings.description }}</div>
+      {%- endif -%}
+    </div>
+  {%- endcapture -%}
+{%- endif -%}
+
+{%- liquid
+  # Build real product list: up to 6 products from store excluding current product
+  assign current_product_id = product.id
+  assign source_collection = product.collections.first
+  if source_collection == blank or source_collection.products_count <= 1
+    assign source_collection = collections.all
+  endif
+
+  # Count available products excluding current
+  assign products_found = 0
+  for p in source_collection.products
+    if p.id == current_product_id
+      continue
+    endif
+    assign products_found = products_found | plus: 1
+    if products_found >= product_limit
+      break
+    endif
+  endfor
+
+  # If still not enough, fallback to collections.all
+  if products_found < 1
+    assign source_collection = collections.all
+  endif
+-%}
+
+<div class="you-may-also-like block" style="content-visibility: auto; contain-intrinsic-size: 600px;">
+  <div class="section section--padding{% if section.settings.divider %} section--divider{% endif %}{% if section.settings.rounded %} section--rounded relative{% endif %}">
+    <div class="page-width{% if section.settings.content_width != 'page' %} page-width--full{% endif %} ekko-content-frame relative" data-content-width="{{ section.settings.content_width }}" style="--ekko-custom-content-width: {{ section.settings.custom_content_width }}vw;">
+      {{ section_header }}
+
+      {%- liquid
+        assign slider_id = 'Slider-' | append: section.id
+        assign rendered_count = 0
+      -%}
+      <slider-element id="{{ slider_id }}" class="grid slider slider--desktop slider--tablet" selector=".you-may-also-like__card-grid > .you-may-also-like__card">
+        <div class="you-may-also-like__card-grid">
+          {%- for prod in source_collection.products -%}
+            {%- if prod.id == current_product_id -%}{%- continue -%}{%- endif -%}
+            {%- assign rendered_count = rendered_count | plus: 1 -%}
+            {%- if rendered_count > product_limit -%}{%- break -%}{%- endif -%}
+            {%- liquid
+              assign lazy_load = true
+              if rendered_count <= columns_desktop
+                assign lazy_load = false
+              endif
+            -%}
+            <div class="you-may-also-like__card">
+              {%- render 'product-card',
+                product: prod,
+                product_id: prod.id,
+                section_id: section.id,
+                lazy_load: lazy_load,
+                image_ratio: settings.product_image_ratio,
+                image_fill: settings.product_image_fill,
+                show_secondary_image: settings.product_secondary_image,
+                show_vendor: settings.product_vendor,
+                show_rating: settings.product_rating,
+                show_color_swatches: settings.product_color_swatches,
+                show_countdown: settings.product_countdown,
+                show_quick_add: settings.product_quick_add,
+                show_quick_view: settings.product_quick_view,
+                show_save_amount: settings.product_save_amount,
+                save_type: settings.product_save_type,
+                show_icon_list: settings.product_icon_list
+              -%}
+            </div>
+          {%- endfor -%}
+
+          {% comment %} If still not enough (e.g. store has only 3 other products), the loop naturally shows fewer - which is correct per requirement {% endcomment %}
+          {%- if rendered_count == 0 -%}
+            {%- for i in (1..3) -%}
+              <div class="you-may-also-like__card">
+                {%- render 'product-card-placeholder', placeholder: 'product-1', image_ratio: settings.product_image_ratio, show_vendor: settings.product_vendor, show_rating: settings.product_rating -%}
+              </div>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+
+        {%- if section.settings.show_navigation and rendered_count > 1 -%}
+        <div class="you-may-also-like__nav hidden lg:flex gap-2 justify-end mt-6">
+          <button class="button button--secondary" type="button" is="previous-button" aria-controls="{{ slider_id }}" aria-label="{{ 'general.pagination.previous' | t | escape }}" disabled>
+            <span class="btn-fill" data-fill></span>
+            <span class="btn-text">{%- render 'icon', icon: 'chevron-left', class: 'transform' -%}</span>
+          </button>
+          <button class="button button--secondary" type="button" is="next-button" aria-controls="{{ slider_id }}" aria-label="{{ 'general.pagination.next' | t | escape }}">
+            <span class="btn-fill" data-fill></span>
+            <span class="btn-text">{%- render 'icon', icon: 'chevron-right', class: 'transform' -%}</span>
+          </button>
+        </div>
+        {%- endif -%}
+      </slider-element>
+    </div>
+  </div>
+</div>
+
+{% stylesheet %}
+  .you-may-also-like {
+    display: block;
+    content-visibility: auto;
+    contain-intrinsic-size: 600px;
+  }
+  .you-may-also-like__card-grid {
+    display: grid;
+    grid-template-columns: repeat(var(--ymal-columns-mobile), minmax(0, 1fr));
+    gap: var(--ymal-gap-mobile);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .you-may-also-like__card {
+    min-width: 0;
+    display: flex;
+  }
+  .you-may-also-like__card > .card {
+    width: 100%;
+    height: 100%;
+  }
+  /* Desktop slider - 4 per view */
+  @media screen and (min-width: 990px) {
+    .you-may-also-like__card-grid {
+      grid-template-columns: repeat(var(--ymal-columns), minmax(0, 1fr));
+      gap: var(--ymal-gap);
+    }
+    .you-may-also-like .slider--desktop {
+      overflow: hidden;
+    }
+    .you-may-also-like .slider--desktop .you-may-also-like__card-grid {
+      display: flex;
+      width: max-content;
+      gap: var(--ymal-gap);
+    }
+    .you-may-also-like .slider--desktop .you-may-also-like__card {
+      flex: 0 0 calc((100vw - var(--page-padding) * 2 - var(--ymal-gap) * (var(--ymal-columns) - 1)) / var(--ymal-columns));
+      width: calc((100vw - var(--page-padding) * 2 - var(--ymal-gap) * (var(--ymal-columns) - 1)) / var(--ymal-columns));
+      scroll-snap-align: start;
+    }
+    .you-may-also-like .slider--desktop#Slider-{{ section.id }} {
+      scroll-snap-type: x mandatory;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+    }
+    .you-may-also-like .slider--desktop#Slider-{{ section.id }}::-webkit-scrollbar { display: none; }
+    .page-width--full .you-may-also-like .slider--desktop .you-may-also-like__card {
+      flex: 0 0 calc((100vw - var(--page-padding) * 2 - var(--ymal-gap) * (var(--ymal-columns) - 1)) / var(--ymal-columns));
+      width: calc((100vw - var(--page-padding) * 2 - var(--ymal-gap) * (var(--ymal-columns) - 1)) / var(--ymal-columns));
+    }
+  }
+  /* Mobile - 2 per view (bigger cards) with swipe */
+  @media screen and (max-width: 989px) {
+    .you-may-also-like .slider--tablet {
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      margin-inline: calc(var(--page-padding) * -1);
+      padding-inline: var(--page-padding);
+      scroll-padding-inline: var(--page-padding);
+    }
+    .you-may-also-like .slider--tablet::-webkit-scrollbar { display: none; }
+    .you-may-also-like .slider--tablet .you-may-also-like__card-grid {
+      display: flex;
+      width: max-content;
+      gap: var(--ymal-gap-mobile);
+    }
+    .you-may-also-like .slider--tablet .you-may-also-like__card {
+      flex: 0 0 calc((100vw - var(--page-padding) * 2 - var(--ymal-gap-mobile) * (var(--ymal-columns-mobile) - 1)) / var(--ymal-columns-mobile));
+      width: calc((100vw - var(--page-padding) * 2 - var(--ymal-gap-mobile) * (var(--ymal-columns-mobile) - 1)) / var(--ymal-columns-mobile));
+      scroll-snap-align: start;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "You may also like",
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "You may also like"
+    },
+    {
+      "type": "text",
+      "id": "heading_ar",
+      "label": "Heading (Arabic)",
+      "default": "قد يعجبك أيضاً"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "card_gap",
+      "label": "Gap - desktop",
+      "min": 8,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_gap_mobile",
+      "label": "Gap - mobile",
+      "min": 8,
+      "max": 28,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "checkbox",
+      "id": "show_navigation",
+      "label": "Show navigation arrows (desktop)",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "Text"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "Background"
+    },
+    {
+      "type": "color_background",
+      "id": "gradient_background",
+      "label": "Gradient"
+    },
+    {
+      "type": "header",
+      "content": "Section"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "checkbox",
+      "id": "divider",
+      "label": "Show divider",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "rounded",
+      "label": "Rounded",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        { "value": "page", "label": "Page" },
+        { "value": "full", "label": "Full" },
+        { "value": "custom", "label": "Custom" }
+      ],
+      "default": "page"
+    },
+    {
+      "type": "range",
+      "id": "custom_content_width",
+      "label": "Custom width",
+      "min": 70,
+      "max": 100,
+      "step": 1,
+      "unit": "%",
+      "default": 90,
+      "visible_if": "{{ section.settings.content_width == 'custom' }}"
+    }
+  ],
+  "presets": [
+    {
+      "name": "You may also like",
+      "settings": {
+        "heading": "You may also like"
+      }
+    }
+  ],
+  "enabled_on": {
+    "templates": ["product"]
+  }
+}
+{% endschema %}

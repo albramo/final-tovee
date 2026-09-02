@@ -65,12 +65,25 @@
     block-size: 0;
     opacity: 0;
     overflow: hidden;
-    transition: block-size 220ms ease, opacity 160ms ease;
+    transition: block-size 320ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease;
+    will-change: block-size, opacity;
   }
 
   .ekko-product-detail-row[open]::details-content {
     block-size: auto;
     opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ekko-product-detail-row__content {
+      transform: translateY(-6px);
+      opacity: 0;
+      transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1), opacity 220ms ease;
+    }
+    .ekko-product-detail-row[open] .ekko-product-detail-row__content {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 
   .ekko-product-detail-row__summary {
@@ -123,7 +136,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 1.25rem;
-    padding: .25rem clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 3vw, 2.5rem);
+    padding: clamp(1.25rem, 2.5vw, 2rem) clamp(1.25rem, 2.5vw, 2rem) clamp(1.5rem, 3vw, 2.5rem);
   }
 
   .ekko-product-detail-row__content--without-image { grid-template-columns: minmax(0, 1fr); }
@@ -181,7 +194,7 @@
     .ekko-product-detail-row__content,
     .ekko-product-detail-row__content--image-right {
       gap: 1.25rem;
-      padding: .25rem 1.125rem 1.5rem;
+      padding: 1.25rem 1.125rem 1.5rem;
     }
 
     .ekko-product-detail-row__media {

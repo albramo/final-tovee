@@ -384,11 +384,28 @@
         "padding_top": 64,
         "padding_bottom": 64
       }
+    },
+    "you_may_also_like_H7k9pL": {
+      "type": "you-may-also-like",
+      "settings": {
+        "heading": "YOU MAY ALSO LIKE",
+        "heading_ar": "قد يعجبك أيضاً",
+        "card_gap": 24,
+        "card_gap_mobile": 16,
+        "show_navigation": true,
+        "padding_top": 48,
+        "padding_bottom": 48,
+        "divider": false,
+        "rounded": false,
+        "content_width": "page",
+        "custom_content_width": 90
+      }
     }
   },
   "order": [
     "breadcrumb_mobile",
     "main",
-    "product_details"
+    "product_details",
+    "you_may_also_like_H7k9pL"
   ]
 }

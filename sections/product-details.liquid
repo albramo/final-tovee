@@ -415,7 +415,11 @@
           return;
         }
         if (current.open) requestAnimationFrame(() => this.syncSpecColumns(current));
-        if (this.dataset.singleOpen !== 'true' || !current.open) return;
+        if (!current.open) return;
+        // On mobile, always single-open; on desktop respect setting
+        const isMobile = window.matchMedia('(max-width: 989px)').matches;
+        const shouldSingle = isMobile || this.dataset.singleOpen === 'true';
+        if (!shouldSingle) return;
         this.details.forEach((item) => {
           if (item !== current) item.open = false;
         });
