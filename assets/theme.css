@@ -6223,6 +6223,14 @@ ol {
 }
 
 @media screen and (max-width: 639px) {
+  .loaded .drawer__inner {
+    transition: transform 0.2s cubic-bezier(0, 0, 0.2, 1) !important;
+  }
+
+  .drawer .overlay {
+    transition: opacity 0.18s linear !important;
+  }
+
   .js .drawer .overlay {
     background: none;
   }

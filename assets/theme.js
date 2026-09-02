@@ -1947,18 +1947,18 @@ class ModalElement extends HTMLElement {
   }
 
   showTransition() {
-    // Perf: Instant feedback - set active on next frame (16ms) instead of 60ms for faster perceived open
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (this.hasAttribute('open')) this.setAttribute('active', '');
-      });
+      if (this.hasAttribute('open')) this.setAttribute('active', '');
     });
     return new Promise((resolve) => {
       let done = false;
       const finish = () => { if (!done) { done = true; resolve(); } };
-      this.overlay.addEventListener('transitionend', finish, { once: true });
-      // Fallback 500ms covers new .38s drawer + .4s overlay
-      setTimeout(finish, 550);
+      const inner = this.querySelector('.drawer__inner');
+      const elToWatch = inner || this.overlay;
+      if (elToWatch) {
+        elToWatch.addEventListener('transitionend', finish, { once: true });
+      }
+      setTimeout(finish, 280);
     });
   }
   hideTransition() {
@@ -1971,7 +1971,7 @@ class ModalElement extends HTMLElement {
       if (elToWatch) {
         elToWatch.addEventListener('transitionend', finish, { once: true });
       }
-      setTimeout(finish, 380);
+      setTimeout(finish, 240);
     });
   }
 
