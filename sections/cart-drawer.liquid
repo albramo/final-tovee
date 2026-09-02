@@ -37,7 +37,7 @@
             </li>
           {%- endif -%}
         </ul>
-        <button class="button button--secondary button--close drawer__close hidden sm:flex items-center justify-center" type="button" is="hover-button" aria-controls="CartDrawer" aria-expanded="false" aria-label="{{ 'general.accessibility.close' | t | escape }}">
+        <button class="button button--secondary button--close drawer__close flex items-center justify-center" type="button" is="hover-button" aria-controls="CartDrawer" aria-expanded="false" aria-label="{{ 'general.accessibility.close' | t | escape }}">
           <span class="btn-fill" data-fill></span>
           <span class="btn-text">
             {%- render 'icon', icon: 'close', size: 'sm' -%}
@@ -469,7 +469,7 @@
                    Loaded lazily via JS after drawer animation (see theme.js ProductRecommendations)
                    Set cart_recommendations_enabled false via theme editor to fully disable if needed.
               {%- endcomment -%}
-              {%- if false and cart != empty and section.settings.cart_recommendations_enabled -%}
+              {%- if cart != empty and section.settings.cart_recommendations_enabled -%}
                 {%- liquid
                   assign first_product_id = cart.items.first.product_id
                   if cart_gift_wrap_item

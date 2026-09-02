@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent !important;
+}
+
 :root {
   --color-background: var(--color-base-background);
   --color-background-2: var(--color-base-background);
@@ -6235,8 +6241,13 @@ ol {
   }
 
   .js .drawer__close {
-    display: none !important;
-    pointer-events: none !important;
+    display: flex !important;
+    pointer-events: auto !important;
+    position: relative !important;
+    width: var(--sp-10) !important;
+    height: var(--sp-10) !important;
+    margin-inline-start: auto !important;
+    touch-action: manipulation !important;
   }
 
   .js .drawer .drawer__inner {

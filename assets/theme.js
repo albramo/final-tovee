@@ -1249,19 +1249,21 @@ class HoverButton extends HTMLButtonElement {
   }
 
   async attributeChangedCallback(name, oldValue, newValue) {
-    if (newValue === 'true') {
-      Motion.timeline([
-        [this.contentElement, { opacity: 0 }, { duration: 0.15 }],
-        [this.animationElement, { opacity: 1 }, { duration: 0.15 }]
-      ]);
-      Motion.animate(this.animationElement.children, { transform: ['scale(1.6)', 'scale(0.6)'] }, { duration: 0.35, delay: Motion.stagger(0.35 / 2), direction: 'alternate', repeat: Infinity });
-    }
-    else {
-      Motion.timeline([
-        [this.animationElement, { opacity: 0 }, { duration: 0.15 }],
-        [this.contentElement, { opacity: 1 }, { duration: 0.15 }]
-      ]);
-    }
+    requestAnimationFrame(() => {
+      if (newValue === 'true') {
+        Motion.timeline([
+          [this.contentElement, { opacity: 0 }, { duration: 0.15 }],
+          [this.animationElement, { opacity: 1 }, { duration: 0.15 }]
+        ]);
+        Motion.animate(this.animationElement.children, { transform: ['scale(1.6)', 'scale(0.6)'] }, { duration: 0.35, delay: Motion.stagger(0.35 / 2), direction: 'alternate', repeat: Infinity });
+      }
+      else {
+        Motion.timeline([
+          [this.animationElement, { opacity: 0 }, { duration: 0.15 }],
+          [this.contentElement, { opacity: 1 }, { duration: 0.15 }]
+        ]);
+      }
+    });
   }
 }
 customElements.define('hover-button', HoverButton, { extends: 'button' });
@@ -2605,43 +2607,33 @@ class ProductRecommendations extends HTMLElement {
     super();
     this._recInitialized = false;
 
-    // For cart drawer, defer fetch until after drawer animation to avoid INP 368ms
+    // For cart drawer, start fetch as soon as drawer starts opening
     if (this.closest('cart-drawer')) {
       const drawer = this.closest('cart-drawer');
       const scheduleInit = () => {
         if (this._recInitialized) return;
         this._recInitialized = true;
         const run = () => { try { this.init(); } catch(e){} };
-        // Wait for drawer animation (600ms) + idle to keep Processing/Presentation low
-        const delay = 650;
-        if ('requestIdleCallback' in window) {
-          setTimeout(() => requestIdleCallback(run, { timeout: 800 }), delay);
-        } else {
-          setTimeout(run, delay + 150);
-        }
+        requestAnimationFrame(() => setTimeout(run, 80));
       };
-      // If drawer already open/active, schedule deferred fetch
       if (drawer?.hasAttribute('open') || drawer?.hasAttribute('active')) {
         scheduleInit();
       } else {
-        // Fallback: inView will also schedule, but drawer:afterShow is primary (perf)
-        Motion.inView(this, () => {
-          if (drawer?.hasAttribute('open') && !this._recInitialized) scheduleInit();
-        }, { margin: '600px 0px 600px 0px' });
         if (drawer) {
           drawer.addEventListener('drawer:afterShow', scheduleInit, { once: true });
-          // MutationObserver as secondary fallback (but deferred)
           const observer = new MutationObserver(() => {
             if (drawer.hasAttribute('open') && !this._recInitialized) {
               observer.disconnect();
-              // Wait for afterShow instead of immediate init
+              scheduleInit();
             }
           });
           observer.observe(drawer, { attributes: true, attributeFilter: ['open'] });
+        } else {
+          Motion.inView(this, this.init.bind(this), { margin: '200px 0px 200px 0px' });
         }
       }
     } else {
-      Motion.inView(this, this.init.bind(this), { margin: '600px 0px 600px 0px' });
+      Motion.inView(this, this.init.bind(this), { margin: '200px 0px 200px 0px' });
     }
   }
 
