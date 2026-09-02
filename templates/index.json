@@ -124,7 +124,7 @@
         "show_view_all": true,
         "tabs_style": "pills",
         "columns_mobile": "2",
-        "card_gap_mobile": 5,
+        "card_gap_mobile": 3,
         "swipe_on_mobile": true,
         "heading": "Featured collections",
         "heading_size": 50,

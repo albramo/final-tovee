@@ -24,6 +24,8 @@
         "products_per_page": 16,
         "columns": 4,
         "columns_mobile": "2",
+        "card_gap": 28,
+        "card_gap_mobile": 3,
         "pagination": "paginated",
         "enable_filtering": true,
         "filter_collapsed": false,
