@@ -297,7 +297,7 @@
             "heading": "DESCRIPTION",
             "opened": true,
             "eyebrow": "",
-            "content": "<p>{{ product.description }}</p>",
+            "content": "{{ product.description }}",
             "page": "",
             "image_position": "left",
             "image_ratio": "1 / 1",
