@@ -180,6 +180,10 @@
 .ekko-product-title__vendor {
   color: inherit;
   text-decoration: none;
+  direction: ltr !important;
+  unicode-bidi: isolate !important;
+  text-align: left !important;
+  display: inline-block;
 }
 
 a.ekko-product-title__vendor:hover { text-decoration: underline; }

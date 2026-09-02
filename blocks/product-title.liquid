@@ -98,12 +98,12 @@
 >
   {%- capture metadata -%}
     {%- if show_vendor or show_sku -%}
-      <div class="ekko-product-title__metadata" aria-label="Product information">
+      <div class="ekko-product-title__metadata" aria-label="Product information" dir="ltr">
         {%- if show_vendor -%}
           {%- if block.settings.link_vendor and product_item != blank -%}
-            <a class="ekko-product-title__vendor" href="{{ product_item.vendor | url_for_vendor }}">{{ product_item.vendor | escape }}</a>
+            <a class="ekko-product-title__vendor" href="{{ product_item.vendor | url_for_vendor }}" dir="ltr">{{ product_item.vendor | escape }}</a>
           {%- else -%}
-            <span class="ekko-product-title__vendor">{{ product_item.vendor | default: shop.name | escape }}</span>
+            <span class="ekko-product-title__vendor" dir="ltr">{{ product_item.vendor | default: shop.name | escape }}</span>
           {%- endif -%}
         {%- endif -%}
 
