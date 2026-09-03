@@ -12,9 +12,9 @@
   endif
 -%}
 
-<details class="details active" is="footer-details" data-policies-block {{ block.shopify_attributes }}>
+<details class="details active" is="footer-details" {{ block.shopify_attributes }}>
   <summary class="details__summary flex items-center justify-between gap-2 cursor-pointer">
-    <span class="heading text-base-2xl font-medium lg:font-heading" data-policies-heading>{{ heading | escape }}</span>
+    <span class="heading text-base-2xl font-medium lg:font-heading">{{ heading | escape }}</span>
     {%- render 'icon', icon: 'chevron-up' -%}
   </summary>
   <div class="details__content">

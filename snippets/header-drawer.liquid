@@ -91,7 +91,7 @@
                       assign drawer_heading = 'general.policies.heading' | t
                     endif
                   -%}
-                  <span class="text-base md:text-lg font-medium py-3.5" data-drawer-policies-heading>{{ drawer_heading | escape }}</span>
+                  <span class="text-base md:text-lg font-medium py-3.5">{{ drawer_heading | escape }}</span>
                 </summary>
                 <div class="drawer__policies-content">
                   <ul class="flex flex-col">
@@ -217,26 +217,4 @@
       </div>
     </div>
   </div>
-  <script>
-    (function(){
-      function syncPoliciesHeading(){
-        var footerHeading = document.querySelector('[data-policies-heading]');
-        var drawerHeading = document.querySelector('[data-drawer-policies-heading]');
-        if(footerHeading && drawerHeading){
-          var text = footerHeading.textContent.trim();
-          if(text) drawerHeading.textContent = text;
-        }
-      }
-      document.addEventListener('DOMContentLoaded', syncPoliciesHeading);
-      document.addEventListener('shopify:section:load', syncPoliciesHeading);
-      document.addEventListener('shopify:block:select', syncPoliciesHeading);
-      document.addEventListener('shopify:block:deselect', syncPoliciesHeading);
-      if(window.MutationObserver){
-        var obs = new MutationObserver(syncPoliciesHeading);
-        obs.observe(document.body, {childList:true, subtree:true, characterData:true});
-      }
-      // Initial sync
-      syncPoliciesHeading();
-    })();
-  </script>
 </menu-drawer>
