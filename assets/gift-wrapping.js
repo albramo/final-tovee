@@ -58,7 +58,6 @@ if (!customElements.get('gift-wrapping')) {
       }
 
       setGiftWrap() {
-        if (window.theme) { try { if (theme.markCartDirty) theme.markCartDirty(); } catch (e) {} theme.cartSubmitInFlight = true; }
         this.enableLoading();
 
         let sectionsToBundle = [];
@@ -78,7 +77,6 @@ if (!customElements.get('gift-wrapping')) {
       }
 
       removeGiftWrap() {
-        if (window.theme) { try { if (theme.markCartDirty) theme.markCartDirty(); } catch (e) {} theme.cartSubmitInFlight = true; }
         this.enableLoading();
 
         let sectionsToBundle = [];
@@ -103,11 +101,9 @@ if (!customElements.get('gift-wrapping')) {
           .then((response) => response.json())
           .then((parsedState) => {
             theme.pubsub.publish(theme.pubsub.PUB_SUB_EVENTS.cartUpdate, { source: 'gift-wrapping', cart: parsedState });
-            if (window.theme) theme.cartSubmitInFlight = false;
           })
           .catch((error) => {
             console.log(error);
-            if (window.theme) theme.cartSubmitInFlight = false;
           });
       }
 

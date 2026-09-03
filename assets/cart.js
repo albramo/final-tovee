@@ -90,18 +90,6 @@ theme.updateFreeShippingBars = theme.updateFreeShippingBars || function(cart) {
   });
 };
 
-// Cart drawer freshness tracking: instant-open + background refresh (SWR).
-// dirty=true set synchronously at every mutation start; cleared only when fresh
-// DOM is proven on screen. cartMutationSeq bumps on every initiation so a refresh
-// that fetched pre-mutation HTML can detect itself stale and discard the swap.
-theme.cartDrawerState = theme.cartDrawerState || { dirty: false, refreshPromise: null, refreshGen: 0, chained: false };
-theme.cartMutationSeq = theme.cartMutationSeq || 0;
-theme.cartSubmitInFlight = theme.cartSubmitInFlight || false;
-theme.markCartDirty = theme.markCartDirty || function() {
-  theme.cartMutationSeq += 1;
-  theme.cartDrawerState.dirty = true;
-};
-
 // Listen to cart:updated for bars outside cart-items flow (e.g., after add)
 document.addEventListener('cart:updated', (e) => {
   if (e.detail && e.detail.cart && typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(e.detail.cart);
@@ -115,8 +103,6 @@ if (theme.pubsub && theme.pubsub.subscribe && theme.pubsub.PUB_SUB_EVENTS) {
         if (e && e.source === 'product-form' && e.cart && e.cart.item_count > 0) {
           const drawer = document.getElementById('CartDrawer');
           if (drawer && !drawer.hasAttribute('open')) {
-            // SWR: open instantly; the 80ms timer below stays as a rescue net.
-            drawer.show(e.target || document.activeElement);
             setTimeout(() => {
               if (!drawer.hasAttribute('open')) drawer.show(e.target || document.activeElement);
             }, 80);
@@ -126,7 +112,6 @@ if (theme.pubsub && theme.pubsub.subscribe && theme.pubsub.PUB_SUB_EVENTS) {
         if (e && (e.source === 'product-bundle' || e.source === 'product-form') && e.cart) {
           const drawer = document.getElementById('CartDrawer');
           if (drawer && !drawer.hasAttribute('open') && e.cart.item_count > 0) {
-            drawer.show();
             setTimeout(() => { if (!drawer.hasAttribute('open')) drawer.show(); }, 80);
           }
         }
@@ -215,20 +200,24 @@ if (!customElements.get('cart-drawer')) {
           const drawerCount = miniCart.querySelectorAll('cart-items .horizontal-products li').length;
           const cartCount = (event.cart.items && event.cart.items.length) ? event.cart.items.length : event.cart.item_count;
           // For quantity change, item length same but quantity differs, so also check total quantity mismatch via cartUpdate
-          // If counts differ, open instantly - the show() choke re-verifies after
-          // pending sync swaps land and refreshes in background only if still off.
+          // If counts differ, force refresh to sync drawer
           if (hasItems && drawerHasItems && drawerCount !== cartCount) {
-            this.show();
+            setTimeout(() => this.onCartRefresh({ detail: { open: true } }), 150);
           }
         } catch(e) {}
         if (hasItems && !drawerHasItems) {
-          this.show();
+          setTimeout(() => {
+            const stillEmpty = !miniCart.querySelector('cart-items .horizontal-products li');
+            if (stillEmpty) this.onCartRefresh({ detail: { open: true } });
+          }, 350);
         }
         if (!hasItems && drawerHasItems) {
-          this.refreshInBackground();
+          setTimeout(() => this.onCartRefresh({ detail: { open: false } }), 350);
         }
         if (hasItems && wasEmpty) {
-          if (!this.open) this.show();
+          setTimeout(() => {
+            if (!this.open) this.show();
+          }, 400);
         }
       }
 
@@ -250,27 +239,6 @@ if (!customElements.get('cart-drawer')) {
         const id = `MiniCart-${this.sectionId}`;
         const miniCartEl = document.getElementById(id);
         if (miniCartEl === null) return;
-
-        // Race guard G1: never fetch while a mutation is mid-flight - its own
-        // swap is about to land. Wait for settle (event-driven + safety timeout).
-        try {
-          if ((theme.cartMutationState && theme.cartMutationState.inFlight) || theme.cartSubmitInFlight) {
-            await new Promise((resolve) => {
-              let done = false;
-              const finish = () => { if (!done) { done = true; resolve(); } };
-              document.addEventListener('cart:updated', finish, { once: true });
-              setTimeout(finish, 2500);
-            });
-            // Mutation's swap may have synced us already; honor explicit open demand.
-            if (theme.cartDrawerState && !theme.cartDrawerState.dirty) {
-              if (event.detail && event.detail.open === true && !this.open) this.show();
-              return;
-            }
-          }
-        } catch (e) {}
-        // Race guard G2: capture mutation sequence AFTER settling. Any mutation
-        // initiated after this point bumps the counter and invalidates our fetch.
-        const refreshSeq = theme.cartMutationSeq || 0;
 
         const wasOpen = this.open;
         const wasActive = this.hasAttribute('active');
@@ -392,16 +360,9 @@ if (!customElements.get('cart-drawer')) {
                       if (hardHtml) {
                         const hp = new DOMParser().parseFromString(hardHtml, 'text/html');
                         const hm = hp.querySelector('[id^="MiniCart-"]');
-                        // Race guard G2: a mutation started after our fetch - our HTML
-                        // is stale. Skip the swap; dirty stays true and heals later.
-                        if (hm && refreshSeq === (theme.cartMutationSeq || 0)) {
+                        if (hm) {
                           miniCartEl.innerHTML = hm.innerHTML;
                           if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(c2);
-                          try {
-                            const newFooter = hp.querySelector('.drawer__footer');
-                            const curFooter = this.querySelector('.drawer__footer');
-                            if (newFooter && curFooter) curFooter.innerHTML = newFooter.innerHTML;
-                          } catch(e) {}
                         }
                       }
                     }
@@ -420,25 +381,12 @@ if (!customElements.get('cart-drawer')) {
             return;
           }
         }
-        // Race guard G2: skip stale swap if a mutation started after our fetch.
-        if (refreshSeq === (theme.cartMutationSeq || 0)) {
-          miniCartEl.innerHTML = updatedMiniCart.innerHTML;
-        }
+        miniCartEl.innerHTML = updatedMiniCart.innerHTML;
 
         // Preserve scroll position
         try {
           const newScrollable = miniCartEl.querySelector('.drawer__scrollable');
           if (newScrollable && scrollTop) newScrollable.scrollTop = scrollTop;
-        } catch(e) {}
-
-        // Update drawer footer (subtotal, discounts) from parsed section HTML
-        try {
-          if (refreshSeq === (theme.cartMutationSeq || 0)) {
-            const fullDoc = updatedMiniCart.closest('.drawer__content') || updatedMiniCart.parentElement;
-            const newFooter = fullDoc ? fullDoc.querySelector('.drawer__footer') : null;
-            const curFooter = this.querySelector('.drawer__footer');
-            if (newFooter && curFooter) curFooter.innerHTML = newFooter.innerHTML;
-          }
         } catch(e) {}
 
         // Keep drawer open if it was open before refresh (prevents disappearing to empty state)
@@ -461,12 +409,6 @@ if (!customElements.get('cart-drawer')) {
             .then(c => { if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(c); })
             .catch(()=>{});
         } catch(e) {}
-
-        // Sync point: fresh DOM proven on screen - clear dirty only if no
-        // mutation started after our fetch (stale path stays dirty and heals).
-        if (theme.cartDrawerState && refreshSeq === (theme.cartMutationSeq || 0)) {
-          theme.cartDrawerState.dirty = false;
-        }
       }
 
       show(focusElement = null, animate = true) {
@@ -484,39 +426,6 @@ if (!customElements.get('cart-drawer')) {
             setTimeout(doReset, 80);
           }
         }
-
-        // SWR choke point: open itself is always instant; the refresh DECISION is
-        // deferred a macrotask so pending sync swaps (same-tick subscribers) land
-        // first and clear the flag - avoiding a redundant fetch.
-        if (window.Shopify && window.Shopify.designMode) return;
-        if (theme.cartDrawerState && theme.cartDrawerState.dirty) {
-          setTimeout(() => {
-            try {
-              if (theme.cartDrawerState && theme.cartDrawerState.dirty) this.refreshInBackground();
-            } catch (e) {}
-          }, 0);
-        }
-      }
-
-      refreshInBackground() {
-        const st = theme.cartDrawerState;
-        if (!st || st.refreshPromise) return st ? st.refreshPromise : Promise.resolve();
-        if (typeof navigator !== 'undefined' && 'onLine' in navigator && !navigator.onLine) {
-          return Promise.resolve(); // offline: stay dirty, retry on next open
-        }
-        st.refreshPromise = Promise.resolve()
-          .then(() => this.onCartRefresh({ detail: { open: false } }))
-          .catch(() => {})
-          .finally(() => {
-            const cur = theme.cartDrawerState;
-            cur.refreshPromise = null;
-            // Dirtied mid-flight (stale swap was discarded): one chained retry.
-            if (cur.dirty && !cur.chained) {
-              cur.chained = true;
-              setTimeout(() => { cur.chained = false; this.refreshInBackground(); }, 300);
-            }
-          });
-        return st.refreshPromise;
       }
     }
   );
@@ -710,14 +619,6 @@ if (!customElements.get('cart-items')) {
                   prog.style.setProperty('--progress', '0');
                 }
               } catch(e) {}
-              // Update drawer footer (subtotal, discounts, checkout buttons)
-              try {
-                if (drawerEl) {
-                  const newFooter = sectionToRender.querySelector('.drawer__footer');
-                  const curFooter = drawerEl.querySelector('.drawer__footer');
-                  if (newFooter && curFooter) curFooter.innerHTML = newFooter.innerHTML;
-                }
-              } catch(e) {}
             } else if (oldBarHTML) {
               // No updatedElement found but we have old bar - ensure it stays and update progress
               if (typeof theme.updateFreeShippingBars === 'function') {
@@ -759,12 +660,6 @@ if (!customElements.get('cart-items')) {
             console.warn('Cart focus error', focusError);
           }
 
-          // Sync point: this mutation's fresh DOM is on screen - clear dirty BEFORE
-          // announcing, so waiters observing cart:updated see the settled state.
-          // (A concurrent background refresh discards its own swap via seq check.)
-          if (theme.cartDrawerState) {
-            theme.cartDrawerState.dirty = false;
-          }
           document.dispatchEvent(new CustomEvent('cart:updated', {
             detail: {
               cart: event.cart
@@ -800,7 +695,6 @@ if (!customElements.get('cart-items')) {
 
         this.quantityUpdateInProgress = true;
         theme.cartMutationState.inFlight = true;
-        theme.markCartDirty();
         this.pendingLine = line;
         this.enableLoading(line);
 

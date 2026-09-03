@@ -5436,9 +5436,6 @@ class ProductForm extends HTMLFormElement {
     if (this.submitButton.hasAttribute('aria-disabled')) return;
     this.activeElement = event.submitter || event.currentTarget;
 
-    // Cart freshness: a mutation is starting - drawer opens instantly, patches after.
-    if (window.theme) { try { if (theme.markCartDirty) theme.markCartDirty(); } catch (e) {} theme.cartSubmitInFlight = true; }
-
     this.handleErrorMessage();
 
     let sectionsToBundle = [];
@@ -5511,7 +5508,6 @@ class ProductForm extends HTMLFormElement {
         console.log(error);
       })
       .finally(() => {
-        if (window.theme) theme.cartSubmitInFlight = false;
         this.submitButton.removeAttribute('aria-busy');
         this.submitButtons.forEach(submitButton => submitButton.removeAttribute('aria-busy'));
 
@@ -7638,9 +7634,6 @@ class ProductBundle extends HTMLElement {
     if (this.submitButton.hasAttribute('aria-disabled')) return;
     this.activeElement = event.submitter || event.currentTarget;
 
-    // Cart freshness: a mutation is starting - drawer opens instantly, patches after.
-    if (window.theme) { try { if (theme.markCartDirty) theme.markCartDirty(); } catch (e) {} theme.cartSubmitInFlight = true; }
-
     this.handleErrorMessage();
 
     let sectionsToBundle = [];
@@ -7691,7 +7684,6 @@ class ProductBundle extends HTMLElement {
         console.log(error);
       })
       .finally(() => {
-        if (window.theme) theme.cartSubmitInFlight = false;
         this.submitButton.removeAttribute('aria-busy');
 
         if (!this.error) {

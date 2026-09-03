@@ -569,12 +569,7 @@
                                     is="custom-select"
                                     id="ShippingCalculatorCountry-{{ section.id }}"
                                   >
-                                    {%- capture zone_country_options -%}{{ country_option_tags }}{%- endcapture -%}
-                                    {%- if zone_country_options != blank -%}
-                                      {{- zone_country_options -}}
-                                    {%- else -%}
-                                      <option value="Egypt" data-provinces="[]" selected="selected">Egypt</option>
-                                    {%- endif -%}
+                                    {{- all_country_option_tags -}}
                                   </select>
                                   {%- render 'icon', icon: 'chevron-up', size: 'sm', class: 'absolute' -%}
                                   <label class="label is-floating" for="ShippingCalculatorCountry-{{ section.id }}">{{ 'customer.addresses.country' | t }}</label>
@@ -892,8 +887,6 @@ if (!customElements.get('discount-code')) {
       }
       this.button.setAttribute('aria-busy', 'true');
       this.message.hidden = true;
-      // Cart freshness: a mutation is starting - drawer opens instantly, patches after.
-      if (window.theme) { try { if (theme.markCartDirty) theme.markCartDirty(); } catch (e) {} theme.cartSubmitInFlight = true; }
       let beforeTotal = null;
       try {
         try { const r = await fetch(`${theme.routes.cart_url}.js`, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } }); if(r.ok){ const c = await r.json(); beforeTotal = c.total_price; } } catch(e){}
@@ -963,7 +956,6 @@ if (!customElements.get('discount-code')) {
       } catch (e) {
         this.showMessage({{ 'general.cart.discount_error' | t | json }}, 'error');
       } finally {
-        if (window.theme) theme.cartSubmitInFlight = false;
         this.button.removeAttribute('aria-busy');
       }
     }
