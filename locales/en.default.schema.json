@@ -1908,6 +1908,15 @@
               "label": "Tagline 4 link"
             }
           }
+        },
+        "policies": {
+          "name": "Policies",
+          "settings": {
+            "heading": {
+              "label": "Heading",
+              "info": "Leave blank to use auto-translation (Policies / السياسات based on store language). Manage translations via Shopify Translate & Adapt app."
+            }
+          }
         }
       }
     },

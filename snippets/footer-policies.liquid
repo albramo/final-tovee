@@ -1,0 +1,31 @@
+{%- comment -%}
+  Renders a footer policies block
+
+  Usage:
+  {% render 'footer-policies', block: block %}
+{%- endcomment -%}
+
+{%- liquid
+  assign heading = block.settings.heading
+  if heading == blank
+    assign heading = 'general.policies.heading' | t
+  endif
+-%}
+
+<details class="details active" is="footer-details" data-policies-block {{ block.shopify_attributes }}>
+  <summary class="details__summary flex items-center justify-between gap-2 cursor-pointer">
+    <span class="heading text-base-2xl font-medium lg:font-heading" data-policies-heading>{{ heading | escape }}</span>
+    {%- render 'icon', icon: 'chevron-up' -%}
+  </summary>
+  <div class="details__content">
+    <ul class="flex flex-col gap-3">
+      {%- for policy in shop.policies -%}
+        {%- if policy != blank -%}
+          <li class="inline-flex">
+            <a href="{{ policy.url }}" class="block reversed-link text-sm-lg leading-tight">{{ policy.title }}</a>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </div>
+</details>

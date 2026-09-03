@@ -165,6 +165,9 @@
     "drawers": {
       "navigation": "Site navigation"
     },
+    "policies": {
+      "heading": "Policies"
+    },
     "date": {
       "d": "d",
       "day": "Day",

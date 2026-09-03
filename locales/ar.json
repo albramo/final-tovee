@@ -47,6 +47,9 @@
       "discount_applied": "تم تطبيق الخصم على إجمالي الطلب!",
       "discount_removed": "تمت إزالة الخصم - الرجاء إعادة إدخال الكود"
     },
+    "policies": {
+      "heading": "السياسات"
+    },
     "accessibility": {
       "close": "إغلاق",
       "skip_to_content": "تخطي إلى المحتوى"
@@ -99,13 +102,6 @@
       "recent_products_heading": "شوهدت مؤخراً",
       "cart_recommendations_heading": "قد يعجبك أيضاً",
       "empty_message": "<p>لست متأكداً من أين تبدأ؟<br>جرب هذه المجموعات:</p>"
-    }
-  },
-  "shopify": {
-    "checkout": {
-      "general": {
-        "cart": "السلة"
-      }
     }
   }
 }

@@ -7450,8 +7450,8 @@ padding-block-start: 0;
   padding-block-end: var(--sp-2);
 }
 
-/*! drawer footer localization accordions (replace modal popups) */
-.drawer__footer-top {
+/*! drawer footer localization accordions (replace modal popups) - menu drawer only */
+.menu-drawer .drawer__footer-top {
   flex-direction: column;
 }
 
