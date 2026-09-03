@@ -30,6 +30,10 @@
 
 {%- if product != blank -%}
   {%- liquid
+    assign show_secondary_image = show_secondary_image | default: settings.product_secondary_image
+    if show_secondary_image == nil
+      assign show_secondary_image = true
+    endif
     assign featured_media = product.featured_media
     assign product_media = product.media
     assign image_media = product_media | where: 'media_type', 'image'
@@ -107,21 +111,20 @@
 
         {%- render 'product-badges', product: product, show_save_amount: show_save_amount, save_type: save_type, class: 'z-2 absolute grid gap-3' -%}
 
-        <a class="block relative media media--{{ image_ratio }}{% unless image_fill %} media--contain{% endunless %}{% unless show_secondary_image and secondary_image != blank %} overflow-hidden{% endunless %}" href="{{ product_url }}" aria-label="{{ product.title | escape }}" tabindex="-1">
+        <a class="block relative media media--{{ image_ratio }}{% unless image_fill %} media--contain{% endunless %} overflow-hidden" href="{{ product_url }}" aria-label="{{ product.title | escape }}" tabindex="-1">
           {%- unless featured_media.media_type == 'video' or featured_media.media_type == 'external_video' -%}
+            {{- featured_media | image_url: width: featured_media.width | image_tag: loading: 'lazy', widths: '180,360,540,720,900,1080', is: 'lazy-image', class: 'product-card__main-image' -}}
             {%- if show_secondary_image and secondary_image != blank -%}
-              <template>
-                <div class="media media--height{% unless image_fill %} media--contain{% endunless %} w-full h-full overflow-hidden">
-                  {{- featured_media | image_url: width: featured_media.width | image_tag: loading: 'lazy', widths: '180,360,540,720,900,1080', is: 'lazy-image' -}}
-                </div>
-                <div class="media media--height{% unless image_fill %} media--contain{% endunless %} w-full h-full overflow-hidden">
-                  {{- secondary_image | image_url: width: secondary_image.width | image_tag: loading: 'lazy', widths: '180,360,540,720,900,1080', is: 'lazy-image' -}}
-                </div>
-              </template>
-              <secondary-media class="product-card__carousel block absolute top-0 left-0 w-full h-full"></secondary-media>
+              <img
+                data-hover-src="{{ secondary_image | image_url: width: 900 }}"
+                data-hover-srcset="{{ secondary_image | image_url: width: 180 }} 180w, {{ secondary_image | image_url: width: 360 }} 360w, {{ secondary_image | image_url: width: 540 }} 540w, {{ secondary_image | image_url: width: 720 }} 720w, {{ secondary_image | image_url: width: 900 }} 900w"
+                alt="{{ secondary_image.alt | default: product.title | escape }}"
+                width="{{ secondary_image.width }}"
+                height="{{ secondary_image.height }}"
+                loading="lazy"
+                class="product-card__secondary-image absolute inset-0 w-full h-full object-cover opacity-0 pointer-events-none"
+              />
             {%- endif -%}
-
-            {{- featured_media | image_url: width: featured_media.width | image_tag: loading: 'lazy', widths: '180,360,540,720,900,1080', is: 'lazy-image' -}}
           {%- else -%}
             {%- render 'product-video',
               video: featured_media,
@@ -483,3 +486,19 @@
 {%- else -%}
   {%- render 'product-card-placeholder', placeholder: 'image', image_ratio: image_ratio, text_alignment: text_alignment, show_vendor: show_vendor, show_rating: show_rating -%}
 {%- endif -%}
+
+<script>
+if (!window.productCardHoverInit) {
+  window.productCardHoverInit = true;
+  document.addEventListener('mouseover', function(e) {
+    var card = e.target.closest('.product-card');
+    if (!card) return;
+    var secImg = card.querySelector('.product-card__secondary-image[data-hover-src]');
+    if (secImg) {
+      secImg.srcset = secImg.dataset.hoverSrcset;
+      secImg.src = secImg.dataset.hoverSrc;
+      secImg.removeAttribute('data-hover-src');
+    }
+  }, { passive: true });
+}
+</script>

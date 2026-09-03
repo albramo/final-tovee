@@ -17,7 +17,7 @@
     "color_drawer_button_background": "#800020",
     "page_width": 1600,
     "card_style": "card",
-    "product_secondary_image": false,
+    "product_secondary_image": true,
     "product_quick_add": true,
     "product_quick_view": true,
     "product_save_type": "percent",
