@@ -1962,7 +1962,7 @@ class ModalElement extends HTMLElement {
       if (elToWatch) {
         elToWatch.addEventListener('transitionend', finish, { once: true });
       }
-      setTimeout(finish, 280);
+      setTimeout(finish, 200);
     });
   }
   hideTransition() {
@@ -1975,7 +1975,7 @@ class ModalElement extends HTMLElement {
       if (elToWatch) {
         elToWatch.addEventListener('transitionend', finish, { once: true });
       }
-      setTimeout(finish, 240);
+      setTimeout(finish, 190);
     });
   }
 
@@ -2013,7 +2013,7 @@ class ModalElement extends HTMLElement {
 
       if (this.hasAttribute('open')) {
         if (this.gestureConfig.layerHeight === null) {
-          this.gestureConfig.layerHeight = this.gestureWrap.getBoundingClientRect().height;
+          this.gestureConfig.layerHeight = this.gestureWrap.offsetHeight || 400;
         }
 
         this.gestureConfig.moveY = this.gesture.touchMoveY;
