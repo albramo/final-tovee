@@ -506,6 +506,8 @@
       "sold_out": "Sold Out",
       "unavailable": "Unavailable",
       "add_to_cart": "Add to cart",
+      "excerpt_read_more": "Read more",
+      "excerpt_show_less": "Show less",
       "choose_options": "Choose options",
       "choose_product_options": "Choose options for {{ product_name }}",
       "view_product": "View product",

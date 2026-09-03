@@ -1,0 +1,163 @@
+{% doc %}
+  Single-line product excerpt under the title with a "Read more" expander.
+  Connect the Text setting to a product metafield via the dynamic source icon,
+  or type custom text. The toggle only appears when the text overflows one line.
+{% enddoc %}
+
+{%- liquid
+  assign product_item = product | default: section.settings.product
+  assign excerpt_text = block.settings.text
+-%}
+
+{%- if excerpt_text != blank -%}
+  {%- liquid
+    assign read_more_label = 'products.product.excerpt_read_more' | t
+    assign show_less_label = 'products.product.excerpt_show_less' | t
+    assign excerpt_id = 'Excerpt-' | append: section.id | append: '-' | append: block.id
+  -%}
+  <div
+    class="ekko-product-block product-excerpt"
+    data-product-excerpt
+    data-expanded="false"
+    data-read-more="{{ read_more_label | escape }}"
+    data-show-less="{{ show_less_label | escape }}"
+    style="--excerpt-size: {{ block.settings.font_size }}px; --excerpt-size-mobile: {{ block.settings.font_size_mobile }}px; --excerpt-color: {{ block.settings.color }}; text-align: {{ block.settings.alignment }};"
+  >
+    <div class="product-excerpt__row">
+      <span class="product-excerpt__text" id="{{ excerpt_id }}" data-excerpt-text>{{ excerpt_text }}</span>
+      <button
+        type="button"
+        class="product-excerpt__toggle"
+        data-excerpt-toggle
+        aria-expanded="false"
+        aria-controls="{{ excerpt_id }}"
+        hidden
+      >
+        <span class="product-excerpt__dots" aria-hidden="true">..</span>
+        <span data-excerpt-toggle-label>{{ read_more_label }}</span>
+      </button>
+    </div>
+  </div>
+
+  <style>
+    .product-excerpt {
+      font-size: var(--excerpt-size);
+      color: var(--excerpt-color);
+    }
+    @media screen and (max-width: 767px) {
+      .product-excerpt {
+        font-size: var(--excerpt-size-mobile);
+      }
+    }
+    .product-excerpt__row {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+    .product-excerpt__text {
+      flex: 1 1 auto;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .product-excerpt[data-expanded='true'] .product-excerpt__row {
+      display: block;
+    }
+    .product-excerpt[data-expanded='true'] .product-excerpt__text {
+      white-space: normal;
+      overflow: visible;
+    }
+    .product-excerpt__toggle {
+      flex-shrink: 0;
+      background: none;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      font: inherit;
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      white-space: nowrap;
+    }
+    .product-excerpt__toggle[hidden] {
+      display: none;
+    }
+    .product-excerpt[data-expanded='true'] .product-excerpt__toggle {
+      margin-top: 0.25rem;
+    }
+    .product-excerpt[data-expanded='true'] .product-excerpt__dots {
+      display: none;
+    }
+  </style>
+
+  <script>
+    (function () {
+      function initExcerpt(root) {
+        if (!root || root.dataset.excerptReady) return;
+        root.dataset.excerptReady = 'true';
+
+        var text = root.querySelector('[data-excerpt-text]');
+        var toggle = root.querySelector('[data-excerpt-toggle]');
+        var label = root.querySelector('[data-excerpt-toggle-label]');
+        if (!text || !toggle || !label) return;
+
+        var readMore = root.getAttribute('data-read-more') || 'Read more';
+        var showLess = root.getAttribute('data-show-less') || 'Show less';
+
+        function isOverflowing() {
+          return text.scrollWidth > text.clientWidth + 1;
+        }
+
+        function syncToggle() {
+          if (root.getAttribute('data-expanded') === 'true') {
+            toggle.hidden = false;
+            return;
+          }
+          toggle.hidden = !isOverflowing();
+        }
+
+        toggle.addEventListener('click', function () {
+          var expanded = root.getAttribute('data-expanded') === 'true';
+          root.setAttribute('data-expanded', expanded ? 'false' : 'true');
+          toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+          label.textContent = expanded ? readMore : showLess;
+          syncToggle();
+        });
+
+        syncToggle();
+        window.addEventListener('resize', syncToggle, { passive: true });
+        window.addEventListener('load', syncToggle);
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(syncToggle).catch(function () {});
+        }
+      }
+
+      function initAll() {
+        document.querySelectorAll('[data-product-excerpt]').forEach(initExcerpt);
+      }
+
+      if (document.readyState !== 'loading') initAll();
+      else document.addEventListener('DOMContentLoaded', initAll);
+      document.addEventListener('shopify:section:load', initAll);
+    })();
+  </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Product excerpt",
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "text",
+      "label": "Text",
+      "info": "Tip: use the dynamic source icon to connect a product metafield (e.g. a short subtitle)."
+    },
+    { "type": "text_alignment", "id": "alignment", "label": "Alignment", "default": "left" },
+    { "type": "range", "id": "font_size", "label": "Desktop font size", "min": 12, "max": 28, "step": 1, "unit": "px", "default": 15 },
+    { "type": "range", "id": "font_size_mobile", "label": "Mobile font size", "min": 12, "max": 24, "step": 1, "unit": "px", "default": 14 },
+    { "type": "color", "id": "color", "label": "Text color", "default": "#1C1C1C" }
+  ],
+  "presets": [{ "name": "Product excerpt" }]
+}
+{% endschema %}

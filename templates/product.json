@@ -58,8 +58,19 @@
             "alignment_mobile": "inherit",
             "content_gap": 10,
             "metadata_gap": 10,
-            "color": "#1c1c1c",
-            "metadata_color": "#6b6b6b"
+          "color": "#1c1c1c",
+          "metadata_color": "#6b6b6b"
+          },
+          "blocks": {}
+        },
+        "excerpt": {
+          "type": "product-excerpt",
+          "settings": {
+            "text": "",
+            "alignment": "left",
+            "font_size": 15,
+            "font_size_mobile": 14,
+            "color": "#1c1c1c"
           },
           "blocks": {}
         },
@@ -233,6 +244,7 @@
       "block_order": [
         "breadcrumb",
         "title",
+        "excerpt",
         "rating",
         "price",
         "viewing_counter",
