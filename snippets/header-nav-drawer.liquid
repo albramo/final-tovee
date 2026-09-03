@@ -6,8 +6,11 @@
 -%}
 <details is="menu-details">
   <summary class="drawer__menu-item block cursor-pointer relative" aria-expanded="false">
-    <button type="button" class="heading text-2xl leading-none tracking-tight"{% unless section_rendering_api %} is="api-button" data-id="DrawerSubMenu-{{ section.id }}-{{ position }}" data-section-id="{{ section.id }}"{% endunless %}>
-      {{- link.title | escape -}}
+    <button type="button" class="text-base md:text-lg font-medium flex items-center gap-3 py-3.5"{% unless section_rendering_api %} is="api-button" data-id="DrawerSubMenu-{{ section.id }}-{{ position }}" data-section-id="{{ section.id }}"{% endunless %}>
+      {%- if icon_name != blank -%}
+        {%- render 'icon', icon: icon_name, size: 'xs', class: 'shrink-0 text-opacity' -%}
+      {%- endif -%}
+      <span>{{- link.title | escape -}}</span>
     </button>
   </summary>
   <div class="drawer__submenu z-1 absolute top-0 left-0 flex flex-col w-full h-full" data-parent>

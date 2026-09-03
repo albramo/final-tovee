@@ -1,10 +1,13 @@
-html, body {
+html,
+body {
   overflow-x: hidden !important;
   max-width: 100% !important;
   width: 100% !important;
 }
 
-#page, main, .main-content {
+#page,
+main,
+.main-content {
   overflow-x: hidden !important;
   max-width: 100% !important;
 }
@@ -6048,6 +6051,7 @@ ol {
   .loaded .drawer__inner {
     transition: transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   }
+
   .drawer .overlay {
     transition: opacity 0.15s linear;
   }
@@ -6125,11 +6129,11 @@ ol {
     transform: translate3d(0, 100%, 0);
   }
 
-  .js .drawer:not(#CartDrawer, #MenuDrawer)[active] > .drawer__inner {
+  .js .drawer:not(#CartDrawer, #MenuDrawer)[active]>.drawer__inner {
     transform: translate3d(0, 0, 0) !important;
   }
 
-  .js .drawer:not(#CartDrawer, #MenuDrawer)[active] > .overlay {
+  .js .drawer:not(#CartDrawer, #MenuDrawer)[active]>.overlay {
     background: none;
     background-color: rgb(var(--color-overlay) / 0.7);
     transform: translate3d(0, 0, 0) !important;
@@ -6140,41 +6144,57 @@ ol {
     visibility: visible;
   }
 
-  /* MenuDrawer on mobile - opens from side under header */
+  /* Header section z-index above MenuDrawer */
+  .shopify-section-group-header-group,
+  .shopify-section.header-section,
+  #shopify-section-header {
+    z-index: 40 !important;
+    position: relative !important;
+  }
+
+  /* MenuDrawer on mobile - opens from side starting directly under the header bar */
   #MenuDrawer {
     top: var(--header-height, 60px) !important;
     height: calc(100% - var(--header-height, 60px)) !important;
     height: calc(100vh - var(--header-height, 60px)) !important;
+    max-height: calc(100vh - var(--header-height, 60px)) !important;
+    z-index: 30 !important;
     overflow: hidden !important;
   }
+
   #MenuDrawer .overlay {
-    top: var(--header-height, 60px) !important;
-    height: calc(100vh - var(--header-height, 60px)) !important;
+    top: 0 !important;
+    height: 100% !important;
     background: rgba(0, 0, 0, 0.45) !important;
   }
+
   .loaded #MenuDrawer .drawer__inner,
   .js #MenuDrawer .drawer__inner {
-    transition: transform 0.18s cubic-bezier(0, 0, 0.2, 1) !important;
+    transition: transform 0.14s cubic-bezier(0, 0, 0.2, 1) !important;
   }
+
   .js #MenuDrawer.drawer--start .drawer__inner {
     inset-block-start: 0 !important;
     inset-block-end: auto !important;
     inset-inline-start: 0 !important;
     inset-inline-end: auto !important;
-    max-height: none !important;
+    max-height: 100% !important;
     height: 100% !important;
-    width: 85% !important;
-    max-width: 22rem !important;
+    width: 80% !important;
+    max-width: 20rem !important;
     border-radius: 0 !important;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1) !important;
     --tw-translate-x: -100% !important;
     transform: translate3d(calc(var(--tw-translate-x) * var(--transform-logical)), 0, 0) !important;
     backface-visibility: hidden !important;
   }
-  .js #MenuDrawer[active] > .drawer__inner {
+
+  .js #MenuDrawer[active]>.drawer__inner {
     --tw-translate-x: 0 !important;
     transform: translate3d(0, 0, 0) !important;
   }
-  #MenuDrawer .drawer__inner > :is(.drawer__content, .drawer__header) {
+
+  #MenuDrawer .drawer__inner> :is(.drawer__content, .drawer__header) {
     opacity: 1 !important;
     visibility: visible !important;
     transition: none !important;
@@ -9991,6 +10011,7 @@ details.active .drawer__promotions .mega-menu__item,
 }
 
 @media screen and (min-width: 1536px) {
+
   .card-grid--5,
   .collection.with-sidebar .card-grid--5 {
     --card-grid-per-row: 5;
@@ -10026,6 +10047,7 @@ details.active .drawer__promotions .mega-menu__item,
 }
 
 @media screen and (max-width: 767px) {
+
   .product-card,
   .product-card__media,
   .product-card a,
@@ -11167,6 +11189,7 @@ html[dir="ltr"] .quick-view .drawer__close {
 }
 
 @media screen and (max-width: 767px) {
+
   .quick-view .product-media-gallery,
   .quick-view .product__media-container {
     padding-inline: 12px !important;

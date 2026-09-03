@@ -35,7 +35,7 @@ endif
         <ul class="drawer__scrollable drawer__menu relative w-full h-full" role="list" data-parent>
           {%- assign main_menu = section.settings.menu_mobile | default: section.settings.menu -%}
           {%- for link in main_menu.links -%}
-            <li class="drawer__menu-group">
+            <li class="drawer__menu-group" style="border-block-end: 1px solid rgb(var(--color-foreground) / 0.08);">
               {%- liquid
                 assign enable_mega_menu = false
                 assign mega_menu_block = nil
@@ -49,12 +49,28 @@ endif
                     break
                   endif
                 endfor
+
+                assign icon_name = blank
+                if link_title_handle contains 'home' or link_title_handle contains 'الرئيسية' or link_title_handle contains 'رئيسية'
+                  assign icon_name = 'home'
+                elsif link_title_handle contains 'shop' or link_title_handle contains 'store' or link_title_handle contains 'متجر' or link_title_handle contains 'تسوق' or link_title_handle contains 'منتجات' or link_title_handle contains 'تخفيضات'
+                  assign icon_name = 'cart'
+                elsif link_title_handle contains 'contact' or link_title_handle contains 'تواصل' or link_title_handle contains 'اتصل' or link_title_handle contains 'دعم'
+                  assign icon_name = 'account'
+                elsif link_title_handle contains 'blog' or link_title_handle contains 'news' or link_title_handle contains 'مدون' or link_title_handle contains 'مقالات' or link_title_handle contains 'اخبار'
+                  assign icon_name = 'edit'
+                endif
               -%}
 
               {%- if link.links != blank or enable_mega_menu -%}
-                {%- render 'header-nav-drawer', link: link, enable_mega_menu: enable_mega_menu, block: mega_menu_block, position: forloop.index -%}
+                {%- render 'header-nav-drawer', link: link, enable_mega_menu: enable_mega_menu, block: mega_menu_block, position: forloop.index, icon_name: icon_name -%}
               {%- else -%}
-                <a class="drawer__menu-item block heading text-2xl leading-none tracking-tight" href="{{ link.url }}">{{ link.title | escape }}</a>
+                <a class="drawer__menu-item flex items-center gap-3 text-base md:text-lg font-medium py-3.5" href="{{ link.url }}">
+                  {%- if icon_name != blank -%}
+                    {%- render 'icon', icon: icon_name, size: 'xs', class: 'shrink-0 text-opacity' -%}
+                  {%- endif -%}
+                  <span>{{ link.title | escape }}</span>
+                </a>
               {%- endif -%}
             </li>
           {%- endfor -%}

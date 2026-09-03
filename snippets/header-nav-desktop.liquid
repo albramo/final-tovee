@@ -27,14 +27,28 @@
           break
         endif
       endfor
+
+      assign icon_name = blank
+      if link_title_handle contains 'home' or link_title_handle contains 'main' or link_title_handle contains 'الرئيسية' or link_title_handle contains 'رئيسية'
+        assign icon_name = 'home'
+      elsif link_title_handle contains 'shop' or link_title_handle contains 'store' or link_title_handle contains 'متجر' or link_title_handle contains 'تسوق' or link_title_handle contains 'منتجات' or link_title_handle contains 'تخفيضات'
+        assign icon_name = 'cart'
+      elsif link_title_handle contains 'contact' or link_title_handle contains 'تواصل' or link_title_handle contains 'اتصل' or link_title_handle contains 'دعم'
+        assign icon_name = 'account'
+      elsif link_title_handle contains 'blog' or link_title_handle contains 'news' or link_title_handle contains 'مدون' or link_title_handle contains 'مقالات' or link_title_handle contains 'اخبار'
+        assign icon_name = 'edit'
+      endif
     -%}
     {%- if enable_mega_menu -%}
       <li>
         <details is="details-mega" trigger="{% if section.settings.hover_menu %}hover{% else %}click{% endif %}" level="top" {{ mega_menu_block.shopify_attributes }}>
           <summary data-link="{{ link.url }}" class="z-2 relative{% if section.settings.menu_active == 'block' %} rounded-full{% endif %}">
             <button type="button" class="menu__item text-sm-lg flex items-center font-medium z-2 relative cursor-pointer"{% unless section_rendering_api %} is="api-magnet-button" data-id="HeaderNavMega-{{ section.id }}-{{ forloop.index }}-{{ dir }}" data-section-id="{{ section.id }}"{% else %} is="magnet-button"{% endunless %}{% if section.settings.menu_active == 'block' %} data-magnet="0"{% endif %} tabindex="-1">
-              <span class="btn-text" data-text>
+              <span class="btn-text inline-flex items-center gap-2" data-text>
                 {%- liquid
+                  if icon_name != blank
+                    render 'icon', icon: icon_name, size: 'xs', class: 'shrink-0'
+                  endif
                   echo link.title
                   unless section.settings.hover_menu
                     render 'icon', icon: 'chevron-menu'
@@ -42,8 +56,11 @@
                 -%}
               </span>
               {%- if section.settings.menu_active == 'block' -%}
-                <span class="btn-text btn-duplicate">
+                <span class="btn-text btn-duplicate inline-flex items-center gap-2">
                   {%- liquid
+                    if icon_name != blank
+                      render 'icon', icon: icon_name, size: 'xs', class: 'shrink-0'
+                    endif
                     echo link.title
                     unless section.settings.hover_menu
                       render 'icon', icon: 'chevron-menu'
@@ -63,8 +80,11 @@
         <details is="details-dropdown" trigger="{% if section.settings.hover_menu %}hover{% else %}click{% endif %}" level="top">
           <summary data-link="{{ link.url }}" class="z-2 relative{% if section.settings.menu_active == 'block' %} rounded-full{% endif %}">
             <button type="button" class="menu__item text-sm-lg flex items-center font-medium z-2 relative cursor-pointer" is="magnet-button"{% if section.settings.menu_active == 'block' %} data-magnet="0"{% endif %} tabindex="-1">
-              <span class="btn-text" data-text>
+              <span class="btn-text inline-flex items-center gap-2" data-text>
                 {%- liquid
+                  if icon_name != blank
+                    render 'icon', icon: icon_name, size: 'xs', class: 'shrink-0'
+                  endif
                   echo link.title
                   unless section.settings.hover_menu
                     render 'icon', icon: 'chevron-menu'
@@ -72,8 +92,11 @@
                 -%}
               </span>
               {%- if section.settings.menu_active == 'block' -%}
-                <span class="btn-text btn-duplicate">
+                <span class="btn-text btn-duplicate inline-flex items-center gap-2">
                   {%- liquid
+                    if icon_name != blank
+                      render 'icon', icon: icon_name, size: 'xs', class: 'shrink-0'
+                    endif
                     echo link.title
                     unless section.settings.hover_menu
                       render 'icon', icon: 'chevron-menu'
@@ -125,9 +148,19 @@
     {%- else -%}
       <li>
         <a href="{{ link.url }}" class="menu__item text-sm-lg flex items-center font-medium z-2 relative cursor-pointer" is="magnet-link"{% if section.settings.menu_active == 'block' %} data-magnet="0"{% endif %}>
-          <span class="btn-text" data-text>{{ link.title }}</span>
+          <span class="btn-text inline-flex items-center gap-2" data-text>
+            {%- if icon_name != blank -%}
+              {%- render 'icon', icon: icon_name, size: 'xs', class: 'shrink-0' -%}
+            {%- endif -%}
+            <span>{{ link.title }}</span>
+          </span>
           {%- if section.settings.menu_active == 'block' -%}
-            <span class="btn-text btn-duplicate">{{ link.title }}</span>
+            <span class="btn-text btn-duplicate inline-flex items-center gap-2">
+              {%- if icon_name != blank -%}
+                {%- render 'icon', icon: icon_name, size: 'xs', class: 'shrink-0' -%}
+              {%- endif -%}
+              <span>{{ link.title }}</span>
+            </span>
           {%- endif -%}
         </a>
       </li>
