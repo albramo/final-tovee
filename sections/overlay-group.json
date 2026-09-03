@@ -115,6 +115,7 @@
         "media",
         "floating"
       ],
+      "disabled": true,
       "settings": {
         "mode": "testing",
         "only_homepage": true,
