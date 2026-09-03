@@ -66,7 +66,7 @@
         "excerpt": {
           "type": "product-excerpt",
           "settings": {
-            "text": "50ml ·For Sensitive & Dry Skin · Dermatologist Tested from tovee",
+            "text": "{{ product.metafields.custom.product_excerpt.value }}",
             "alignment": "left",
             "font_size": 14,
             "font_size_mobile": 12,
@@ -177,19 +177,6 @@
           },
           "blocks": {}
         },
-        "product_complementary_tmi6Tn": {
-          "type": "product-complementary",
-          "name": "Complementary products",
-          "settings": {
-            "heading": "Complete your routine",
-            "product_limit": 6,
-            "show_vendor": false,
-            "show_price": true,
-            "image_ratio": "square",
-            "image_fill": false
-          },
-          "blocks": {}
-        },
         "pickup": {
           "type": "product-pickup",
           "settings": {},
@@ -204,6 +191,19 @@
             "help_page": "",
             "drawer_heading": "Need help?",
             "drawer_description": ""
+          },
+          "blocks": {}
+        },
+        "product_complementary_Gygi8W": {
+          "type": "product-complementary",
+          "name": "Complementary products",
+          "settings": {
+            "heading": "Complete your routine",
+            "product_limit": 6,
+            "show_vendor": false,
+            "show_price": true,
+            "image_ratio": "square",
+            "image_fill": false
           },
           "blocks": {}
         },
@@ -254,9 +254,9 @@
         "variants",
         "quantity",
         "buy_buttons",
-        "product_complementary_tmi6Tn",
         "pickup",
         "share",
+        "product_complementary_Gygi8W",
         "sticky_buy"
       ],
       "settings": {
