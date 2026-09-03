@@ -38,19 +38,19 @@
             "sku_label": "SKU",
             "metadata_position": "above",
             "metadata_layout": "inline",
-            "metadata_size": 12,
+            "metadata_size": 11,
             "show_price": false,
             "show_rating": false,
             "show_empty_rating": false,
             "supporting_order": "price_first",
             "font_family": "heading",
-            "font_weight": "inherit",
-            "title_size": "medium",
+            "font_weight": "500",
+            "title_size": "small",
             "font_size": 48,
-            "title_size_mobile": "medium",
+            "title_size_mobile": "small",
             "font_size_mobile": 34,
-            "line_height": 104,
-            "letter_spacing": -4,
+            "line_height": 116,
+            "letter_spacing": -5,
             "limit_width": false,
             "max_width": 32,
             "text_wrap": "normal",
@@ -58,19 +58,19 @@
             "alignment_mobile": "inherit",
             "content_gap": 10,
             "metadata_gap": 10,
-          "color": "#1c1c1c",
-          "metadata_color": "#6b6b6b"
+            "color": "#1c1c1c",
+            "metadata_color": "#6b6b6b"
           },
           "blocks": {}
         },
         "excerpt": {
           "type": "product-excerpt",
           "settings": {
-            "text": "",
+            "text": "50ml ·For Sensitive & Dry Skin · Dermatologist Tested from tovee",
             "alignment": "left",
-            "font_size": 15,
-            "font_size_mobile": 14,
-            "color": "#1c1c1c"
+            "font_size": 14,
+            "font_size_mobile": 12,
+            "color": "#595555"
           },
           "blocks": {}
         },
