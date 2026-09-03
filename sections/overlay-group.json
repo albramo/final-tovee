@@ -181,7 +181,7 @@
         "promo-button"
       ],
       "settings": {
-        "mode": "enabled",
+        "mode": "testing",
         "only_homepage": true,
         "delay": 2,
         "expiry": 2,
