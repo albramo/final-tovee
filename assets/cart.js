@@ -397,6 +397,11 @@ if (!customElements.get('cart-drawer')) {
                         if (hm && refreshSeq === (theme.cartMutationSeq || 0)) {
                           miniCartEl.innerHTML = hm.innerHTML;
                           if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(c2);
+                          try {
+                            const newFooter = hp.querySelector('.drawer__footer');
+                            const curFooter = this.querySelector('.drawer__footer');
+                            if (newFooter && curFooter) curFooter.innerHTML = newFooter.innerHTML;
+                          } catch(e) {}
                         }
                       }
                     }
@@ -424,6 +429,16 @@ if (!customElements.get('cart-drawer')) {
         try {
           const newScrollable = miniCartEl.querySelector('.drawer__scrollable');
           if (newScrollable && scrollTop) newScrollable.scrollTop = scrollTop;
+        } catch(e) {}
+
+        // Update drawer footer (subtotal, discounts) from parsed section HTML
+        try {
+          if (refreshSeq === (theme.cartMutationSeq || 0)) {
+            const fullDoc = updatedMiniCart.closest('.drawer__content') || updatedMiniCart.parentElement;
+            const newFooter = fullDoc ? fullDoc.querySelector('.drawer__footer') : null;
+            const curFooter = this.querySelector('.drawer__footer');
+            if (newFooter && curFooter) curFooter.innerHTML = newFooter.innerHTML;
+          }
         } catch(e) {}
 
         // Keep drawer open if it was open before refresh (prevents disappearing to empty state)
@@ -693,6 +708,14 @@ if (!customElements.get('cart-items')) {
                 const prog = miniCart.querySelector('[data-free-shipping-progress]');
                 if (prog && !prog.style.getPropertyValue('--progress')) {
                   prog.style.setProperty('--progress', '0');
+                }
+              } catch(e) {}
+              // Update drawer footer (subtotal, discounts, checkout buttons)
+              try {
+                if (drawerEl) {
+                  const newFooter = sectionToRender.querySelector('.drawer__footer');
+                  const curFooter = drawerEl.querySelector('.drawer__footer');
+                  if (newFooter && curFooter) curFooter.innerHTML = newFooter.innerHTML;
                 }
               } catch(e) {}
             } else if (oldBarHTML) {
