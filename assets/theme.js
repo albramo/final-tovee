@@ -1962,7 +1962,7 @@ class ModalElement extends HTMLElement {
       if (elToWatch) {
         elToWatch.addEventListener('transitionend', finish, { once: true });
       }
-      setTimeout(finish, 400);
+      setTimeout(finish, 300);
     });
   }
   hideTransition() {
@@ -1975,7 +1975,7 @@ class ModalElement extends HTMLElement {
       if (elToWatch) {
         elToWatch.addEventListener('transitionend', finish, { once: true });
       }
-      setTimeout(finish, 380);
+      setTimeout(finish, 280);
     });
   }
 
@@ -2127,13 +2127,14 @@ class MenuDrawer extends DrawerElement {
     super.beforeShow();
     if (this._menuItemsAnim) return;
     this._menuItemsAnim = true;
+    const reduced = theme.config.motionReduced;
     setTimeout(() => {
       if (!this.open) return;
-      Motion.animate(this.menuItems, { transform: ['translateX(-12px)', 'translateX(0)'], opacity: [0, 1] }, { duration: 0.32, easing: [.32, .72, 0, 1], delay: Motion.stagger(0.035) }).finished.then(() => {
+      Motion.animate(this.menuItems, { transform: ['translateX(-12px)', 'translateX(0)'], opacity: [0, 1] }, { duration: reduced ? 0 : 0.22, easing: [.32, .72, 0, 1], delay: reduced ? 0 : Motion.stagger(0.03) }).finished.then(() => {
         this.menuItems.forEach((item) => item.removeAttribute('style'));
         this._menuItemsAnim = false;
       }).catch(() => { this._menuItemsAnim = false; });
-    }, 120);
+    }, reduced ? 0 : 60);
   }
 
   beforeHide() {
@@ -2249,11 +2250,11 @@ class MenuDetails extends HTMLDetailsElement {
     event.preventDefault();
     this.setAttribute('open', '');
 
-    setTimeout(() => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
       this.parent.classList.add('active');
       this.classList.add('active');
       this.summary.setAttribute('aria-expanded', true);
-    }, 100);
+    }));
   }
 
   onCloseButtonClick() {
