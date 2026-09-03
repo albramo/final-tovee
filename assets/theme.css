@@ -5943,6 +5943,16 @@ ol {
   transition-property: opacity, visibility;
 }
 
+/*! drawers & modals: kill background page scroll at its origin (touch) */
+.drawer .overlay,
+.modal .fixed-modal {
+  touch-action: none;
+}
+
+.drawer__content {
+  overscroll-behavior-y: contain;
+}
+
 .drawer--start .overlay {
   background: linear-gradient(to var(--transform-origin-start), rgb(var(--color-overlay)/ 0.2) 20%, rgb(var(--color-overlay)/ 0.5) 60%)
 }
@@ -6152,13 +6162,13 @@ ol {
     position: relative !important;
   }
 
-  /* MenuDrawer on mobile - start below announcement + header, never under them */
+  /* MenuDrawer on mobile - always full takeover from the very top, above the header */
   #MenuDrawer {
-    top: calc(var(--topbar-height, 0px) + max(var(--header-height), 3.75rem)) !important;
+    top: 0 !important;
     bottom: 0 !important;
     height: auto !important;
     max-height: none !important;
-    z-index: 30 !important;
+    z-index: 50 !important;
     overflow: visible !important;
   }
 
@@ -6166,6 +6176,11 @@ ol {
     top: 0 !important;
     height: 100% !important;
     background: rgba(0, 0, 0, 0.45) !important;
+  }
+
+  /* SearchDrawer on mobile: full takeover above the header */
+  #SearchDrawer {
+    z-index: 50 !important;
   }
 
   .loaded #MenuDrawer .drawer__inner,
@@ -6236,6 +6251,18 @@ ol {
     visibility: visible !important;
     pointer-events: auto !important;
     transform: scale(1) !important;
+  }
+
+  /* Kill the hover-fill circle parked above the close button (it leaks out due to overflow:visible) */
+  #MenuDrawer .menu-drawer__close-outside .btn-fill {
+    display: none !important;
+  }
+
+  /* While menu open: stop touch scroll leaking through the exposed header strip */
+  body:has(#MenuDrawer[open]) .shopify-section-group-header-group,
+  body:has(#MenuDrawer[open]) .shopify-section.header-section,
+  body:has(#MenuDrawer[open]) #shopify-section-header {
+    touch-action: none;
   }
 
   #MenuDrawer .drawer__scrollable,
@@ -8319,8 +8346,7 @@ details.active .drawer__promotions .mega-menu__item,
 
 @media screen and (min-width: 768px) {
   .footer-group {
-    position: absolute;
-    z-index: -1;
+    position: static;
   }
 
   .has-modal-opening .footer-group,
@@ -8382,6 +8408,42 @@ details.active .drawer__promotions .mega-menu__item,
   .footer--inverted .footer__right {
     order: -1;
     padding-inline-start: 0;
+  }
+}
+
+/*! footer stacked desktop: newsletter below menus, menus take full width */
+@media screen and (min-width: 1280px) {
+  .footer,
+  .footer--inverted {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--sp-12);
+  }
+
+  .footer__left,
+  .footer--inverted .footer__left {
+    border-inline-end: 0;
+    border-inline-start: 0;
+    padding-inline-start: 0;
+  }
+
+  .footer--inverted .footer__right {
+    order: 0;
+  }
+
+  .footer__right {
+    max-width: 44rem;
+  }
+}
+
+/*! footer menus: single row side by side on desktop */
+@media screen and (min-width: 1024px) {
+  .footer__accordions {
+    flex-wrap: nowrap;
+  }
+
+  .footer__accordions > :is(.details, .no-details) {
+    flex: 1 1 0;
+    min-width: 0;
   }
 }
 
