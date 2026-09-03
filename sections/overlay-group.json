@@ -115,8 +115,9 @@
         "media",
         "floating"
       ],
+      "disabled": true,
       "settings": {
-        "mode": "enabled",
+        "mode": "testing",
         "only_homepage": true,
         "only_visitor": true,
         "delay": 7,
@@ -189,7 +190,6 @@
         "content_position": "center-0",
         "popup_width": 560,
         "popup_width_mobile": 94,
-        "image": "",
         "image_height": 240,
         "image_height_mobile": 170,
         "color_drawer_text": "#171717",
