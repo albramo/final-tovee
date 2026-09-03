@@ -115,9 +115,8 @@
         "media",
         "floating"
       ],
-      "disabled": true,
       "settings": {
-        "mode": "testing",
+        "mode": "enabled",
         "only_homepage": true,
         "only_visitor": true,
         "delay": 7,
@@ -182,21 +181,21 @@
         "promo-button"
       ],
       "settings": {
-        "mode": "testing",
+        "mode": "enabled",
         "only_homepage": true,
         "delay": 2,
-        "expiry": 2,
+        "expiry": 7,
         "text_alignment": "center",
         "content_position": "center-0",
         "popup_width": 560,
-        "popup_width_mobile": 96,
-        "image": "shopify://shop_images/tovee-skincare-ingredients-hero-slide-02.webp",
+        "popup_width_mobile": 94,
+        "image": "",
         "image_height": 240,
-        "image_height_mobile": 150,
+        "image_height_mobile": 170,
         "color_drawer_text": "#171717",
         "color_drawer_background": "#ffffff",
         "color_drawer_button_text": "#ffffff",
-        "color_drawer_button_background": "#800020",
+        "color_drawer_button_background": "#171717",
         "color_drawer_button_gradient": "",
         "color_drawer_overlay": "#171717"
       }
