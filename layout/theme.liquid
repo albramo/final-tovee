@@ -109,5 +109,59 @@
       })();
     </script>
   {%- endif -%}
+
+  {%- if request.design_mode == false -%}
+    <script>
+      (function(){
+        if (!('serviceWorker' in navigator)) return;
+
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('{{ "sw.js" | asset_url }}')
+            .then(function(registration) {
+              // Collect asset URLs to pre-cache
+              var urls = [];
+
+              // Logo
+              {%- if settings.logo != blank -%}
+                urls.push('{{ settings.logo | image_url: width: settings.logo.width }}');
+              {%- endif -%}
+
+              // Favicon
+              {%- if settings.favicon != blank -%}
+                urls.push('{{ settings.favicon | image_url: width: 32, height: 32 }}');
+              {%- endif -%}
+
+              // Body font
+              {%- unless settings.type_body_font.system? -%}
+                urls.push('{{ settings.type_body_font | font_url }}');
+              {%- endunless -%}
+
+              // Header font
+              {%- unless settings.type_header_font.system? -%}
+                urls.push('{{ settings.type_header_font | font_url }}');
+              {%- endunless -%}
+
+              // Arabic font
+              urls.push('{{ "NotoKufiArabic.ttf" | asset_url }}');
+
+              // Theme assets
+              urls.push('{{ "theme.css" | asset_url }}');
+              urls.push('{{ "theme.js" | asset_url }}');
+
+              // Send URLs to Service Worker to pre-cache
+              if (registration.active && urls.length > 0) {
+                registration.active.postMessage({
+                  type: 'PRECACHE_URLS',
+                  urls: urls
+                });
+              }
+            })
+            .catch(function(err) {
+              // SW registration failed silently
+            });
+        });
+      })();
+    </script>
+  {%- endif -%}
 </body>
 </html>
