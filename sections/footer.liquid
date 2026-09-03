@@ -1,971 +1,507 @@
+<style>
+  #shopify-section-{{ section.id }} {
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+    {%- render 'section-variables', section: section -%}
+  }
+</style>
 
-
-{% liquid
-  if section.settings.background_color != blank
-    render 'contrast-override', background_color: section.settings.background_color, section_id: section.id
+{%- liquid
+  assign enable_footer_info = false
+  if section.settings.enable_newsletter or section.settings.show_social or shop.features.follow_on_shop? and section.settings.enable_follow_on_shop
+    assign enable_footer_info = true
   endif
-%}
+-%}
 
-<div
-  class="section-background{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
-></div>
-<div
-  class="section section--{{ section.settings.section_width }}{% if section.settings.background_color != blank %} color-custom-{{ section.id }}{% endif %}"
->
-  {% liquid
-    assign total_blocks = section.blocks.size
+<div class="section section--padding{% if section.settings.divider %} section--divider{% endif %}{% if section.settings.rounded %} section--rounded{% endif %}">
+  <footer class="footer{% if enable_footer_info %}{% if section.settings.invert_newsletter_others %} footer--inverted{% endif %}{% else %} footer--no-info{% endif %} page-width{% if section.settings.full_width %} page-width--full{% endif %} relative grid" data-width="{% if section.settings.full_width %}full{% else %}page{% endif %}">
+    {%- if section.blocks.size > 0 -%}
+      <div class="footer__left flex flex-col md:flex-row gap-10">
+        {%- liquid
+          assign block = section.blocks | where: "type", "logo_social" | first
+          if block
+            render 'footer-logo', block: block
+          endif
+        -%}
 
-    # Grid layout calculations
-    assign grid_columns = total_blocks | at_most: 4
+        <div class="footer__accordions flex flex-wrap flex-col md:flex-row md:grow md:gap-12">
+          {%- liquid
+            assign policies_count = 0
+            for policy in shop.policies
+              unless policy == blank
+                assign policies_count = policies_count | plus: 1
+              endunless
+            endfor
+          -%}
+          {%- if policies_count > 0 -%}
+            <details class="details active" is="footer-details">
+              <summary class="details__summary flex items-center justify-between gap-2 cursor-pointer">
+                <span class="heading text-base-2xl font-medium lg:font-heading">{{ section.settings.policies_heading | escape }}</span>
+                {%- render 'icon', icon: 'chevron-up' -%}
+              </summary>
+              <div class="details__content">
+                <ul class="flex flex-col gap-3">
+                  {%- for policy in shop.policies -%}
+                    {%- if policy != blank -%}
+                      <li class="inline-flex">
+                        <a href="{{ policy.url }}" class="block reversed-link text-sm-lg leading-tight">{{ policy.title }}</a>
+                      </li>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+              </div>
+            </details>
+          {%- endif -%}
+          {%- liquid
+            for block in section.blocks
+              case block.type
+                when 'link_list'
+                  render 'footer-menu', block: block
 
-    # Calculate last row counts using modulo arithmetic
-    # last_row_count = (total_blocks - 1) % N + 1
-    assign last_row_count = total_blocks | minus: 1 | modulo: 4 | plus: 1
-    assign tablet_last_row_count = total_blocks | minus: 1 | modulo: 2 | plus: 1
+                when 'text'
+                  render 'footer-text', block: block
 
-    # Check if there are orphaned elements (single item in last row)
-    assign has_isolated_grid_item_desktop = false
-    assign has_isolated_grid_item_tablet = false
+                when 'brand_information'
+                  render 'footer-contact', block: block
+              endcase
+            endfor
+          -%}
+        </div>
+      </div>
+    {%- endif -%}
 
-    if total_blocks > 4 and last_row_count == 1
-      assign has_isolated_grid_item_desktop = true
-    endif
+    {%- if section.settings.enable_newsletter or section.settings.show_social or shop.features.follow_on_shop? and section.settings.enable_follow_on_shop -%}
+      <div class="footer__right grid gap-10">
+        {%- if section.settings.enable_newsletter -%}
+          <div class="footer__newsletter grid gap-6">
+            {%- if section.settings.newsletter_logo -%}
+              <p class="footer__logo leading-none">
+                <a href="{{ routes.root_url }}">
+                  <span class="sr-only">{{ shop.name }}</span>
+                  {%- capture sizes -%}{{ section.settings.newsletter_logo_height | times: section.settings.newsletter_logo.aspect_ratio }}px{%- endcapture -%}
+                  {%- capture widths -%}{{ section.settings.newsletter_logo_height | times: section.settings.newsletter_logo.aspect_ratio }}, {{ section.settings.newsletter_logo_height | times: section.settings.newsletter_logo.aspect_ratio | times: 2 | at_most: section.settings.newsletter_logo.width }}{%- endcapture -%}
+                  {%- capture style -%}--image-width: {{ section.settings.newsletter_logo_height | times: section.settings.newsletter_logo.aspect_ratio }}px; --image-height: {{ section.settings.newsletter_logo_height }}px;{%- endcapture -%}
+                  {{- section.settings.newsletter_logo | image_url: width: section.settings.newsletter_logo.width | image_tag: loading: 'lazy', widths: widths, sizes: sizes, style: style, preload: true, is: 'lazy-image' -}}
+                </a>
+              </p>
+            {%- endif -%}
 
-    if total_blocks == 5
-      assign has_isolated_grid_item_tablet = true
-    endif
-  %}
-  <div
-    class="
-      footer-content
-      spacing-style
-      {% if has_isolated_grid_item_desktop %}footer-content--isolated-grid-item-desktop{% endif %}
-      {% if has_isolated_grid_item_tablet %}footer-content--isolated-grid-item-tablet{% endif %}
-    "
-    style="
-      {%  render 'spacing-style', settings: section.settings %}
-      --footer-gap: {{ section.settings.gap }}px;
-      --grid-columns: {{ grid_columns }};
-      --last-row-count: {{ last_row_count }};
-      --tablet-last-row-count: {{ tablet_last_row_count }};
-    "
-  >
-    {% content_for 'blocks' %}
-  </div>
+            <p class="h3 text-xl {{ section.settings.newsletter_heading_size }} leading-none tracking-none font-medium lg:font-heading">{{ section.settings.newsletter_heading | escape }}</p>
+            {%- render 'newsletter-form', section_id: section.id, context: 'footer' -%}
+
+            {%- if section.settings.newsletter_text != blank -%}
+              <div class="rte text-sm leading-tight">{{ section.settings.newsletter_text }}</div>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.show_social -%}
+          <div class="footer__socials flex justify-start md:justify-end xl:justify-start">
+            {%- render 'social-icons', size: 'lg', gap: '7' -%}
+          </div>
+        {%- endif -%}
+
+        {%- if shop.features.follow_on_shop? and section.settings.enable_follow_on_shop -%}
+          <div class="follow-on-shop">
+            {{- shop | login_button: action: 'follow' -}}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </footer>
+
 </div>
-
-<script>
-  (function() {
-    var PLUS_ICON_SVG =
-      '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-      '<path class="vertical" d="M2.75 7H11.25" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linecap="round"/>' +
-      '<path class="horizontal" d="M7 2.75L7 11.25" stroke="currentColor" stroke-width="var(--icon-stroke-width)" stroke-linecap="round"/>' +
-      '</svg>';
-
-    function getColumnHeading(el) {
-      var heading = el.querySelector('.footer-policy-column__heading, h1, h2, h3, h4, h5, h6, .menu__heading__default, .email-signup__heading');
-      if (heading && heading.textContent.trim()) {
-        return heading.textContent.trim();
-      }
-      return null;
-    }
-
-    function hideOriginalHeading(el) {
-      var heading = el.querySelector('.footer-policy-column__heading, h1, h2, h3, h4, h5, h6, .menu__heading__default, .email-signup__heading');
-      if (heading) {
-        heading.style.display = 'none';
-        heading.dataset.footerHeadingHidden = 'true';
-      }
-    }
-
-    function showOriginalHeading(el) {
-      var heading = el.querySelector('[data-footer-heading-hidden="true"]');
-      if (heading) {
-        heading.style.display = '';
-        delete heading.dataset.footerHeadingHidden;
-      } else {
-        var fallback = el.querySelector('.footer-policy-column__heading, h1, h2, h3, h4, h5, h6, .menu__heading__default, .email-signup__heading');
-        if (fallback) fallback.style.display = '';
-      }
-    }
-
-    function isMobile() {
-      return window.matchMedia('(max-width: 749px)').matches;
-    }
-
-    function animateOpen(details) {
-      var wrapper = details.querySelector('.details-content-wrapper');
-      if (!wrapper) return;
-      details.dataset.isAnimating = 'true';
-      details.open = true;
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          wrapper.style.gridTemplateRows = '1fr';
-          wrapper.style.opacity = '1';
-          var onEnd = function(e) {
-            if (e.target === wrapper) {
-              wrapper.removeEventListener('transitionend', onEnd);
-              details.dataset.isAnimating = 'false';
-            }
-          };
-          wrapper.addEventListener('transitionend', onEnd);
-          setTimeout(function() { details.dataset.isAnimating = 'false'; }, 380);
-        });
-      });
-    }
-
-    function animateClose(details) {
-      var wrapper = details.querySelector('.details-content-wrapper');
-      if (!wrapper) {
-        details.open = false;
-        return;
-      }
-      details.dataset.isAnimating = 'true';
-      wrapper.style.gridTemplateRows = '0fr';
-      wrapper.style.opacity = '0';
-      var onEnd = function(e) {
-        if (e.target === wrapper) {
-          wrapper.removeEventListener('transitionend', onEnd);
-          details.open = false;
-          details.dataset.isAnimating = 'false';
-        }
-      };
-      wrapper.addEventListener('transitionend', onEnd);
-      setTimeout(function() {
-        details.open = false;
-        details.dataset.isAnimating = 'false';
-      }, 380);
-    }
-
-    function makeCollapsible(col) {
-      if (col.dataset.footerCollapsible) return;
-      var title = getColumnHeading(col);
-      if (!title) return;
-      if (col.querySelector(':scope > details.product-tabs__mobile-details')) return;
-
-      var details = document.createElement('details');
-      details.className = 'details product-tabs__mobile-details';
-      details.dataset.testid = 'footer-collapsible-details';
-
-      var summary = document.createElement('summary');
-      summary.className = 'details__header';
-      var heading = document.createElement('span');
-      heading.className = 'details__heading';
-      heading.textContent = title;
-      var iconWrapper = document.createElement('span');
-      iconWrapper.className = 'svg-wrapper icon-plus';
-      iconWrapper.setAttribute('aria-hidden', 'true');
-      iconWrapper.innerHTML = PLUS_ICON_SVG;
-      summary.appendChild(heading);
-      summary.appendChild(iconWrapper);
-
-      var wrapper = document.createElement('div');
-      wrapper.className = 'details-content-wrapper';
-      var inner = document.createElement('div');
-      inner.className = 'details-content-inner';
-      var content = document.createElement('div');
-      content.className = 'details-content';
-
-      // Handle menu blocks that render their own <details class="menu__details"> inside accordion-custom
-      var accordion = col.querySelector('accordion-custom');
-      var innerMenuDetails = col.querySelector('accordion-custom details.menu__details, details.menu__details, accordion-custom details');
-      // Fallback: any details that is NOT our own (we already checked direct child)
-      if (!innerMenuDetails) {
-        var allDetails = col.querySelectorAll('details');
-        for (var i = 0; i < allDetails.length; i++) {
-          if (!allDetails[i].classList.contains('product-tabs__mobile-details')) {
-            innerMenuDetails = allDetails[i];
-            break;
-          }
-        }
-      }
-
-      if (innerMenuDetails) {
-        var navContent = innerMenuDetails.querySelector('nav, ul, .details-content');
-        if (navContent) {
-          var clonedNav = navContent.cloneNode(true);
-          clonedNav.style.display = 'block';
-          clonedNav.removeAttribute('hidden');
-          content.appendChild(clonedNav);
-        } else {
-          var children = Array.from(innerMenuDetails.children);
-          children.forEach(function(child) {
-            if (child.tagName.toLowerCase() !== 'summary') {
-              var c = child.cloneNode(true);
-              c.style.display = '';
-              content.appendChild(c);
-            }
-          });
-        }
-        if (accordion) accordion.style.display = 'none';
-        innerMenuDetails.style.display = 'none';
-        hideOriginalHeading(col);
-      } else {
-        // Non-menu columns (policy list, custom text, etc.) - CLONE instead of MOVE to preserve original DOM
-        hideOriginalHeading(col);
-        var childNodes = Array.from(col.childNodes);
-        var hasCloned = false;
-        childNodes.forEach(function(node) {
-          if (node.nodeType === 1) {
-            // Element node - skip our own details if any (not yet appended)
-            if (node.classList && node.classList.contains('product-tabs__mobile-details')) return;
-            // Mark original as hidden, keep in DOM for desktop restore
-            if (!node.dataset.footerOriginalHidden) {
-              node.dataset.footerOriginalHidden = 'true';
-              node.style.display = 'none';
-            }
-            var clone = node.cloneNode(true);
-            // Clean clone from hidden markers and inline display none
-            if (clone.dataset) delete clone.dataset.footerOriginalHidden;
-            clone.style.display = '';
-            // Remove duplicate heading from cloned content (summary already shows the title)
-            var hiddenHeadingInClone = clone.querySelector && clone.querySelector('[data-footer-heading-hidden]');
-            if (hiddenHeadingInClone) {
-              hiddenHeadingInClone.remove();
-            } else {
-              // Fallback: if heading wasn't marked (edge case), remove matching heading by text
-              var dupHeading = clone.querySelector && clone.querySelector('.footer-policy-column__heading, .menu__heading__default, h1, h2, h3, h4');
-              if (dupHeading && dupHeading.textContent.trim() === heading.textContent.trim()) {
-                dupHeading.remove();
-              }
-            }
-            // Also handle case where the cloned node itself is the heading
-            if (clone.matches && clone.matches('.footer-policy-column__heading, .menu__heading__default, h1, h2, h3, h4, h5, h6') && clone.textContent.trim() === heading.textContent.trim()) {
-              // Don't append heading itself as content
-              hasCloned = hasCloned; // keep flag but skip append
-              return;
-            }
-            // Also ensure any display:none from original is cleared in clone's children
-            var hiddenInClone = clone.querySelectorAll ? clone.querySelectorAll('[data-footer-original-hidden]') : [];
-            hiddenInClone.forEach(function(el) { el.style.display = ''; delete el.dataset.footerOriginalHidden; });
-            content.appendChild(clone);
-            hasCloned = true;
-          } else if (node.nodeType === 3) {
-            var text = node.textContent;
-            if (text.trim() !== '') {
-              // Keep original text node but hide via empty, store backup
-              if (node._footerOriginalText === undefined) {
-                node._footerOriginalText = text;
-                node.textContent = '';
-              }
-              var span = document.createElement('span');
-              span.textContent = text.trim();
-              content.appendChild(span);
-              hasCloned = true;
-            }
-          }
-        });
-        // Fallback if no element children (e.g., empty), just ensure we don't leave column empty in mobile
-        if (!hasCloned) {
-          var fallback = document.createElement('div');
-          fallback.textContent = '';
-          content.appendChild(fallback);
-        }
-      }
-
-      inner.appendChild(content);
-      wrapper.appendChild(inner);
-      details.appendChild(summary);
-      details.appendChild(wrapper);
-
-      summary.addEventListener('click', function(event) {
-        event.preventDefault();
-        if (details.dataset.isAnimating === 'true') return;
-        var isOpen = details.open;
-        var allFooterDetails = document.querySelectorAll('footer .footer-column--collapsible details');
-        if (!isOpen) {
-          allFooterDetails.forEach(function(other) {
-            if (other !== details && other.open) {
-              animateClose(other);
-            }
-          });
-          animateOpen(details);
-        } else {
-          animateClose(details);
-        }
-      });
-
-      col.appendChild(details);
-      col.classList.add('footer-column--collapsible');
-      col.dataset.footerCollapsible = 'true';
-    }
-
-    function undoCollapsible(col) {
-      var details = col.querySelector(':scope > details.product-tabs__mobile-details');
-      if (details) {
-        // Cancel any pending animation
-        details.dataset.isAnimating = 'false';
-        details.remove();
-      } else {
-        // Fallback for browsers without :scope support
-        var direct = col.querySelector('details.product-tabs__mobile-details');
-        if (direct && direct.parentElement === col) direct.remove();
-      }
-
-      var accordion = col.querySelector('accordion-custom');
-      if (accordion) accordion.style.display = '';
-
-      var innerMenuDetails = col.querySelector('accordion-custom details.menu__details, details.menu__details, details');
-      // Only restore if it's not our own (already removed)
-      if (innerMenuDetails && !innerMenuDetails.classList.contains('product-tabs__mobile-details')) {
-        innerMenuDetails.style.display = '';
-        // Ensure accordion-custom's internal details is open on desktop
-        if (isMobile() === false) {
-          innerMenuDetails.setAttribute('open', '');
-          innerMenuDetails.open = true;
-        } else {
-          innerMenuDetails.removeAttribute('open');
-        }
-      }
-
-      // Restore all originally hidden elements
-      var hiddenEls = col.querySelectorAll('[data-footer-original-hidden="true"]');
-      hiddenEls.forEach(function(el) {
-        el.style.display = '';
-        delete el.dataset.footerOriginalHidden;
-      });
-
-      // Restore text nodes
-      Array.from(col.childNodes).forEach(function(node) {
-        if (node._footerOriginalText !== undefined) {
-          node.textContent = node._footerOriginalText;
-          delete node._footerOriginalText;
-        }
-      });
-
-      col.classList.remove('footer-column--collapsible');
-      delete col.dataset.footerCollapsible;
-      showOriginalHeading(col);
-    }
-
-    function resetColumn(col) {
-      undoCollapsible(col);
-      col.classList.remove('footer-brand-column', 'footer-newsletter-column', 'footer-menu-column', 'footer-column--collapsible');
-      delete col.dataset.footerCollapsible;
-      // Clean any leftover hidden markers that might have been missed
-      var leftover = col.querySelectorAll('[data-footer-original-hidden]');
-      leftover.forEach(function(el) { el.style.display = ''; delete el.dataset.footerOriginalHidden; });
-      showOriginalHeading(col);
-    }
-
-    function isBrandBlock(el) {
-      if (!el) return false;
-      // Already classified in previous build - respect it during reset check
-      if (el.classList.contains('footer-brand-column') || el.classList.contains('footer-newsletter-column') || el.classList.contains('footer-menu-column')) {
-        if (el.classList.contains('footer-brand-column')) return true;
-        return false;
-      }
-      if (el.querySelector('.menu, .footer-policy-column, .email-signup, form[action*="contact"], .newsletter')) {
-        return false;
-      }
-      if (el.querySelector('.logo-block, .social-links, .social-icons, .group-block')) {
-        // Further check: if group-block contains email-signup, it's not brand
-        if (el.querySelector('.email-signup')) return false;
-        if (el.querySelector('.logo-block, .social-links, .social-icons') || el.classList.contains('logo-block') || el.classList.contains('social-links')) {
-          // If it has heading + menu, not brand
-          if (getColumnHeading(el) && el.querySelector('ul, nav, .footer-policy-column__list')) return false;
-          return true;
-        }
-      }
-      if (el.querySelector('img') && !getColumnHeading(el)) {
-        return true;
-      }
-      // Group with logo image - detect group_top_logo by content
-      if (el.querySelector('.group-block') && el.querySelector('img')) return true;
-      return false;
-    }
-
-    function buildToggles() {
-      var columns = document.querySelectorAll('.footer-content > *');
-      columns.forEach(function(col) {
-        resetColumn(col);
-      });
-      columns.forEach(function(col) {
-        if (isBrandBlock(col)) {
-          col.classList.add('footer-brand-column');
-          return;
-        }
-        if (col.querySelector('.email-signup, form[action*="contact"], .newsletter')) {
-          col.classList.add('footer-newsletter-column');
-          return;
-        }
-        col.classList.add('footer-menu-column');
-        if (isMobile()) {
-          makeCollapsible(col);
-        } else {
-          undoCollapsible(col);
-        }
-      });
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', buildToggles);
-    } else {
-      buildToggles();
-    }
-
-    var resizeTimeout;
-    var lastIsMobile = isMobile();
-    window.addEventListener('resize', function() {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(function() {
-        var currentIsMobile = isMobile();
-        // Only rebuild if breakpoint crossed or ensure state is correct
-        if (currentIsMobile !== lastIsMobile) {
-          lastIsMobile = currentIsMobile;
-          buildToggles();
-        } else {
-          // Still rebuild to handle edge cases but debounce
-          buildToggles();
-        }
-      }, 150);
-    });
-
-    // Also listen to media query change for more reliable breakpoint detection
-    var mql = window.matchMedia('(max-width: 749px)');
-    if (mql.addEventListener) {
-      mql.addEventListener('change', function() { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(buildToggles, 50); });
-    } else if (mql.addListener) {
-      mql.addListener(function() { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(buildToggles, 50); });
-    }
-  })();
-</script>
-
-{% stylesheet %}
-  .footer-content {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: clamp(24px, 3.5vw, 48px);
-    width: 100%;
-    box-sizing: border-box;
-    min-width: 0;
-  }
-
-  .footer-content .menu__heading__default {
-    font-weight: var(--font-heading--weight);
-  }
-
-  /* DESKTOP: Brand pinned left, Menus centered */
-  @media screen and (min-width: 750px) {
-    .footer-content {
-      position: relative;
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 48px 80px;
-      padding-inline-start: 260px;
-      box-sizing: border-box;
-    }
-
-    /* Brand bar (Logo + Social links) - pinned top-left, always first visually */
-    .footer-brand-column {
-      order: -1 !important;
-      position: absolute !important;
-      top: 0;
-      inset-inline-start: 0;
-      flex: 0 0 240px !important;
-      max-width: 240px !important;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: flex-start;
-      gap: 16px;
-    }
-
-    /* Menu columns - centered as a group, unified style for any new menu */
-    .footer-menu-column,
-    .footer-column--collapsible {
-      order: 0 !important;
-      flex: 0 0 auto !important;
-      width: auto !important;
-      min-width: 140px !important;
-      max-width: 200px;
-    }
-
-    /* Newsletter section spans full width below all columns */
-    .footer-newsletter-column {
-      order: 99 !important;
-      flex: 1 0 100% !important;
-      width: 100% !important;
-      margin-block-start: 16px;
-      padding-block-start: 28px;
-      border-block-start: 1px solid rgba(255, 255, 255, 0.15);
-    }
-  }
-
-  @media screen and (min-width: 750px) and (max-width: 999px) {
-    .footer-content {
-      gap: 32px 48px;
-      padding-inline-start: 240px;
-    }
-    .footer-brand-column {
-      flex: 0 0 220px !important;
-      max-width: 220px !important;
-    }
-    .footer-menu-column,
-    .footer-column--collapsible {
-      min-width: 130px !important;
-      max-width: 180px;
-    }
-  }
-
-  @media screen and (min-width: 1100px) {
-    .footer-content {
-      gap: 60px 80px;
-    }
-  }
-
-  @media screen and (max-width: 749px) {
-    .footer-content {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      width: 100%;
-    }
-
-    .footer-brand-column {
-      order: -2 !important;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
-      margin-block-end: 20px;
-    }
-
-    .footer-menu-column {
-      order: 0 !important;
-      width: 100%;
-    }
-
-    .footer-newsletter-column {
-      order: 99 !important;
-      width: 100%;
-      margin-block-start: 24px;
-      padding-block-start: 24px;
-      border-block-start: 1px solid rgba(255, 255, 255, 0.15);
-    }
-  }
-
-  /* Footer Global Brand Style */
-  footer,
-  footer .section-background,
-  footer .color-custom-footer-main,
-  footer .color-custom-footer-main .text-block {
-    background-color: #000 !important;
-    color: #ffffff !important;
-  }
-
-  /* Matching all Footer Menus to the exact design of Terms & Policies with tight spacing */
-  footer .footer-content .menu__heading__default,
-  footer .footer-content .menu__heading,
-  footer .footer-content .details__heading,
-  footer .footer-policy-column__heading {
-    font-size: 1rem !important;
-    font-weight: 700 !important;
-    color: #ffffff !important;
-    letter-spacing: 0.02em;
-    line-height: 1.3 !important;
-    margin-block-end: 0.5rem !important;
-  }
-
-  @media screen and (min-width: 750px) {
-    footer .footer-content accordion-custom .details__header,
-    footer .footer-content .menu__heading,
-    footer .footer-content .footer-policy-column__heading {
-      min-height: 2.2em !important;
-      display: flex !important;
-      align-items: center;
-      padding-block: 0 !important;
-    }
-  }
-
-  footer .footer-content .details-content,
-  footer .footer-content nav,
-  footer .footer-content ul {
-    margin-block-start: 0 !important;
-    padding-block-start: 0 !important;
-  }
-
-  footer .footer-content .menu__item + .menu__item,
-  footer .footer-content ul li + li {
-    margin-block-start: 0.5rem !important;
-  }
-
-  /* Unified link style for ALL menus - any new menu added will inherit same style */
-  footer .footer-content .menu__item a,
-  footer .footer-content .footer-policy-column__link,
-  footer .footer-content .details-content a,
-  footer .footer-menu-column a,
-  footer .footer-column--collapsible a {
-    display: inline-block;
-    font-size: 0.9rem !important;
-    color: rgba(255, 255, 255, 0.65) !important;
-    text-decoration: none !important;
-    transition: color 0.2s ease, opacity 0.2s ease;
-  }
-
-  footer .footer-content .menu__item a:hover,
-  footer .footer-content .footer-policy-column__link:hover,
-  footer .footer-content .details-content a:hover,
-  footer .footer-menu-column a:hover,
-  footer .footer-column--collapsible a:hover {
-    color: #ffffff !important;
-    opacity: 1;
-  }
-
-  /* Ensure any new menu block heading uses same style */
-  footer .footer-menu-column .menu__heading__default,
-  footer .footer-column--collapsible .details__heading {
-    font-size: 1rem !important;
-    font-weight: 700 !important;
-    color: #ffffff !important;
-  }
-
-  footer,
-  footer .section {
-    --color-background: #000000 !important;
-    --color-background-rgb: 0, 0, 0 !important;
-    --color: #ffffff !important;
-    --color-rgb: 255, 255, 255 !important;
-    --color-foreground: #ffffff !important;
-    --color-foreground-rgb: 255, 255, 255 !important;
-    --color-foreground-muted: rgba(255, 255, 255, 0.7) !important;
-    --color-foreground-subdued: rgba(255, 255, 255, 0.5) !important;
-    --color-border: rgba(255, 255, 255, 0.15) !important;
-    --color-border-rgb: 255, 255, 255, 0.15 !important;
-  }
-
-  footer a,
-  footer p,
-  footer span,
-  footer li,
-  footer h1,
-  footer h2,
-  footer h3,
-  footer h4,
-  footer h5,
-  footer h6,
-  footer .menu__heading__default {
-    color: #ffffff !important;
-  }
-
-  footer a:hover {
-    color: #d4a853 !important;
-  }
-
-  footer .footer-content {
-    border-top: none;
-  }
-
-  footer .email-signup__input-group--integrated {
-    border-color: rgba(255, 255, 255, 0.3) !important;
-    background-color: rgba(255, 255, 255, 0.08) !important;
-  }
-
-  footer .email-signup__input {
-    background-color: transparent !important;
-    border-color: transparent !important;
-    color: #ffffff !important;
-  }
-
-  footer .email-signup__input::placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
-  }
-
-  footer .email-signup__button svg {
-    stroke: #ffffff !important;
-  }
-
-  /* Brand bar: logo + social links */
-  footer .footer-brand-column {
-    align-self: flex-start;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  footer .footer-brand-column .social-icons__icon,
-  footer .footer-brand-column .social-icons__icon svg {
-    color: #ffffff !important;
-    fill: #ffffff !important;
-    stroke: #ffffff !important;
-  }
-
-  footer .footer-brand-column .social-icons__icon:hover {
-    color: #d4a853 !important;
-  }
-
-  footer .footer-brand-column .social-icons__wrapper,
-  footer .footer-brand-column .social-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 12px;
-    margin-block-start: 4px;
-  }
-
-  /* Policy column heading matches brand style */
-  footer .footer-policy-column__heading {
-    color: #ffffff !important;
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: 0.02em;
-  }
-
-  footer .footer-policy-column__link {
-    color: rgba(255, 255, 255, 0.65) !important;
-  }
-
-  footer .footer-policy-column__link:hover {
-    color: #ffffff !important;
-  }
-
-  /* Mobile accordion columns - matches product page collapsible rows */
-  @media screen and (max-width: 749px) {
-    footer .footer-content > .footer-column--collapsible {
-      border-block-start: 1px solid rgb(var(--color-foreground-rgb) / 0.15);
-      overflow: hidden;
-    }
-
-    footer .footer-content > .footer-column--collapsible .details-content-wrapper {
-      display: grid;
-      grid-template-rows: 0fr;
-      opacity: 0;
-      transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-                  opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    footer .footer-content > .footer-column--collapsible details[open] .details-content-wrapper {
-      grid-template-rows: 1fr;
-      opacity: 1;
-    }
-
-    footer .footer-content > .footer-column--collapsible .details-content-inner {
-      overflow: hidden;
-    }
-
-    footer .footer-content > .footer-column--collapsible .details__header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--gap-sm);
-      padding-block: var(--padding-md);
-      cursor: pointer;
-      min-height: var(--minimum-touch-target);
-      list-style: none;
-    }
-
-    footer .footer-content > .footer-column--collapsible .details__header::-webkit-details-marker {
-      display: none;
-    }
-
-    footer .footer-content > .footer-column--collapsible .details__heading {
-      font-weight: var(--font-weight-semibold);
-      color: #ffffff !important;
-    }
-
-    footer .footer-content > .footer-column--collapsible .icon-plus {
-      flex-shrink: 0;
-      width: 18px;
-      height: 18px;
-      color: #ffffff !important;
-      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    footer .footer-content > .footer-column--collapsible details[open] .icon-plus {
-      transform: rotate(45deg);
-    }
-
-    footer .footer-content > .footer-column--collapsible .icon-plus svg {
-      width: 18px;
-      height: 18px;
-    }
-
-    footer .footer-content > .footer-column--collapsible .details-content {
-      padding-block-end: var(--padding-lg);
-    }
-
-    footer .footer-content > .footer-column--collapsible .details-content img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    /* Brand bar stays visible, no collapse */
-    .footer-content > :first-child .footer-mobile-toggle {
-      display: none;
-    }
-  }
-{% endstylesheet %}
 
 {% schema %}
 {
-  "name": "t:names.footer",
-  "class": "section-wrapper",
-  "blocks": [
-    {
-      "type": "_divider"
-    },
-    {
-      "type": "@app"
-    },
-    {
-      "type": "button"
-    },
-    {
-      "type": "follow-on-shop"
-    },
-    {
-      "type": "group"
-    },
-    {
-      "type": "icon"
-    },
-    {
-      "type": "image"
-    },
-    {
-      "type": "menu"
-    },
-    {
-      "type": "payment-icons"
-    },
-    {
-      "type": "text"
-    },
-    {
-      "type": "logo"
-    },
-    {
-      "type": "jumbo-text"
-    },
-    {
-      "type": "social-links"
-    },
-    {
-      "type": "email-signup"
-    },
-    {
-      "type": "footer-policy-list"
-    }
-  ],
-  "enabled_on": {
-    "groups": ["footer"]
-  },
+  "name": "t:sections.footer.name",
+  "max_blocks": 12,
   "settings": [
     {
-      "type": "select",
-      "id": "section_width",
-      "label": "t:settings.width",
-      "options": [
-        {
-          "value": "page-width",
-          "label": "t:options.page"
-        },
-        {
-          "value": "full-width",
-          "label": "t:options.full"
-        }
-      ],
-      "default": "page-width"
-    },
-    {
-      "type": "range",
-      "id": "gap",
-      "label": "t:settings.gap",
-      "min": 0,
-      "max": 100,
-      "step": 1,
-      "unit": "px",
-      "default": 0
-    },
-    {
-      "type": "color",
-      "id": "background_color",
-      "label": "t:settings.background_color",
-      "default": "{{ settings.color_palette.foreground }}"
+      "type": "checkbox",
+      "id": "invert_newsletter_others",
+      "default": false,
+      "label": "t:sections.footer.settings.invert_newsletter_others.label"
     },
     {
       "type": "header",
-      "content": "t:content.padding"
+      "content": "t:sections.footer.settings.header__newsletter.content",
+      "info": "t:sections.footer.settings.header__newsletter.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_newsletter",
+      "default": true,
+      "label": "t:sections.footer.settings.enable_newsletter.label"
+    },
+    {
+      "visible_if": "{{ section.settings.enable_newsletter == true }}",
+      "type": "text",
+      "id": "newsletter_heading",
+      "default": "Subscribe to our emails",
+      "label": "t:sections.global.settings.heading.label"
+    },
+    {
+      "visible_if": "{{ section.settings.enable_newsletter == true }}",
+      "type": "select",
+      "id": "newsletter_heading_size",
+      "options": [
+        {
+          "value": "md:title-sm",
+          "label": "t:sections.global.settings.heading_size.options__1.label"
+        },
+        {
+          "value": "md:title-md",
+          "label": "t:sections.global.settings.heading_size.options__2.label"
+        },
+        {
+          "value": "md:title-lg",
+          "label": "t:sections.global.settings.heading_size.options__3.label"
+        },
+        {
+          "value": "md:title-xl",
+          "label": "t:sections.global.settings.heading_size.options__4.label"
+        }
+      ],
+      "default": "md:title-lg",
+      "label": "t:sections.global.settings.heading_size.label"
+    },
+    {
+      "visible_if": "{{ section.settings.enable_newsletter == true }}",
+      "type": "richtext",
+      "id": "newsletter_text",
+      "label": "t:sections.global.settings.text.label",
+      "info": "t:sections.global.settings.optional.label"
+    },
+    {
+      "visible_if": "{{ section.settings.enable_newsletter == true }}",
+      "type": "image_picker",
+      "id": "newsletter_logo",
+      "label": "t:sections.footer.settings.newsletter_logo.label"
+    },
+    {
+      "visible_if": "{{ section.settings.enable_newsletter == true and section.settings.newsletter_logo != blank }}",
+      "type": "range",
+      "id": "newsletter_logo_height",
+      "label": "t:sections.footer.settings.newsletter_logo_height.label",
+      "default": 50,
+      "min": 20,
+      "max": 120,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header__social.content",
+      "info": "t:sections.footer.settings.header__social.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_social",
+      "default": true,
+      "label": "t:sections.footer.settings.show_social.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header__follow.content",
+      "info": "t:sections.footer.settings.header__follow.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_follow_on_shop",
+      "default": true,
+      "label": "t:sections.footer.settings.enable_follow_on_shop.label"
+    },
+    {
+      "type": "text",
+      "id": "policies_heading",
+      "default": "السياسات",
+      "label": "t:sections.global.settings.heading.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.settings.header__colors.content",
+      "info": "t:sections.global.settings.header__colors.info"
+    },
+    {
+      "type": "color",
+      "id": "color_text",
+      "label": "t:sections.global.settings.color_text.label",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "color_background",
+      "label": "t:sections.global.settings.color_background.label",
+      "default": "#1f1f1f"
+    },
+    {
+      "type": "color_background",
+      "id": "gradient_background",
+      "label": "t:sections.global.settings.gradient_background.label"
+    },
+    {
+      "type": "color",
+      "id": "color_button_text",
+      "label": "t:sections.global.settings.color_button_text.label",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "color_button_background",
+      "label": "t:sections.global.settings.color_button_background.label",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color_background",
+      "id": "color_button_gradient",
+      "label": "t:sections.global.settings.color_button_gradient.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.global.settings.header__section.content"
     },
     {
       "type": "range",
-      "id": "padding-block-start",
-      "label": "t:settings.top",
+      "id": "padding_top",
       "min": 0,
-      "max": 100,
-      "step": 1,
+      "max": 120,
+      "step": 4,
       "unit": "px",
-      "default": 20
+      "label": "t:sections.global.settings.padding_top.label",
+      "default": 72
     },
     {
       "type": "range",
-      "id": "padding-block-end",
-      "label": "t:settings.bottom",
+      "id": "padding_bottom",
       "min": 0,
-      "max": 100,
-      "step": 1,
+      "max": 120,
+      "step": 4,
       "unit": "px",
-      "default": 20
+      "label": "t:sections.global.settings.padding_bottom.label",
+      "default": 72
+    },
+    {
+      "type": "checkbox",
+      "id": "divider",
+      "label": "t:sections.global.settings.divider.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "t:sections.global.settings.full_width.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "rounded",
+      "default": false,
+      "label": "t:sections.global.settings.rounded.label"
     }
   ],
-  "presets": [
+  "blocks": [
     {
-      "name": "t:names.footer",
-      "category": "t:categories.footer",
-      "settings": {
-        "gap": 20,
-        "padding-block-start": 36,
-        "padding-block-end": 36
-      },
-      "blocks": {
-        "newsletter-group": {
-          "type": "group",
-          "settings": {
-            "content_direction": "column",
-            "vertical_on_mobile": true,
-            "horizontal_alignment": "flex-start",
-            "vertical_alignment": "center",
-            "gap": 6,
-            "width": "fill"
-          },
-          "blocks": {
-            "newsletter-heading": {
-              "type": "text",
-              "settings": {
-                "text": "t:html_defaults.join_our_email_list",
-                "width": "100%",
-                "alignment": "left",
-                "type_preset": "h3"
-              }
-            },
-            "newsletter-text": {
-              "type": "text",
-              "settings": {
-                "text": "t:html_defaults.get_exclusive_deals_and_early_access_to_new_products",
-                "width": "100%",
-                "alignment": "left",
-                "type_preset": "rte"
-              }
-            }
-          },
-          "block_order": ["newsletter-heading", "newsletter-text"]
+      "type": "logo_social",
+      "name": "t:sections.footer.blocks.logo_social.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "t:sections.footer.blocks.logo_social.settings.logo.label"
         },
-        "newsletter-form": {
-          "type": "email-signup",
-          "settings": {
-            "width": "fill"
-          }
+        {
+          "type": "range",
+          "id": "logo_height",
+          "label": "t:sections.footer.blocks.logo_social.settings.logo_height.label",
+          "default": 50,
+          "min": 20,
+          "max": 120,
+          "step": 1,
+          "unit": "px"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_social",
+          "default": false,
+          "label": "t:sections.footer.settings.show_social.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_follow_on_shop",
+          "default": false,
+          "label": "t:sections.footer.settings.enable_follow_on_shop.label"
         }
-      },
-      "block_order": ["newsletter-group", "newsletter-form"]
+      ]
+    },
+    {
+      "type": "link_list",
+      "name": "t:sections.footer.blocks.link_list.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.global.settings.heading.label",
+          "info": "t:sections.global.settings.optional.label",
+          "default": "Heading"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "default": "footer",
+          "label": "t:sections.footer.blocks.link_list.settings.menu.label",
+          "info": "t:sections.footer.blocks.link_list.settings.menu.info"
+        },
+        {
+          "type": "range",
+          "id": "container_width",
+          "label": "t:sections.footer.blocks.global.settings.container_width.label",
+          "default": 50,
+          "min": 15,
+          "max": 95,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.global.settings.header__mobile.content"
+        },
+        {
+          "type": "checkbox",
+          "id": "opened",
+          "default": false,
+          "label": "t:sections.footer.blocks.global.settings.opened.label"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.footer.blocks.text.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.global.settings.heading.label",
+          "info": "t:sections.global.settings.optional.label",
+          "default": "Heading"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.global.settings.text.label",
+          "default": "<p>Share contact information, store details, and brand content with your customers.</p>"
+        },
+        {
+          "type": "range",
+          "id": "container_width",
+          "label": "t:sections.footer.blocks.global.settings.container_width.label",
+          "default": 50,
+          "min": 15,
+          "max": 95,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.global.settings.header__mobile.content"
+        },
+        {
+          "type": "checkbox",
+          "id": "opened",
+          "default": false,
+          "label": "t:sections.footer.blocks.global.settings.opened.label"
+        }
+      ]
+    },
+    {
+      "type": "brand_information",
+      "name": "t:sections.footer.blocks.brand_information.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.global.settings.heading.label",
+          "info": "t:sections.global.settings.optional.label",
+          "default": "Heading"
+        },
+        {
+          "type": "text",
+          "id": "button_label_1",
+          "label": "t:sections.footer.blocks.brand_information.settings.button_label_1.label"
+        },
+        {
+          "type": "url",
+          "id": "button_link_1",
+          "label": "t:sections.footer.blocks.brand_information.settings.button_link_1.label"
+        },
+        {
+          "type": "text",
+          "id": "button_label_2",
+          "label": "t:sections.footer.blocks.brand_information.settings.button_label_2.label"
+        },
+        {
+          "type": "url",
+          "id": "button_link_2",
+          "label": "t:sections.footer.blocks.brand_information.settings.button_link_2.label"
+        },
+        {
+          "type": "text",
+          "id": "button_label_3",
+          "label": "t:sections.footer.blocks.brand_information.settings.button_label_3.label"
+        },
+        {
+          "type": "url",
+          "id": "button_link_3",
+          "label": "t:sections.footer.blocks.brand_information.settings.button_link_3.label"
+        },
+        {
+          "type": "text",
+          "id": "button_label_4",
+          "label": "t:sections.footer.blocks.brand_information.settings.button_label_4.label"
+        },
+        {
+          "type": "url",
+          "id": "button_link_4",
+          "label": "t:sections.footer.blocks.brand_information.settings.button_link_4.label"
+        },
+        {
+          "type": "range",
+          "id": "container_width",
+          "label": "t:sections.footer.blocks.global.settings.container_width.label",
+          "default": 50,
+          "min": 15,
+          "max": 95,
+          "step": 1,
+          "unit": "%"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.global.settings.header__mobile.content"
+        },
+        {
+          "type": "checkbox",
+          "id": "opened",
+          "default": false,
+          "label": "t:sections.footer.blocks.global.settings.opened.label"
+        }
+      ]
     }
-  ]
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "logo_social"
+      },
+      {
+        "type": "link_list"
+      }
+    ]
+  },
+  "enabled_on": {
+    "groups": [
+      "footer"
+    ]
+  }
 }
 {% endschema %}

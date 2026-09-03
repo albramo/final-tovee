@@ -7414,6 +7414,105 @@ padding-block-start: 0;
   border-inline-end: 1.5px solid currentColor;
 }
 
+/*! drawer inline policies accordion (expands in place, not a submenu) */
+.drawer__policies > summary {
+  list-style: none;
+}
+
+.drawer__policies > summary::-webkit-details-marker {
+  display: none;
+}
+
+.drawer__menu details.drawer__policies > summary::after {
+  margin-block-start: -6px;
+  transform: rotate(calc(45deg * var(--transform-logical)));
+  transition: transform 0.3s cubic-bezier(.32, .72, 0, 1);
+}
+
+.drawer__menu details.drawer__policies[open] > summary::after {
+  transform: rotate(calc(135deg * var(--transform-logical)));
+}
+
+.drawer__policies-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(.32, .72, 0, 1);
+}
+
+.drawer__policies[open] > .drawer__policies-content {
+  grid-template-rows: 1fr;
+}
+
+.drawer__policies-content > ul {
+  overflow: hidden;
+  min-height: 0;
+  padding-inline-start: var(--sp-4);
+  padding-block-end: var(--sp-2);
+}
+
+/*! drawer footer localization accordions (replace modal popups) */
+.drawer__footer-top {
+  flex-direction: column;
+}
+
+.drawer__localization {
+  border-block-start: 1px solid rgb(var(--color-foreground) / 0.08);
+}
+
+.drawer__footer-top > .drawer__localization:last-child {
+  border-block-end: 1px solid rgb(var(--color-foreground) / 0.08);
+}
+
+.drawer__localization > summary {
+  list-style: none;
+  padding: var(--sp-3) var(--sp-5);
+  cursor: pointer;
+}
+
+.drawer__localization > summary::-webkit-details-marker {
+  display: none;
+}
+
+.drawer__localization-summary > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drawer__localization-chevron {
+  transition: transform 0.3s cubic-bezier(.32, .72, 0, 1);
+}
+
+.drawer__localization[open] .drawer__localization-chevron {
+  transform: rotate(180deg);
+}
+
+.drawer__localization-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s cubic-bezier(.32, .72, 0, 1);
+}
+
+.drawer__localization[open] > .drawer__localization-content {
+  grid-template-rows: 1fr;
+}
+
+.drawer__localization-content > form {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.drawer__localization-list {
+  gap: var(--sp-2d5);
+  padding: var(--sp-1) var(--sp-5) var(--sp-4);
+}
+
+.drawer__localization-list .active {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 .drawer__menu-item {
   padding-block: var(--sp-2d5);
   transition: transform var(--animation-primary);
