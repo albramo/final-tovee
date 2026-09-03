@@ -70,7 +70,7 @@
         "menu_active": "block",
         "hover_menu": true,
         "header_layout": "center-left",
-        "sticky_header_type": "always",
+        "sticky_header_type": "on-scroll-up",
         "enable_language_selector_desktop": false,
         "enable_country_selector_desktop": false,
         "show_country_name_dekstop": false,

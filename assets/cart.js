@@ -90,14 +90,50 @@ theme.updateFreeShippingBars = theme.updateFreeShippingBars || function(cart) {
   });
 };
 
+// Lightweight subtotal sync: updates drawer footer directly from cart.total_price (no fetch, no SWR)
+theme.updateCartTotals = theme.updateCartTotals || function(cart) {
+  if (!cart || typeof cart.total_price === 'undefined') return;
+  try {
+    // Format with currency (drawer always uses money_with_currency)
+    let formatted = '';
+    try {
+      formatted = theme.Currency ? theme.Currency.formatMoney(cart.total_price, theme.settings.moneyWithCurrencyFormat) : (cart.total_price / 100).toFixed(2);
+    } catch (e) {
+      formatted = (cart.total_price / 100).toFixed(2);
+    }
+    // Update every subtotal value in drawer + main cart
+    document.querySelectorAll('#CartDrawer .totals__subtotal-value').forEach(el => { el.textContent = formatted; });
+    document.querySelectorAll('[id^="MainCart-"] .totals__subtotal-value').forEach(el => { el.textContent = formatted; });
+    // Toggle drawer footer hidden
+    const drawerFooter = document.querySelector('#CartDrawer .drawer__footer');
+    if (drawerFooter) drawerFooter.classList.toggle('hidden', cart.item_count === 0);
+    // Toggle empty vs items scrollables inside drawer
+    const drawer = document.getElementById('CartDrawer');
+    if (drawer) {
+      drawer.querySelectorAll('.drawer__scrollable').forEach(sc => {
+        const isEmpty = sc.querySelector('.drawer__empty');
+        const isItems = sc.querySelector('cart-items');
+        if (isEmpty) sc.classList.toggle('hidden', cart.item_count !== 0);
+        if (isItems) sc.classList.toggle('hidden', cart.item_count === 0);
+      });
+    }
+  } catch (e) {}
+};
+
 // Listen to cart:updated for bars outside cart-items flow (e.g., after add)
 document.addEventListener('cart:updated', (e) => {
-  if (e.detail && e.detail.cart && typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(e.detail.cart);
+  if (e.detail && e.detail.cart) {
+    if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(e.detail.cart);
+    if (typeof theme.updateCartTotals === 'function') theme.updateCartTotals(e.detail.cart);
+  }
 });
 if (theme.pubsub && theme.pubsub.subscribe && theme.pubsub.PUB_SUB_EVENTS) {
   try {
     theme.pubsub.subscribe(theme.pubsub.PUB_SUB_EVENTS.cartUpdate, (e) => {
-      if (e && e.cart && typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(e.cart);
+      if (e && e.cart) {
+        if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(e.cart);
+        if (typeof theme.updateCartTotals === 'function') theme.updateCartTotals(e.cart);
+      }
       // Ensure drawer auto-opens when product added (fixes second product not showing)
       try {
         if (e && e.source === 'product-form' && e.cart && e.cart.item_count > 0) {
@@ -186,6 +222,10 @@ if (!customElements.get('cart-drawer')) {
 
       onCartUpdate(event) {
         if (event.cart.errors) return;
+        // Instant subtotal sync (deep fix, no fetch)
+        if (window.theme && typeof theme.updateCartTotals === 'function') {
+          try { theme.updateCartTotals(event.cart); } catch(e) {}
+        }
         const miniCart = document.getElementById(`MiniCart-${this.sectionId}`);
         if (!miniCart) return;
         // Update free shipping bars dynamically
@@ -329,6 +369,7 @@ if (!customElements.get('cart-drawer')) {
             if (cartRes.ok) {
               const cartJson = await cartRes.json();
               if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(cartJson);
+              if (typeof theme.updateCartTotals === 'function') theme.updateCartTotals(cartJson);
             }
           } catch(e) {}
           // Don't return empty - try to preserve existing MiniCart and just update bar
@@ -349,6 +390,7 @@ if (!customElements.get('cart-drawer')) {
               if (cartRes2.ok) {
                 const c2 = await cartRes2.json();
                 if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(c2);
+                if (typeof theme.updateCartTotals === 'function') theme.updateCartTotals(c2);
                 // Try to sync product list from cart JSON as last resort for second product
                 try {
                   if (c2.items && c2.items.length !== miniCartEl.querySelectorAll('cart-items .horizontal-products li').length) {
@@ -363,6 +405,7 @@ if (!customElements.get('cart-drawer')) {
                         if (hm) {
                           miniCartEl.innerHTML = hm.innerHTML;
                           if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(c2);
+                          if (typeof theme.updateCartTotals === 'function') theme.updateCartTotals(c2);
                         }
                       }
                     }
@@ -406,7 +449,7 @@ if (!customElements.get('cart-drawer')) {
         try {
           fetch(`${theme.routes.cart_url}.js`, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
             .then(r => r.json())
-            .then(c => { if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(c); })
+            .then(c => { if (typeof theme.updateFreeShippingBars === 'function') theme.updateFreeShippingBars(c); if (typeof theme.updateCartTotals === 'function') theme.updateCartTotals(c); })
             .catch(()=>{});
         } catch(e) {}
       }
@@ -493,6 +536,10 @@ if (!customElements.get('cart-items')) {
             return;
           }
 
+          // Instant subtotal sync (deep fix, no fetch)
+          if (typeof theme.updateCartTotals === 'function') {
+            try { theme.updateCartTotals(event.cart); } catch(e) {}
+          }
           // Dynamically update free shipping bars instantly if available
           if (typeof theme.updateFreeShippingBars === 'function') {
             try { theme.updateFreeShippingBars(event.cart); } catch(e) {}

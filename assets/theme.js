@@ -1119,7 +1119,7 @@ class StickyHeader extends CustomHeader {
   connectedCallback() {
     super.connectedCallback();
 
-    this.currentScrollTop = 0;
+    this.currentScrollTop = window.scrollY;
     this.firstScrollTop = window.scrollY;
     this.headerBounds = this.headerSection.getBoundingClientRect();
 
@@ -1134,7 +1134,7 @@ class StickyHeader extends CustomHeader {
       this.headerSection.classList.add('header-sticky');
     }
 
-    window.addEventListener('scroll', theme.utils.throttle(this.onScrollHandler.bind(this)), false);
+    window.addEventListener('scroll', theme.utils.throttle(this.onScrollHandler.bind(this)), { passive: true });
   }
 
   onScrollHandler() {
@@ -1160,22 +1160,61 @@ class StickyHeader extends CustomHeader {
       document.dispatchEvent(new CustomEvent('header:scrolled', { bubbles: true, detail: { scrolled: false } }));
     }
 
-    if (scrollTop > (this.headerBounds.bottom + this.firstScrollTop + 100)) {
-      if (scrollTop > this.currentScrollTop) {
+    // On-scroll-up: hide on down, show on up (no deadzone - touch deltas are 1-3px). Always: never hide.
+    if (this.isAlwaysSticky) {
+      this.headerSection.classList.remove('header-hidden');
+    } else {
+      if (scrollTop <= 100) {
+        this.headerSection.classList.remove('header-hidden');
+      } else if (scrollTop > this.currentScrollTop) {
         this.headerSection.classList.add('header-hidden');
-      }
-      else {
+      } else if (scrollTop < this.currentScrollTop) {
         this.headerSection.classList.remove('header-hidden');
       }
-    }
-    else {
-      this.headerSection.classList.remove('header-hidden');
     }
 
     this.currentScrollTop = scrollTop;
   }
 }
 customElements.define('sticky-header', StickyHeader, { extends: 'header' });
+
+// Fallback: plain scroll handler that does NOT depend on customized-built-in upgrade.
+// Safari (iOS) never upgrades `is="sticky-header"`, so connectedCallback above may never
+// run there -> no header-sticky class, no scroll listener, header just scrolls away.
+// Idempotent with StickyHeader: same scrollY sequence => same header-hidden class.
+(function initStickyHeaderFallback() {
+  const run = () => {
+    const header = document.querySelector('header[is="sticky-header"]');
+    if (!header) return;
+    const section = header.closest('.header-section') || document.querySelector('.header-section');
+    if (!section) return;
+    const type = header.getAttribute('data-sticky-type') || section.getAttribute('data-sticky-type') || 'on-scroll-up';
+    section.classList.add('header-sticky');
+    section.setAttribute('data-sticky-type', type);
+    if (section.dataset.headerScrollBound) return;
+    section.dataset.headerScrollBound = 'true';
+    let current = window.scrollY;
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const y = window.scrollY;
+      if (type === 'always' || type === 'none') {
+        section.classList.remove('header-hidden');
+      } else {
+        if (y <= 100) section.classList.remove('header-hidden');
+        else if (y > current) section.classList.add('header-hidden');
+        else if (y < current) section.classList.remove('header-hidden');
+      }
+      current = y;
+    };
+    window.addEventListener('scroll', () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    update();
+  };
+  if (document.readyState !== 'loading') run();
+  else document.addEventListener('DOMContentLoaded', run);
+})();
 
 class RevealLink extends HTMLAnchorElement {
   constructor() {

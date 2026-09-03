@@ -5514,6 +5514,11 @@ ol {
   transform: translateY(calc(-100% - var(--border-radius)));
 }
 
+/* Fallback: hide based on section attribute only (works even if inner header attrs are stale) */
+.header-section.header-sticky.header-hidden[data-sticky-type=on-scroll-up] .header {
+  transform: translateY(calc(-100% - var(--border-radius)));
+}
+
 .header-transparent.no-animate {
   --animation-nav: none;
   --animation-nav-delay: 0s;
