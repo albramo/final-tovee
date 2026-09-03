@@ -192,7 +192,7 @@
       <a href="{{ routes.cart_url }}" class="cart-drawer-button flex items-center justify-center relative" is="magnet-link" aria-controls="CartDrawer" aria-expanded="false" data-no-instant>
         <span class="sr-only">{{ 'general.cart.title' | t }}</span>
         {%- render 'icon', icon: 'cart', size: 'lg' -%}
-        <cart-count class="count absolute top-0 right-0 text-xs" aria-label="{{ 'general.cart.cart_count' | t: count: cart.item_count | escape }}"{% if cart == empty %} hidden{% endif %}>{{ cart.item_count }}</cart-count>
+        <cart-count class="count absolute text-xs" style="top: 2px; right: 2px;" aria-label="{{ 'general.cart.cart_count' | t: count: cart.item_count | escape }}"{% if cart == empty %} hidden{% endif %}>{{ cart.item_count }}</cart-count>
       </a>
     {%- endif -%}
 
