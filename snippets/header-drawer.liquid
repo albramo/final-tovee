@@ -87,7 +87,7 @@
                 <summary class="drawer__menu-item drawer__policies-summary relative flex items-center gap-3 cursor-pointer">
                   {%- liquid
                     assign drawer_heading = section.settings.drawer_policies_heading
-                    if drawer_heading == blank or drawer_heading == 'Policies'
+                    if drawer_heading == blank
                       assign drawer_heading = 'general.policies.heading' | t
                     endif
                   -%}
