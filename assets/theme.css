@@ -5953,6 +5953,13 @@ ol {
   overscroll-behavior-y: contain;
 }
 
+/*! cart drawer: skip rendering below-fold blocks until scrolled to (lighter open) */
+#CartDrawer product-complementary,
+#CartDrawer recently-viewed {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 320px;
+}
+
 .drawer--start .overlay {
   background: linear-gradient(to var(--transform-origin-start), rgb(var(--color-overlay)/ 0.2) 20%, rgb(var(--color-overlay)/ 0.5) 60%)
 }

@@ -569,7 +569,12 @@
                                     is="custom-select"
                                     id="ShippingCalculatorCountry-{{ section.id }}"
                                   >
-                                    {{- all_country_option_tags -}}
+                                    {%- capture zone_country_options -%}{{ country_option_tags }}{%- endcapture -%}
+                                    {%- if zone_country_options != blank -%}
+                                      {{- zone_country_options -}}
+                                    {%- else -%}
+                                      <option value="Egypt" data-provinces="[]" selected="selected">Egypt</option>
+                                    {%- endif -%}
                                   </select>
                                   {%- render 'icon', icon: 'chevron-up', size: 'sm', class: 'absolute' -%}
                                   <label class="label is-floating" for="ShippingCalculatorCountry-{{ section.id }}">{{ 'customer.addresses.country' | t }}</label>
