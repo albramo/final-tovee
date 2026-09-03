@@ -725,7 +725,7 @@
 {%- endif -%}
 
 <style>
-/* Cart drawer on mobile - show from side like desktop instead of bottom */
+/* Cart drawer on mobile - show from side like desktop instead of bottom with GPU acceleration */
 @media screen and (max-width: 639px) {
   .js #CartDrawer.drawer--end .drawer__inner {
     inset-block-start: 0 !important;
@@ -740,11 +740,17 @@
     border-end-start-radius: var(--sp-8d5) !important;
     border-start-start-radius: var(--sp-8d5) !important;
     --tw-translate-x: 100% !important;
-    transform: translateX(calc(var(--tw-translate-x) * var(--transform-logical))) !important;
+    transform: translate3d(calc(var(--tw-translate-x) * var(--transform-logical)), 0, 0) !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important;
   }
   .js #CartDrawer[active] > .drawer__inner {
     --tw-translate-x: 0 !important;
-    transform: translateX(calc(var(--tw-translate-x) * var(--transform-logical))) !important;
+    transform: translate3d(0, 0, 0) !important;
+  }
+  #CartDrawer[open] > .drawer__inner > :is(.drawer__content, .drawer__header) {
+    opacity: 1 !important;
+    visibility: visible !important;
   }
   .js #CartDrawer .drawer__header::before {
     display: none !important;

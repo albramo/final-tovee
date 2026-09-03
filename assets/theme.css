@@ -3011,7 +3011,14 @@ summary {
 
 .loading-bar {
   background-color: rgb(var(--color-foreground));
-  z-index: 50
+  z-index: 50;
+  contain: strict !important;
+  pointer-events: none !important;
+}
+
+loading-bar[hidden],
+.loading-bar[hidden] {
+  display: none !important;
 }
 
 .loading-bar .icon {

@@ -1896,6 +1896,10 @@ class ModalElement extends HTMLElement {
       this.overlay.style.willChange = 'opacity';
       if (this.gestureWrap) this.gestureWrap.style.willChange = 'transform';
     }
+    const inner = this.querySelector('.drawer__inner');
+    if (animate && inner) {
+      inner.style.willChange = 'transform';
+    }
     this.setAttribute('open', animate ? '' : 'immediate');
 
     if (this.shouldLock) {
@@ -1989,7 +1993,7 @@ class ModalElement extends HTMLElement {
 
     if (this.hasAttribute('open')) {
       if (this.gestureConfig.layerHeight === null) {
-        this.gestureConfig.layerHeight = this.gestureWrap.getBoundingClientRect().height;
+        this.gestureConfig.layerHeight = this.gestureWrap.offsetHeight || 400;
       }
       this.gestureConfig.maxGestureDistance = this.gestureConfig.layerHeight - 50;
       this.gestureConfig.endPoint = this.gestureConfig.layerHeight * 0.3;
