@@ -6049,11 +6049,11 @@ ol {
 
 @media screen and (max-width: 639px) {
   .loaded .drawer__inner {
-    transition: transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.28s cubic-bezier(.32, .72, 0, 1);
   }
 
   .drawer .overlay {
-    transition: opacity 0.15s linear;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
   }
 }
 
@@ -6170,7 +6170,12 @@ ol {
 
   .loaded #MenuDrawer .drawer__inner,
   .js #MenuDrawer .drawer__inner {
-    transition: transform 0.14s cubic-bezier(0, 0, 0.2, 1) !important;
+    transition: transform 0.3s cubic-bezier(.32, .72, 0, 1) !important;
+    will-change: transform;
+  }
+
+  #MenuDrawer .overlay {
+    transition: opacity 0.28s ease, visibility 0.28s ease !important;
   }
 
   .js #MenuDrawer.drawer--start .drawer__inner {
@@ -6221,6 +6226,8 @@ ol {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+    transition: opacity 0.2s ease 0.08s, visibility 0.2s ease 0.08s, transform 0.2s ease 0.08s !important;
+    transform: scale(0.92);
   }
 
   #MenuDrawer[active] .menu-drawer__close-outside,
@@ -6228,6 +6235,7 @@ ol {
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
+    transform: scale(1) !important;
   }
 
   #MenuDrawer .drawer__scrollable,
