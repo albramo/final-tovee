@@ -100,5 +100,12 @@
       "cart_recommendations_heading": "قد يعجبك أيضاً",
       "empty_message": "<p>لست متأكداً من أين تبدأ؟<br>جرب هذه المجموعات:</p>"
     }
+  },
+  "shopify": {
+    "checkout": {
+      "general": {
+        "cart": "السلة"
+      }
+    }
   }
 }
