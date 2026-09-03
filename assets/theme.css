@@ -6152,14 +6152,14 @@ ol {
     position: relative !important;
   }
 
-  /* MenuDrawer on mobile - opens from side starting directly under the header bar */
+  /* MenuDrawer on mobile - start below announcement + header, never under them */
   #MenuDrawer {
-    top: var(--header-height, 60px) !important;
-    height: calc(100% - var(--header-height, 60px)) !important;
-    height: calc(100vh - var(--header-height, 60px)) !important;
-    max-height: calc(100vh - var(--header-height, 60px)) !important;
+    top: calc(var(--topbar-height, 0px) + max(var(--header-height), 3.75rem)) !important;
+    bottom: 0 !important;
+    height: auto !important;
+    max-height: none !important;
     z-index: 30 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
 
   #MenuDrawer .overlay {
@@ -6199,9 +6199,68 @@ ol {
     visibility: visible !important;
     transition: none !important;
   }
+
+  /* Hide inner header on mobile — close sits outside the panel beside Home */
+  #MenuDrawer .drawer__header {
+    display: none !important;
+  }
+
+  #MenuDrawer .menu-drawer__close-outside {
+    display: flex !important;
+    position: absolute !important;
+    z-index: 20 !important;
+    inset-block-start: 0.35rem !important;
+    inset-inline-start: min(80%, 20rem) !important;
+    margin-inline-start: 0.5rem !important;
+    height: var(--sp-10) !important;
+    width: var(--sp-10) !important;
+    clip: auto !important;
+    overflow: visible !important;
+    background-color: rgb(var(--color-background)) !important;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.18) !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  #MenuDrawer[active] .menu-drawer__close-outside,
+  #MenuDrawer[open] .menu-drawer__close-outside {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+  }
+
+  #MenuDrawer .drawer__scrollable,
+  #MenuDrawer .drawer__menu {
+    padding-block-start: 0 !important;
+    max-height: none !important;
+  }
+
+  #MenuDrawer .drawer__menu-group {
+    padding-inline-start: 0 !important;
+    border-block-end: 1px solid rgb(var(--color-foreground) / 0.12) !important;
+  }
+
+  #MenuDrawer .drawer__menu-item {
+    padding-block: var(--sp-3) !important;
+    padding-inline: var(--sp-5) !important;
+    width: 100%;
+    transition: background-color 0.15s ease !important;
+  }
+
+  #MenuDrawer .drawer__menu-group > a:hover,
+  #MenuDrawer .drawer__menu-group > a:active,
+  #MenuDrawer .drawer__menu-group > details > summary:hover,
+  #MenuDrawer .drawer__menu-group > details > summary:active {
+    background-color: rgb(var(--color-foreground) / 0.07);
+  }
 }
 
 @media screen and (min-width: 640px) {
+  #MenuDrawer .menu-drawer__close-outside {
+    display: none !important;
+  }
+
   .x-modal:not([hidden]) {
     display: flex;
     align-items: center;
