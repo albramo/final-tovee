@@ -10139,6 +10139,24 @@ details.active .drawer__promotions .mega-menu__item,
   border: var(--card-border-width) solid rgb(var(--color-foreground)/ var(--border-opacity));
   box-shadow: var(--shadow-horizontal-offset) var(--shadow-vertical-offset) rgb(var(--color-shadow)/ var(--shadow-opacity));
   height: 100%;
+  touch-action: pan-y;
+  contain: layout style;
+}
+
+@media screen and (max-width: 767px) {
+  .product-card,
+  .product-card__media,
+  .product-card a,
+  .product-card img {
+    touch-action: pan-y;
+  }
+
+  .product-card :is(.quick-add .button, .quick-view__button) {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background-color: rgba(255, 255, 255, 0.94) !important;
+    background: rgba(255, 255, 255, 0.94) !important;
+  }
 }
 
 .product-card--card {
@@ -10994,9 +11012,15 @@ details.active .drawer__promotions .mega-menu__item,
   opacity: 0 !important;
 }
 
-/* Ensure icons and text are visible - outline style, NOT filled */
-.quick-add .button .btn-text,
-.quick-view__button .btn-text {
+/* Hide text and icons when button is loading so only the loading spinner shows */
+.button:is(.loading, [aria-disabled="true"], [aria-disabled], .is-loading) :is(.btn-text, .icon, svg) {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Ensure icons and text are visible when button is NOT loading - outline style, NOT filled */
+.quick-add .button:not(.loading):not([aria-disabled="true"]):not([aria-disabled]) .btn-text,
+.quick-view__button:not(.loading):not([aria-disabled="true"]):not([aria-disabled]) .btn-text {
   color: #333 !important;
   opacity: 1 !important;
   visibility: visible !important;
@@ -11004,10 +11028,10 @@ details.active .drawer__promotions .mega-menu__item,
   z-index: 2 !important;
 }
 
-.quick-add .button .btn-text .icon,
-.quick-add .button .icon,
-.quick-view__button .btn-text .icon,
-.quick-view__button .icon {
+.quick-add .button:not(.loading):not([aria-disabled="true"]):not([aria-disabled]) .btn-text .icon,
+.quick-add .button:not(.loading):not([aria-disabled="true"]):not([aria-disabled]) .icon,
+.quick-view__button:not(.loading):not([aria-disabled="true"]):not([aria-disabled]) .btn-text .icon,
+.quick-view__button:not(.loading):not([aria-disabled="true"]):not([aria-disabled]) .icon {
   color: #333 !important;
   opacity: 1 !important;
   visibility: visible !important;
