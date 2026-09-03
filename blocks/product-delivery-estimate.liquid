@@ -45,64 +45,72 @@
 </div>
 
 <script>
-(() => {
+(function initDeliveryScript() {
   const id = "{{ section.id }}-{{ product_id }}";
-  const root = document.querySelector('[data-delivery-estimate="'+id+'"]');
-  if(!root || root.dataset.deliveryInit) return;
-  root.dataset.deliveryInit = "1";
-  const minDays = parseInt(root.dataset.minDays) || 4;
-  const maxDays = parseInt(root.dataset.maxDays) || 5;
-  const hoursEl = root.querySelector('[data-delivery-hours]');
-  const minutesEl = root.querySelector('[data-delivery-minutes]');
-  const startEl = root.querySelector('[data-delivery-start]');
-  const endEl = root.querySelector('[data-delivery-end]');
-  const cdH = root.querySelector('[data-cd-hours]');
-  const cdM = root.querySelector('[data-cd-minutes]');
-  const cdS = root.querySelector('[data-cd-seconds]');
+  function run() {
+    const root = document.querySelector('[data-delivery-estimate="'+id+'"]');
+    if(!root || root.dataset.deliveryInit) return;
+    root.dataset.deliveryInit = "1";
+    const minDays = parseInt(root.dataset.minDays) || 4;
+    const maxDays = parseInt(root.dataset.maxDays) || 5;
+    const hoursEl = root.querySelector('[data-delivery-hours]');
+    const minutesEl = root.querySelector('[data-delivery-minutes]');
+    const startEl = root.querySelector('[data-delivery-start]');
+    const endEl = root.querySelector('[data-delivery-end]');
+    const cdH = root.querySelector('[data-cd-hours]');
+    const cdM = root.querySelector('[data-cd-minutes]');
+    const cdS = root.querySelector('[data-cd-seconds]');
 
-  const isRTL = document.documentElement.getAttribute('dir') === 'rtl' || document.documentElement.lang.startsWith('ar');
-  const locale = isRTL ? 'ar-EG' : 'en-US';
+    const isRTL = document.documentElement.getAttribute('dir') === 'rtl' || document.documentElement.lang.startsWith('ar');
+    const locale = isRTL ? 'ar-EG' : 'en-US';
 
-  function formatDeliveryDate(daysAhead) {
-    const d = new Date();
-    d.setDate(d.getDate() + daysAhead);
-    // e.g. Thursday 27 Aug
-    try {
-      const weekday = new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(d);
-      const day = new Intl.DateTimeFormat(locale, { day: 'numeric' }).format(d);
-      const month = new Intl.DateTimeFormat(locale, { month: 'short' }).format(d);
-      return `${weekday} ${day} ${month}`;
-    } catch(e) {
-      return d.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'short' });
+    function formatDeliveryDate(daysAhead) {
+      const d = new Date();
+      d.setDate(d.getDate() + daysAhead);
+      try {
+        const weekday = new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(d);
+        const day = new Intl.DateTimeFormat(locale, { day: 'numeric' }).format(d);
+        const month = new Intl.DateTimeFormat(locale, { month: 'short' }).format(d);
+        return `${weekday} ${day} ${month}`;
+      } catch(e) {
+        return d.toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'short' });
+      }
     }
+
+    function updateDates() {
+      if(startEl) startEl.textContent = formatDeliveryDate(minDays);
+      if(endEl) endEl.textContent = formatDeliveryDate(maxDays);
+    }
+    updateDates();
+
+    function updateCountdown() {
+      const now = new Date();
+      const endOfDay = new Date(now);
+      endOfDay.setHours(23, 59, 59, 999);
+      let diff = endOfDay - now;
+      if(diff < 0) diff = 0;
+      const totalSec = Math.floor(diff / 1000);
+      const h = Math.floor(totalSec / 3600);
+      const m = Math.floor((totalSec % 3600) / 60);
+      const s = totalSec % 60;
+      if(hoursEl) hoursEl.textContent = String(h).padStart(2,'0');
+      if(minutesEl) minutesEl.textContent = String(m).padStart(2,'0');
+      if(cdH) cdH.textContent = String(h).padStart(2,'0');
+      if(cdM) cdM.textContent = String(m).padStart(2,'0');
+      if(cdS) cdS.textContent = String(s).padStart(2,'0');
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    setInterval(updateDates, 60*60*1000);
   }
 
-  function updateDates() {
-    if(startEl) startEl.textContent = formatDeliveryDate(minDays);
-    if(endEl) endEl.textContent = formatDeliveryDate(maxDays);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
   }
-  updateDates();
-
-  function updateCountdown() {
-    const now = new Date();
-    const endOfDay = new Date(now);
-    endOfDay.setHours(23, 59, 59, 999);
-    let diff = endOfDay - now;
-    if(diff < 0) diff = 0;
-    const totalSec = Math.floor(diff / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-    if(hoursEl) hoursEl.textContent = String(h).padStart(2,'0');
-    if(minutesEl) minutesEl.textContent = String(m).padStart(2,'0');
-    if(cdH) cdH.textContent = String(h).padStart(2,'0');
-    if(cdM) cdM.textContent = String(m).padStart(2,'0');
-    if(cdS) cdS.textContent = String(s).padStart(2,'0');
-  }
-  updateCountdown();
-  setInterval(updateCountdown, 1000);
-  // update dates at midnight
-  setInterval(updateDates, 60*60*1000);
+  setTimeout(run, 300);
+  setTimeout(run, 1000);
 })();
 </script>
 {%- endunless -%}

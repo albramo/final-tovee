@@ -434,8 +434,60 @@
                     product_id: product.id,
                     section_id: section.id
                   -%}
-  
+
                 {%- when 'buy_buttons' -%}
+                  {%- comment -%} Delivery estimate (inlined from block) {%- endcomment -%}
+                  {%- assign qv_delivery_id = section.id | append: '-qv-' | append: product.id -%}
+                  <div class="product__delivery-estimate" data-delivery-estimate="{{ qv_delivery_id }}" data-min-days="4" data-max-days="5" style="color: #1C1C1C;">
+                    <div class="delivery-estimate__main flex items-start p-3 rounded-lg" style="background: transparent; border: none; gap: 4px;">
+                      <span class="delivery-estimate__icon flex items-center justify-center w-8 h-8 rounded-full shrink-0 mt-0.5" style="color: #111827; background: #FFFFFF; border: 1px solid #E5E7EB;">
+                        {%- render 'icon', icon: 'countdown', size: 'sm', class: 'w-5 h-5 shrink-0' -%}
+                      </span>
+                      <div class="flex-1 min-w-0">
+                        <p class="delivery-estimate__text text-sm leading-snug font-medium" style="font-size: 13px;">
+                          <span>{{ 'products.product.order_in_next' | t }}</span>
+                          <span class="font-bold tabular-nums" data-delivery-hours>00</span>
+                          <span>{{ 'products.product.hours' | t }}</span>
+                          <span class="font-bold tabular-nums" data-delivery-minutes>00</span>
+                          <span>{{ 'products.product.minutes' | t }}</span>
+                          <span>{{ 'products.product.to_get_between' | t }}</span>
+                          <span class="font-bold whitespace-nowrap" data-delivery-start>---</span>
+                          <span>{{ 'products.product.and' | t }}</span>
+                          <span class="font-bold whitespace-nowrap" data-delivery-end>---</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <script>
+                  (function(){
+                    var id="{{ qv_delivery_id }}";
+                    function run(){
+                      var root=document.querySelector('[data-delivery-estimate="'+id+'"]');
+                      if(!root||root.dataset.deliveryInit)return;
+                      root.dataset.deliveryInit="1";
+                      var minD=parseInt(root.dataset.minDays)||4,maxD=parseInt(root.dataset.maxDays)||5;
+                      var hEl=root.querySelector('[data-delivery-hours]'),mEl=root.querySelector('[data-delivery-minutes]');
+                      var sEl=root.querySelector('[data-delivery-start]'),eEl=root.querySelector('[data-delivery-end]');
+                      var isRTL=document.documentElement.getAttribute('dir')==='rtl'||document.documentElement.lang.startsWith('ar');
+                      var loc=isRTL?'ar-EG':'en-US';
+                      function fmt(days){var d=new Date();d.setDate(d.getDate()+days);try{return new Intl.DateTimeFormat(loc,{weekday:'long'}).format(d)+' '+new Intl.DateTimeFormat(loc,{day:'numeric'}).format(d)+' '+new Intl.DateTimeFormat(loc,{month:'short'}).format(d)}catch(e){return d.toLocaleDateString(loc,{weekday:'long',day:'numeric',month:'short'})}}
+                      function ud(){if(sEl)sEl.textContent=fmt(minD);if(eEl)eEl.textContent=fmt(maxD)}ud();
+                      function uc(){var now=new Date(),end=new Date(now);end.setHours(23,59,59,999);var diff=Math.max(0,end-now),ts=Math.floor(diff/1000);if(hEl)hEl.textContent=String(Math.floor(ts/3600)).padStart(2,'0');if(mEl)mEl.textContent=String(Math.floor((ts%3600)/60)).padStart(2,'0')}uc();
+                      setInterval(uc,1000);setInterval(ud,3600000);
+                    }
+                    if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run)}else{run()}
+                    setTimeout(run,300);setTimeout(run,1000);
+                  })();
+                  </script>
+
+                  {%- comment -%} Product description {%- endcomment -%}
+                  {%- assign has_desc_block = section.blocks | where: 'type', 'description' | first -%}
+                  {%- if has_desc_block == blank and product.description != blank -%}
+                    <div class="product__description-wrapper rte my-4 text-sm leading-relaxed text-opacity">
+                      {{ product.description }}
+                    </div>
+                  {%- endif -%}
+
                   {%- render 'buy-buttons',
                     block: block,
                     product: product,
